@@ -10,6 +10,7 @@ ADMINGROUP=$(doguctl config --global admin_group)
 DOMAIN=$(doguctl config --global domain)
 MAIL_ADDRESS=$(doguctl config -d "nexus@${DOMAIN}" --global mail_address)
 FQDN=$(doguctl config --global fqdn)
+NEXUS_DATA_DIR=/var/lib/nexus
 
 function set_random_admin_password {
   ADMPW=$(doguctl random)
@@ -78,12 +79,13 @@ function startNexusAndWaitForHealth(){
   fi
 }
 
- #doguctl state installing
+doguctl state installing
 
 # create truststore
-TRUSTSTORE="/var/lib/nexus/truststore.jks"
+TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 create_truststore.sh "${TRUSTSTORE}" > /dev/null
 
+echo "Setting nexus.vmoptions..."
 cat <<EOF > ${NEXUS_WORKDIR}/bin/nexus.vmoptions
 -Xms1200M
 -Xmx1200M
@@ -91,27 +93,29 @@ cat <<EOF > ${NEXUS_WORKDIR}/bin/nexus.vmoptions
 -XX:+UnlockDiagnosticVMOptions
 -XX:+UnsyncloadClass
 -XX:+LogVMOutput
--XX:LogFile=/var/lib/nexus/log/jvm.log
+-XX:LogFile=${NEXUS_DATA_DIR}/log/jvm.log
 -XX:-OmitStackTraceInFastThrow
 -Djava.net.preferIPv4Stack=true
 -Dkaraf.home=.
 -Dkaraf.base=.
 -Dkaraf.etc=etc/karaf
 -Djava.util.logging.config.file=etc/karaf/java.util.logging.properties
--Dkaraf.data=/var/lib/nexus
--Djava.io.tmpdir=/var/lib/nexus/tmp
+-Dkaraf.data=${NEXUS_DATA_DIR}
+-Djava.io.tmpdir=${NEXUS_DATA_DIR}/tmp
 -Dkaraf.startLocalConsole=false
 -Djavax.net.ssl.trustStore=${TRUSTSTORE}
 -Djavax.net.ssl.trustStorePassword=changeit
--Dnexus-webapp-context-path=/nexus
 -Djava.net.preferIPv4Stack=true
 EOF
 
-# cat <<EOF > ${NEXUS_WORKDIR}/bin/nexus.rc
-# run_as_user="nexus"
-# EOF
+mkdir -p ${NEXUS_DATA_DIR}/etc
+cat <<EOF > ${NEXUS_DATA_DIR}/etc/nexus.properties
+nexus-context-path=/nexus
+EOF
 
-echo "running nexus..."
+doguctl state ready
+
+echo "Running nexus..."
 ${NEXUS_WORKDIR}/bin/nexus run
 
 #
