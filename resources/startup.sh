@@ -78,55 +78,88 @@ function startNexusAndWaitForHealth(){
   fi
 }
 
-doguctl state installing
+ #doguctl state installing
 
 # create truststore
 TRUSTSTORE="/var/lib/nexus/truststore.jks"
 create_truststore.sh "${TRUSTSTORE}" > /dev/null
 
-START_NEXUS="java \
-  -server -Djava.net.preferIPv4Stack=true -Xms256m -Xmx1g \
-  -Djavax.net.ssl.trustStore=${TRUSTSTORE} \
-	-Djavax.net.ssl.trustStorePassword=changeit \
-  -Dnexus-work=/var/lib/nexus -Dnexus-webapp-context-path=/nexus \
-  -cp conf/:$(echo lib/*.jar | sed -e "s/ /:/g") \
-  org.sonatype.nexus.bootstrap.Launcher ./conf/jetty.xml ./conf/jetty-requestlog.xml"
+cat <<EOF > ${NEXUS_WORKDIR}/bin/nexus.vmoptions
+-Xms1200M
+-Xmx1200M
+-XX:MaxDirectMemorySize=2G
+-XX:+UnlockDiagnosticVMOptions
+-XX:+UnsyncloadClass
+-XX:+LogVMOutput
+-XX:LogFile=/var/lib/nexus/log/jvm.log
+-XX:-OmitStackTraceInFastThrow
+-Djava.net.preferIPv4Stack=true
+-Dkaraf.home=.
+-Dkaraf.base=.
+-Dkaraf.etc=etc/karaf
+-Djava.util.logging.config.file=etc/karaf/java.util.logging.properties
+-Dkaraf.data=/var/lib/nexus
+-Djava.io.tmpdir=/var/lib/nexus/tmp
+-Dkaraf.startLocalConsole=false
+-Djavax.net.ssl.trustStore=${TRUSTSTORE}
+-Djavax.net.ssl.trustStorePassword=changeit
+-Dnexus-webapp-context-path=/nexus
+-Djava.net.preferIPv4Stack=true
+EOF
 
-if ! [ -d /var/lib/nexus/plugin-repository/nexus-cas-plugin-"${CAS_PLUGIN_VERSION}" ]; then
-      echo "No cas-plugin installed"
+# cat <<EOF > ${NEXUS_WORKDIR}/bin/nexus.rc
+# run_as_user="nexus"
+# EOF
 
-      startNexusAndWaitForHealth
+echo "running nexus..."
+${NEXUS_WORKDIR}/bin/nexus run
 
-      ADMPW=$(set_random_admin_password)
+#
+#
 
-      # add cas Plugin
-      cp -dR /opt/sonatype/nexus/resources/nexus-cas-plugin-"${CAS_PLUGIN_VERSION}"/ /var/lib/nexus/plugin-repository/
-      # add mailconfig
-      MAIL_CONFIGURATION=$(curl -s -H 'content-type:application/json' -H 'accept:application/json' 'http://127.0.0.1:8081/nexus/service/local/global_settings/current' -u "$ADMUSR":"$ADMPW" | jq ".data.smtpSettings+={\"host\": \"postfix\"}" | jq ".data.smtpSettings+={\"username\": \"\"}" | jq ".data.smtpSettings+={\"password\": \"\"}" | jq ".data.globalRestApiSettings+={\"baseUrl\": \"https://$FQDN/nexus/\"}" | jq ".data.smtpSettings+={\"systemEmailAddress\": \"${MAIL_ADDRESS}\"}" | jq ".data+={\"securityAnonymousAccessEnabled\": false}" | jq ".data+={\"securityRealms\": [\"XmlAuthenticatingRealm\",\"XmlAuthorizingRealm\",\"CasAuthenticatingRealm\"]}")
-      curl -s --retry 3 --retry-delay 10 -H "Content-Type: application/json" -X PUT -d "$MAIL_CONFIGURATION" "http://127.0.0.1:8081/nexus/service/local/global_settings/current" -u "$ADMUSR":"$ADMPW"
-      # disable new version info
-      curl -s -H "Content-Type: application/json" -X PUT -d "{data:{enabled:false}}" "http://127.0.0.1:8081/nexus/service/local/lvo_config" -u "$ADMUSR":"$ADMPW"
-      kill $!
-fi
-
-if  ! doguctl config -e "admin_password" > /dev/null ; then
-  startNexusAndWaitForHealth
-  set_random_admin_password
-  kill $!
-fi
-
-ADMPW=$(doguctl config -e "admin_password")
-
-startNexusAndWaitForHealth
-setProxyConfiguration
-kill $!
-
-echo "render_template"
-# update cas url
-render_template "/opt/sonatype/nexus/resources/cas-plugin.xml.tpl" > "/var/lib/nexus/conf/cas-plugin.xml"
-
-/configuration.sh "$ADMUSR" "$ADMPW" "$ADMINGROUP" &
-/claim.sh &
-
-doguctl state ready
-exec $START_NEXUS
+# START_NEXUS="java \
+#   -server -Djava.net.preferIPv4Stack=true -Xms256m -Xmx1g \
+#   -Djavax.net.ssl.trustStore=${TRUSTSTORE} \
+# 	-Djavax.net.ssl.trustStorePassword=changeit \
+#   -Dnexus-work=/var/lib/nexus -Dnexus-webapp-context-path=/nexus \
+#   -cp conf/:$(echo lib/*.jar | sed -e "s/ /:/g") \
+#   org.sonatype.nexus.bootstrap.Launcher ./conf/jetty.xml ./conf/jetty-requestlog.xml"
+#
+# if ! [ -d /var/lib/nexus/plugin-repository/nexus-cas-plugin-"${CAS_PLUGIN_VERSION}" ]; then
+#       echo "No cas-plugin installed"
+#
+#       startNexusAndWaitForHealth
+#
+#       ADMPW=$(set_random_admin_password)
+#
+#       # add cas Plugin
+#       cp -dR /opt/sonatype/nexus/resources/nexus-cas-plugin-"${CAS_PLUGIN_VERSION}"/ /var/lib/nexus/plugin-repository/
+#       # add mailconfig
+#       MAIL_CONFIGURATION=$(curl -s -H 'content-type:application/json' -H 'accept:application/json' 'http://127.0.0.1:8081/nexus/service/local/global_settings/current' -u "$ADMUSR":"$ADMPW" | jq ".data.smtpSettings+={\"host\": \"postfix\"}" | jq ".data.smtpSettings+={\"username\": \"\"}" | jq ".data.smtpSettings+={\"password\": \"\"}" | jq ".data.globalRestApiSettings+={\"baseUrl\": \"https://$FQDN/nexus/\"}" | jq ".data.smtpSettings+={\"systemEmailAddress\": \"${MAIL_ADDRESS}\"}" | jq ".data+={\"securityAnonymousAccessEnabled\": false}" | jq ".data+={\"securityRealms\": [\"XmlAuthenticatingRealm\",\"XmlAuthorizingRealm\",\"CasAuthenticatingRealm\"]}")
+#       curl -s --retry 3 --retry-delay 10 -H "Content-Type: application/json" -X PUT -d "$MAIL_CONFIGURATION" "http://127.0.0.1:8081/nexus/service/local/global_settings/current" -u "$ADMUSR":"$ADMPW"
+#       # disable new version info
+#       curl -s -H "Content-Type: application/json" -X PUT -d "{data:{enabled:false}}" "http://127.0.0.1:8081/nexus/service/local/lvo_config" -u "$ADMUSR":"$ADMPW"
+#       kill $!
+# fi
+#
+# if  ! doguctl config -e "admin_password" > /dev/null ; then
+#   startNexusAndWaitForHealth
+#   set_random_admin_password
+#   kill $!
+# fi
+#
+# ADMPW=$(doguctl config -e "admin_password")
+#
+# startNexusAndWaitForHealth
+# setProxyConfiguration
+# kill $!
+#
+# echo "render_template"
+# # update cas url
+# render_template "/opt/sonatype/nexus/resources/cas-plugin.xml.tpl" > "/var/lib/nexus/conf/cas-plugin.xml"
+#
+# /configuration.sh "$ADMUSR" "$ADMPW" "$ADMINGROUP" &
+# /claim.sh &
+#
+# doguctl state ready
+# exec $START_NEXUS
