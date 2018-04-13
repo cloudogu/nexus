@@ -4,12 +4,12 @@ set -o nounset
 set -o pipefail
 
 # variables
-# ADMUSR="admin"
-# ADMDEFAULTPW="admin123"
+ADMINUSER="admin"
+ADMINDEFAULTPASSWORD="admin123"
 # ADMINGROUP=$(doguctl config --global admin_group)
 # DOMAIN=$(doguctl config --global domain)
 # MAIL_ADDRESS=$(doguctl config -d "nexus@${DOMAIN}" --global mail_address)
-# FQDN=$(doguctl config --global fqdn)
+FQDN=$(doguctl config --global fqdn)
 NEXUS_DATA_DIR=/var/lib/nexus
 NEXUS_PID=0
 
@@ -76,15 +76,15 @@ function configureNexus() {
   echo "Configuring Nexus..."
   if [[ -e /opt/sonatype/nexus/resources/nexusConfiguration.json ]]; then
     echo "Posting configuration script to Nexus..."
-    curl --silent --insecure -X POST --no-buffer --user admin:admin123 --header 'Content-Type: application/json' --header 'Accept: application/json' -d @/opt/sonatype/nexus/resources/nexusConfiguration.json 'https://192.168.56.2/nexus/service/rest/v1/script'
-    CONFIG_STATUS=$(curl --silent --head --no-buffer --insecure --user admin:admin123 https://192.168.56.2/nexus/service/rest/v1/script/nexusConfiguration)
+    curl --silent --insecure -X POST --no-buffer --user ${ADMINUSER}:${ADMINDEFAULTPASSWORD} --header 'Content-Type: application/json' --header 'Accept: application/json' -d @/opt/sonatype/nexus/resources/nexusConfiguration.json "https://${FQDN}/nexus/service/rest/v1/script"
+    CONFIG_STATUS=$(curl --silent --head --no-buffer --insecure --user ${ADMINUSER}:${ADMINDEFAULTPASSWORD} https://${FQDN}/nexus/service/rest/v1/script/nexusConfiguration)
     CONFIG_STATUS_CODE=$(echo "$CONFIG_STATUS"|head -n 1|cut -d$' ' -f2)
     if [[ ${CONFIG_STATUS_CODE} != 200 ]]; then
       echo "Nexus configuration script has not been posted successfully"
       exit 1
     else
        echo "Executing configuration script..."
-       SCRIPT_EXECUTION=$(curl --silent --head --insecure --no-buffer -X POST --user admin:admin123 --header 'Content-Type: text/plain' --header 'Accept: application/json' 'https://192.168.56.2/nexus/service/rest/v1/script/nexusConfiguration/run')
+       SCRIPT_EXECUTION=$(curl --silent --head --insecure --no-buffer -X POST --user ${ADMINUSER}:${ADMINDEFAULTPASSWORD} --header 'Content-Type: text/plain' --header 'Accept: application/json' "https://${FQDN}/nexus/service/rest/v1/script/nexusConfiguration/run")
        SCRIPT_STATUS_CODE=$(echo "${SCRIPT_EXECUTION}"|head -n 1|cut -d$' ' -f2)
        if [[ ${SCRIPT_STATUS_CODE} != 200 ]]; then
          echo "Configuration script has not been executed successfully"
@@ -112,10 +112,10 @@ function startNexusAndWaitForHealth(){
   END=$((SECONDS+120))
   NEXUS_IS_HEALTHY=false
   while [ $SECONDS -lt $END ]; do
-    CURL_HEALTH_STATUS=$(curl --silent --head --no-buffer --insecure --user admin:admin123 https://192.168.56.2/nexus/service/metrics/healthcheck)
+    CURL_HEALTH_STATUS=$(curl --silent --head --no-buffer --insecure --user ${ADMINUSER}:${ADMINDEFAULTPASSWORD} https://${FQDN}/nexus/service/metrics/healthcheck)
     HEALTH_STATUS_CODE=$(echo "$CURL_HEALTH_STATUS"|head -n 1|cut -d$' ' -f2)
     if [[ ${HEALTH_STATUS_CODE} != 200 ]]; then
-      sleep 5
+      sleep 1
     else
       echo "Nexus is healthy now"
       NEXUS_IS_HEALTHY=true
