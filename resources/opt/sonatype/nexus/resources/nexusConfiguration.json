@@ -1,5 +1,0 @@
-{
-  "name": "nexusConfiguration",
-  "content": "import org.sonatype.nexus.capability.CapabilityRegistry\nimport org.sonatype.nexus.capability.CapabilityType\nimport org.sonatype.nexus.security.realm.RealmManager\n\nprintln(\"Enabling rutauth-realm\")\nrealmManager = container.lookup(RealmManager.class.getName())\nrealmManager.enableRealm(\"rutauth-realm\")\n\nprintln(\"Add rutauth capability\")\ncapabilityRegistry = container.lookup(CapabilityRegistry.class)\ncapabilityType = new CapabilityType(\"rutauth\")\nMap properties = new HashMap<String, String>();\nproperties.put(\"httpHeader\", \"X-CARP-Authentication\")\ncapabilityRegistry.add(capabilityType, true, null, properties)\n\nprintln(\"Setting base URL\")\ncore.baseUrl(\"https://192.168.56.2/nexus\")\n\nprintln(\"Disabling anonymous access\")\nsecurity.setAnonymousAccess(false)\n\nprintln(\"Changing admin password\")\nsecurity.getSecuritySystem().changePassword(\"admin\", \"admin123\", \"admin1234\")",
-  "type": "groovy"
-}
