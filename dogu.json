@@ -22,7 +22,7 @@
   "HealthChecks": [
     {
       "Type": "tcp",
-      "Port": 8081
+      "Port": 8082
     },
     {
       "Type": "state"

@@ -9,6 +9,7 @@ ENV TINI_VERSION=0.15.0 \
     NEXUS_VERSION=3.10.0-04 \
     NEXUS_CLAIM_VERSION=0.1.0 \
     CAS_PLUGIN_VERSION=1.2.2-SNAPSHOT \
+    NEXUS_SCRIPTING_VERSION=0.1.0 \
     SERVICE_TAGS=webapp \
     NEXUS_WORKDIR=/opt/sonatype/nexus
 
@@ -34,18 +35,24 @@ RUN set -x \
   && curl --fail --silent --location --retry 3 \
     https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
   | gunzip \
+  | tar x -C /usr/bin \
+  && curl --fail --silent --location --retry 3 \
+  https://github.com/cloudogu/nexus-scripting/releases/download/v${NEXUS_SCRIPTING_VERSION}/nexus-scripting-${NEXUS_SCRIPTING_VERSION}.tar.gz \
+  | gunzip \
   | tar x -C /usr/bin
 
 COPY resources /
 
 RUN chown -R nexus:nexus ${NEXUS_WORKDIR} \
-  && chmod -R 777 ${NEXUS_WORKDIR}
+  && chmod -R 777 ${NEXUS_WORKDIR} \
+  && chown nexus:nexus /usr/bin/carp \
+  && chmod 777 /usr/bin/carp
 
 USER nexus
 
 VOLUME /var/lib/nexus
 
-EXPOSE 8081
+EXPOSE 8082
 
 WORKDIR ${NEXUS_WORKDIR}
 
