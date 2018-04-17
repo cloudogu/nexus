@@ -58,9 +58,8 @@ function configureNexus() {
 }
 
 function stopNexus() {
-  kill ${NEXUS_PID}
-  wait ${NEXUS_PID}
-  #TODO: Add timeout
+  timeout -t 60 kill ${NEXUS_PID}
+  wait $!
 }
 
 function startNexusAndWaitForHealth(){
