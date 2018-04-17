@@ -5,10 +5,16 @@ set -o pipefail
 
 # variables
 ADMINUSER="admin"
-ADMINDEFAULTPASSWORD="admin123"
-FQDN=$(doguctl config --global fqdn)
+export ADMINDEFAULTPASSWORD="admin123"
 NEXUS_DATA_DIR=/var/lib/nexus
 NEXUS_PID=0
+# credentials for nexus-scripting tool
+export NEXUS_URL="http://localhost:8081/nexus"
+export NEXUS_USER=${ADMINUSER}
+export NEXUS_PASSWORD=${ADMINDEFAULTPASSWORD}
+# create and save random admin password
+export NEWADMINPASSWORD=$(doguctl random)
+doguctl config -e "admin_password" "${NEWADMINPASSWORD}"
 
 function setNexusVmoptionsAndProperties() {
   cat <<EOF > ${NEXUS_WORKDIR}/bin/nexus.vmoptions
@@ -40,10 +46,14 @@ EOF
 }
 
 function configureNexus() {
-  if [[ -e /opt/sonatype/nexus/resources/nexusConfiguration.groovy ]]; then
-    nexus-scripting execute --file-payload /opt/sonatype/nexus/resources/nexusConfiguration.groovy http://localhost:8081/nexus/service/rest/v1/script
+  if [ -f /opt/sonatype/nexus/resources/nexusConfiguration.groovy ] && [ -f /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl ]; then
+    doguctl template /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl /opt/sonatype/nexus/resources/nexusConfParameters.json
+    nexus-scripting execute --file-payload /opt/sonatype/nexus/resources/nexusConfParameters.json /opt/sonatype/nexus/resources/nexusConfiguration.groovy
+    # password has been changed while executing script
+    export NEXUS_PASSWORD=$(doguctl config -e admin_password)
   else
-    echo "Configuration script does not exist"
+    echo "Configuration files do not exist"
+    exit 1
   fi
 }
 
@@ -59,10 +69,8 @@ function startNexusAndWaitForHealth(){
   END=$((SECONDS+120))
   NEXUS_IS_HEALTHY=false
   while [ $SECONDS -lt $END ]; do
-    echo "checking nexus..."
-    CURL_HEALTH_STATUS=$(curl -v --head --user ${ADMINUSER}:${ADMINDEFAULTPASSWORD} http://localhost:8081/nexus/service/metrics/healthcheck)|| true
+    CURL_HEALTH_STATUS=$(curl --silent --head --user $1:$2 http://localhost:8081/nexus/service/metrics/healthcheck)|| true
     HEALTH_STATUS_CODE=$(echo "$CURL_HEALTH_STATUS"|head -n 1|cut -d$' ' -f2)
-    echo "HEALTH_STATUS_CODE = $HEALTH_STATUS_CODE"
     if [[ ${HEALTH_STATUS_CODE} != 200 ]]; then
       sleep 1
     else
@@ -77,11 +85,7 @@ function startNexusAndWaitForHealth(){
   fi
 }
 
-echo "configuring carp server"
-doguctl template /etc/carp/carp-tpl.yml ${NEXUS_DATA_DIR}/carp.yml
 
-echo "start carp in background"
-carp -logtostderr ${NEXUS_DATA_DIR}/carp.yml &
 
 if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   doguctl state installing
@@ -94,7 +98,7 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   setNexusVmoptionsAndProperties
 
   echo "Starting Nexus and waiting for healthy state..."
-  startNexusAndWaitForHealth
+  startNexusAndWaitForHealth ${ADMINUSER} ${ADMINDEFAULTPASSWORD}
 
   echo "Configuring Nexus..."
   configureNexus
@@ -108,4 +112,11 @@ fi
 doguctl state ready
 
 echo "Running Nexus..."
-${NEXUS_WORKDIR}/bin/nexus run
+#${NEXUS_WORKDIR}/bin/nexus run &
+# start nexus before nexus-carp until nexus-carp is able to wait
+startNexusAndWaitForHealth ${ADMINUSER} ${NEXUS_PASSWORD}
+echo "configuring carp server"
+doguctl template /etc/carp/carp-tpl.yml ${NEXUS_DATA_DIR}/carp.yml
+
+echo "starting carp"
+nexus-carp -logtostderr ${NEXUS_DATA_DIR}/carp.yml

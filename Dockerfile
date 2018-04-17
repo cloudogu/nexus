@@ -45,8 +45,8 @@ COPY resources /
 
 RUN chown -R nexus:nexus ${NEXUS_WORKDIR} \
   && chmod -R 777 ${NEXUS_WORKDIR} \
-  && chown nexus:nexus /usr/bin/carp \
-  && chmod 777 /usr/bin/carp
+  && chown nexus:nexus /usr/bin/nexus-carp \
+  && chmod 777 /usr/bin/nexus-carp
 
 USER nexus
 
