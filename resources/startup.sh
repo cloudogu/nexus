@@ -50,7 +50,8 @@ function configureNexus() {
     doguctl template /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl /opt/sonatype/nexus/resources/nexusConfParameters.json
     nexus-scripting execute --file-payload /opt/sonatype/nexus/resources/nexusConfParameters.json /opt/sonatype/nexus/resources/nexusConfiguration.groovy
     # password has been changed while executing script
-    export NEXUS_PASSWORD=$(doguctl config -e admin_password)
+    NEXUS_PASSWORD=$(doguctl config -e admin_password)
+    export NEXUS_PASSWORD=${NEXUS_PASSWORD}
   else
     echo "Configuration files do not exist"
     exit 1
@@ -108,14 +109,13 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   doguctl config successfulInitialConfiguration true
 fi
 
-doguctl state ready
-
-echo "Running Nexus..."
-#${NEXUS_WORKDIR}/bin/nexus run &
-# start nexus before nexus-carp until nexus-carp is able to wait
-startNexusAndWaitForHealth ${ADMINUSER} ${NEXUS_PASSWORD}
 echo "configuring carp server"
 doguctl template /etc/carp/carp-tpl.yml ${NEXUS_DATA_DIR}/carp.yml
 
-echo "starting carp"
-nexus-carp -logtostderr ${NEXUS_DATA_DIR}/carp.yml
+echo "starting carp in background"
+nexus-carp -logtostderr ${NEXUS_DATA_DIR}/carp.yml &
+
+doguctl state ready
+
+echo "Running Nexus..."
+${NEXUS_WORKDIR}/bin/nexus run
