@@ -7,14 +7,17 @@ set -o pipefail
 ADMINUSER="admin"
 export ADMINDEFAULTPASSWORD="admin123"
 NEXUS_DATA_DIR=/var/lib/nexus
-NEXUS_PID=0
 # credentials for nexus-scripting tool
 export NEXUS_URL="http://localhost:8081/nexus"
 export NEXUS_USER=${ADMINUSER}
 export NEXUS_PASSWORD=${ADMINDEFAULTPASSWORD}
 # create and save random admin password
-export NEWADMINPASSWORD=$(doguctl random)
+NEWADMINPASSWORD=$(doguctl random)
+export NEWADMINPASSWORD=${NEWADMINPASSWORD}
 doguctl config -e "admin_password" "${NEWADMINPASSWORD}"
+# export ces admin group
+CES_ADMIN_GROUP=$(doguctl config --global admin_group)
+export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 
 function setNexusVmoptionsAndProperties() {
   cat <<EOF > ${NEXUS_WORKDIR}/bin/nexus.vmoptions
@@ -84,8 +87,6 @@ function startNexusAndWaitForHealth(){
     exit 1
   fi
 }
-
-
 
 if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   doguctl state installing

@@ -29,7 +29,7 @@ println("Creating ces admin group role")
 authorizationManager = securitySystem.getAuthorizationManager('default')
 role = new org.sonatype.nexus.security.role.Role(
     roleId: configurationParameters.adminGroup,
-    source: "Nexus",
+    source: "CAS",
     name: configurationParameters.adminGroup,
     description: "Administrator of CES",
     readOnly: false,
@@ -42,7 +42,7 @@ println("Creating default ces user role")
 authorizationManager = securitySystem.getAuthorizationManager('default')
 role = new org.sonatype.nexus.security.role.Role(
     roleId: "cesUser",
-    source: "Nexus",
+    source: "CAS",
     name: "cesUser",
     description: "User of CES",
     readOnly: false,
