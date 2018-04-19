@@ -2,17 +2,13 @@
 FROM registry.cloudogu.com/official/java:8u151-2
 MAINTAINER Sebastian Sdorra <sebastian.sdorra@cloudogu.com>
 
-# dockerfile based on https://registry.hub.docker.com/u/sonatype/nexus/dockerfile/
-
 # The version of nexus to install
-ENV TINI_VERSION=0.15.0 \
-    NEXUS_VERSION=3.10.0-04 \
+ENV NEXUS_VERSION=3.10.0-04 \
+    TINI_VERSION=0.15.0 \
     NEXUS_CLAIM_VERSION=0.1.0 \
-    CAS_PLUGIN_VERSION=1.2.2-SNAPSHOT \
-    NEXUS_SCRIPTING_VERSION=0.1.0 \
+    NEXUS_SCRIPTING_VERSION=0.1.1 \
     SERVICE_TAGS=webapp \
     NEXUS_WORKDIR=/opt/sonatype/nexus
-
 
 RUN set -x \
   # add nexus user and group
@@ -39,14 +35,11 @@ RUN set -x \
   && curl --fail --silent --location --retry 3 \
   https://github.com/cloudogu/nexus-scripting/releases/download/v${NEXUS_SCRIPTING_VERSION}/nexus-scripting-${NEXUS_SCRIPTING_VERSION}.tar.gz \
   | gunzip \
-  | tar x -C /usr/bin
+  | tar x -C /usr/bin \
+  && chown -R nexus:nexus ${NEXUS_WORKDIR} \
+  && chmod -R 777 ${NEXUS_WORKDIR}
 
-COPY resources /
-
-RUN chown -R nexus:nexus ${NEXUS_WORKDIR} \
-  && chmod -R 777 ${NEXUS_WORKDIR} \
-  && chown nexus:nexus /usr/bin/nexus-carp \
-  && chmod 777 /usr/bin/nexus-carp
+COPY --chown=nexus resources /
 
 USER nexus
 
