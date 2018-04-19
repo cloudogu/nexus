@@ -38,5 +38,25 @@ role = new org.sonatype.nexus.security.role.Role(
 )
 authorizationManager.addRole(role)
 
+println("Creating default ces user role")
+authorizationManager = securitySystem.getAuthorizationManager('default')
+role = new org.sonatype.nexus.security.role.Role(
+    roleId: "cesUser",
+    source: "Nexus",
+    name: "cesUser",
+    description: "User of CES",
+    readOnly: false,
+    privileges: [
+                "nx-healthcheck-read",
+                "nx-healthcheck-summary-read",
+                "nx-repository-view-*-*-browse",
+                "nx-repository-view-*-*-add",
+                "nx-search-read",
+                "nx-userschangepw",
+                "nx-apikey-all"],
+    roles: []
+)
+authorizationManager.addRole(role)
+
 println("Changing admin password")
 securitySystem.changePassword("admin", configurationParameters.defaultAdminPassword, configurationParameters.newAdminPassword)
