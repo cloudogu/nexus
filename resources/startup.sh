@@ -11,10 +11,10 @@ NEXUS_DATA_DIR=/var/lib/nexus
 export NEXUS_URL="http://localhost:8081/nexus"
 export NEXUS_USER=${ADMINUSER}
 export NEXUS_PASSWORD=${ADMINDEFAULTPASSWORD}
-# create and save random admin password
+# create random admin password
 NEWADMINPASSWORD=$(doguctl random)
 export NEWADMINPASSWORD=${NEWADMINPASSWORD}
-doguctl config -e "admin_password" "${NEWADMINPASSWORD}"
+
 # export ces admin group
 CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
@@ -48,13 +48,21 @@ EOF
 EOF
 }
 
-function configureNexus() {
-  if [ -f /opt/sonatype/nexus/resources/nexusConfiguration.groovy ] && [ -f /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl ]; then
+function configureNexusAtFirstStart() {
+  if [ -f /opt/sonatype/nexus/resources/nexusConfigurationFirstStart.groovy ] && [ -f /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl ]; then
     doguctl template /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl /opt/sonatype/nexus/resources/nexusConfParameters.json
-    nexus-scripting execute --file-payload /opt/sonatype/nexus/resources/nexusConfParameters.json /opt/sonatype/nexus/resources/nexusConfiguration.groovy
-    # password has been changed while executing script
-    NEXUS_PASSWORD=$(doguctl config -e admin_password)
-    export NEXUS_PASSWORD=${NEXUS_PASSWORD}
+    nexus-scripting execute --file-payload /opt/sonatype/nexus/resources/nexusConfParameters.json /opt/sonatype/nexus/resources/nexusConfigurationFirstStart.groovy
+    doguctl config -e "admin_password" "${NEWADMINPASSWORD}"
+  else
+    echo "Configuration files do not exist"
+    exit 1
+  fi
+}
+
+function configureNexusAtSubsequentStart() {
+  if [ -f /opt/sonatype/nexus/resources/nexusConfigurationSubsequentStart.groovy ] && [ -f /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl ]; then
+    doguctl template /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl /opt/sonatype/nexus/resources/nexusConfParameters.json
+    nexus-scripting execute --file-payload /opt/sonatype/nexus/resources/nexusConfParameters.json /opt/sonatype/nexus/resources/nexusConfigurationSubsequentStart.groovy
   else
     echo "Configuration files do not exist"
     exit 1
@@ -69,7 +77,7 @@ function stopNexus() {
 function startNexusAndWaitForHealth(){
   ${NEXUS_WORKDIR}/bin/nexus run &
   NEXUS_PID=$!
-  END=$((SECONDS+120))
+  END=$((SECONDS+180))
   NEXUS_IS_HEALTHY=false
   while [ $SECONDS -lt $END ]; do
     CURL_HEALTH_STATUS=$(curl --silent --head --user $1:$2 http://localhost:8081/nexus/service/metrics/healthcheck)|| true
@@ -83,7 +91,7 @@ function startNexusAndWaitForHealth(){
     fi
   done
   if [[ "${NEXUS_IS_HEALTHY}" == "false" ]]; then
-    echo "Nexus did not reach healthy state in 120 seconds"
+    echo "Nexus did not reach healthy state in 180 seconds"
     exit 1
   fi
 }
@@ -102,13 +110,26 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   startNexusAndWaitForHealth ${ADMINUSER} ${ADMINDEFAULTPASSWORD}
 
   echo "Configuring Nexus..."
-  configureNexus
+  configureNexusAtFirstStart
 
   echo "Stopping Nexus..."
   stopNexus
 
   doguctl config successfulInitialConfiguration true
 fi
+
+echo "Getting current admin password"
+NEXUS_PASSWORD=$(doguctl config -e admin_password)
+export NEXUS_PASSWORD=${NEXUS_PASSWORD}
+
+echo "Starting Nexus and waiting for healthy state..."
+startNexusAndWaitForHealth ${ADMINUSER} ${NEXUS_PASSWORD}
+
+echo "Configuring Nexus..."
+configureNexusAtSubsequentStart
+
+echo "Stopping Nexus..."
+stopNexus
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp-tpl.yml ${NEXUS_DATA_DIR}/carp.yml
