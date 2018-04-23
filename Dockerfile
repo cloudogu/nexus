@@ -6,6 +6,7 @@ MAINTAINER Sebastian Sdorra <sebastian.sdorra@cloudogu.com>
 ENV NEXUS_VERSION=3.10.0-04 \
     TINI_VERSION=0.15.0 \
     NEXUS_CLAIM_VERSION=0.1.0 \
+    NEXUS_CARP_VERSION=0.1.0 \
     NEXUS_SCRIPTING_VERSION=0.1.1 \
     SERVICE_TAGS=webapp \
     NEXUS_WORKDIR=/opt/sonatype/nexus
@@ -34,6 +35,10 @@ RUN set -x \
   | tar x -C /usr/bin \
   && curl --fail --silent --location --retry 3 \
   https://github.com/cloudogu/nexus-scripting/releases/download/v${NEXUS_SCRIPTING_VERSION}/nexus-scripting-${NEXUS_SCRIPTING_VERSION}.tar.gz \
+  | gunzip \
+  | tar x -C /usr/bin \
+  && curl --fail --silent --location --retry 3 \
+  https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
   | gunzip \
   | tar x -C /usr/bin \
   && chown -R nexus:nexus ${NEXUS_WORKDIR} \
