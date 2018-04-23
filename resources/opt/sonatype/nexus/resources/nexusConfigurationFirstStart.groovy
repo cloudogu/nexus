@@ -58,5 +58,4 @@ role = new org.sonatype.nexus.security.role.Role(
 )
 authorizationManager.addRole(role)
 
-println("Changing admin password from " + configurationParameters.defaultAdminPassword + " to " + configurationParameters.newAdminPassword)
 securitySystem.changePassword("admin", configurationParameters.defaultAdminPassword, configurationParameters.newAdminPassword)

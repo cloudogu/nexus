@@ -19,6 +19,7 @@ export NEWADMINPASSWORD=${NEWADMINPASSWORD}
 CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 
+### declaration of functions
 function setNexusVmoptionsAndProperties() {
   cat <<EOF > ${NEXUS_WORKDIR}/bin/nexus.vmoptions
   -Xms1200M
@@ -95,6 +96,8 @@ function startNexusAndWaitForHealth(){
     exit 1
   fi
 }
+
+### beginning of startup
 
 if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   doguctl state installing

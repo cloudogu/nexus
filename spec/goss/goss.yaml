@@ -1,25 +1,16 @@
 file:
-  /configuration.sh:
-    exists: true
-    mode: "0755"
-    size: 1205
-    owner: root
-    group: root
-    filetype: file
-    contains: []
   /opt/sonatype/nexus:
     exists: true
     mode: "0755"
-    size: 104
-    owner: root
-    group: root
+    owner: nexus
+    group: nexus
     filetype: directory
     contains: []
   /startup.sh:
     exists: true
     mode: "0755"
-    owner: root
-    group: root
+    owner: nexus
+    group: nexus
     filetype: file
     contains: []
   /var/lib/nexus:
@@ -29,41 +20,26 @@ file:
     group: nexus
     filetype: directory
     contains: []
-  /var/lib/nexus/conf/cas-plugin.xml:
-    exists: true
-    mode: "0644"
-    owner: nexus
-    group: nexus
-    filetype: file
-    contains: []
-  /var/lib/nexus/plugin-repository/nexus-cas-plugin-1.2.2-SNAPSHOT:
-    exists: true
-    mode: "0755"
-    size: 110
-    owner: nexus
-    group: nexus
-    filetype: directory
-    contains: []
-  /var/lib/nexus/plugin-repository/nexus-cas-plugin-1.2.2-SNAPSHOT/META-INF:
-    exists: true
-    mode: "0755"
-    size: 22
-    owner: nexus
-    group: nexus
-    filetype: directory
-    contains: []
-  /var/lib/nexus/plugin-repository/nexus-cas-plugin-1.2.2-SNAPSHOT/dependencies:
-    exists: true
-    mode: "0755"
-    size: 328
-    owner: nexus
-    group: nexus
-    filetype: directory
-    contains: []
   /usr/bin/nexus-claim:
     exists: true
     mode: "0755"
     filetype: file
+  /usr/bin/nexus-carp:
+    exists: true
+    mode: "0755"
+    size: 8968970
+    owner: nexus
+    group: nexus
+    filetype: file
+    contains: []
+  /opt/sonatype/nexus/bin/nexus.vmoptions:
+    exists: true
+    mode: "0777"
+    size: 608
+    owner: nexus
+    group: nexus
+    filetype: file
+    contains: []
 user:
   nexus:
     exists: true
@@ -77,3 +53,9 @@ group:
   nexus:
     exists: true
     gid: 1000
+process:
+  nexus-carp:
+    running: true
+port:
+  tcp:8081:
+    listening: true
