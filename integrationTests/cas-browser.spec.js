@@ -35,6 +35,18 @@ describe('cas browser login', () => {
         expect(username.toLowerCase()).toContain(config.displayName);
     });
 
+    test('login with wrong password', async() => {
+        await driver.get(utils.getCasUrl(driver));
+        await driver.wait(until.elementLocated(By.id('password')), 5000);
+        await driver.wait(until.elementLocated(By.id('username')), 5000);
+
+        await driver.findElement(By.id('username')).sendKeys("ThIsIsNoTaVaLiDuSeR");
+        await driver.findElement(By.id('password')).sendKeys("46Y2RjZjVnZWg2dGdmcmVjZGZ0c");
+        await driver.findElement(By.css('input[name="submit"]')).click();
+        const url = await driver.getCurrentUrl();
+        expect(url).toMatch(loginUrl);
+    });
+
     test('logout front channel', async() => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
