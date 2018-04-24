@@ -40,11 +40,28 @@ module.exports = class AdminFunctions{
             .auth(config.username, config.password);
         await utils.getCasUrl(driver);
         await utils.login(driver);
-        await driver.get(config.baseUrl + config.nexusContextPath + "/asynchPeople");
-        await driver.wait(until.elementLocated(By.linkText(this.testuserName)),5000);
-        await driver.findElement(By.linkText(this.testuserName)).click();
-        await driver.get(config.baseUrl + config.nexusContextPath + "/user/" + this.testuserName + "/delete");
-        await driver.findElement(By.id("yui-gen1-button")).click();
+        await driver.sleep(500)
+        //click admin menu button
+        await driver.findElement(By.id("button-1127-btnIconEl")).click();
+        // wait for admin options tree
+        await driver.wait(until.elementLocated(By.className("x-tree-node-text")), 5000);
+        // click users menu
+        await driver.findElement(By.className(" x-tree-icon x-tree-icon-leaf nx-icon-feature-admin-security-users-x16")).click();
+        await driver.sleep(500)
+        //click testUser entry
+        await driver.findElement(By.xpath("//tr[@id='gridview-1191-record-ext-record-156']/td[2]/div")).click();
+        await driver.sleep(500)
+        // click delete button
+        await driver.wait(until.elementLocated(By.id("button-1207-btnInnerEl")), 5000);
+        // await driver.wait(until.elementIsVisible(driver.findElement(By.id("button-1207-btnInnerEl")).catch));
+        await driver.findElement(By.id("button-1207-btnInnerEl")).click();
+        await driver.sleep(500)
+        await driver.findElement(By.id("button-1006-btnIconEl")).click();
+
+
+
+
+        // await driver.findElement(By.id("yui-gen1-button")).click();
     };
 
     async giveAdminRights(){
