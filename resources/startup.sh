@@ -78,21 +78,11 @@ function stopNexus() {
 function startNexusAndWaitForHealth(){
   ${NEXUS_WORKDIR}/bin/nexus run &
   NEXUS_PID=$!
-  END=$((SECONDS+180))
-  NEXUS_IS_HEALTHY=false
-  while [ $SECONDS -lt $END ]; do
-    CURL_HEALTH_STATUS=$(curl --silent --head --user $1:$2 http://localhost:8081/nexus/service/metrics/healthcheck)|| true
-    HEALTH_STATUS_CODE=$(echo "$CURL_HEALTH_STATUS"|head -n 1|cut -d$' ' -f2)
-    if [[ ${HEALTH_STATUS_CODE} != 200 ]]; then
-      sleep 1
-    else
-      echo "Nexus is healthy now"
-      NEXUS_IS_HEALTHY=true
-      break
-    fi
-  done
-  if [[ "${NEXUS_IS_HEALTHY}" == "false" ]]; then
-    echo "Nexus did not reach healthy state in 180 seconds"
+  echo "wait until nexus passes all health checks"
+  export HTTP_BASIC_AUTH_USERNAME=$1
+  export HTTP_BASIC_AUTH_PASSWORD=$2
+  if ! doguctl wait-for-http --timeout 120 --method GET http://localhost:8081/nexus/service/metrics/healthcheck; then
+    echo "timeout reached while waiting for nexus to get healthy"
     exit 1
   fi
 }

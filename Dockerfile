@@ -1,5 +1,5 @@
 # registry.cloudogu.com/official/nexus
-FROM registry.cloudogu.com/official/java:8u151-2
+FROM registry.cloudogu.com/official/java:8u151-3
 MAINTAINER Sebastian Sdorra <sebastian.sdorra@cloudogu.com>
 
 # The version of nexus to install
