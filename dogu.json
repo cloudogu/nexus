@@ -9,7 +9,7 @@
   "Tags": [
     "warp", "build", "artifact", "maven"
   ],
-  "Image": "registry.cloudogu.com/official/nexus",
+  "Image": "registry.cloudogu.com/testing/nexus",
   "Dependencies": [
     "cas", "nginx", "postfix"
   ],
