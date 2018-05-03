@@ -4,7 +4,8 @@ const request = require('supertest');
 const utils = require('./utils');
 const By = webdriver.By;
 const until = webdriver.until;
-const waitIntervalAfterClick = 2000;
+const waitInterval = 2000;
+const shortWaitInterval = 200;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -40,29 +41,20 @@ module.exports = class AdminFunctions{
             .del('/usermgt/api/users/' + this.testuserName)
             .auth(config.username, config.password);
         await utils.getCasUrl(driver);
+        // login admin
         await utils.login(driver);
-        await driver.sleep(waitIntervalAfterClick)
-        //click admin menu button
-        await driver.findElement(By.id("button-1127-btnIconEl")).click();
-        // wait for admin options tree
-        await driver.wait(until.elementLocated(By.className("x-tree-node-text")), 5000);
-        // click users menu
-        await driver.findElement(By.className(" x-tree-icon x-tree-icon-leaf nx-icon-feature-admin-security-users-x16")).click();
-        await driver.sleep(waitIntervalAfterClick)
-        //click testUser entry
-        await driver.findElement(By.xpath("//tr[@id='gridview-1191-record-ext-record-156']/td[2]/div")).click();
-        await driver.sleep(waitIntervalAfterClick)
+        await driver.sleep(waitInterval)
+        // get to testuser's user menu entry
+        driver.get(config.baseUrl + config.nexusContextPath + "#admin/security/users:" + this.testuserName)
+        await driver.sleep(waitInterval)
+        // dismiss popup box
+        await driver.findElement(By.id("tool-1156-toolEl")).click();
         // click delete button
-        await driver.wait(until.elementLocated(By.id("button-1207-btnInnerEl")), 5000);
-        // await driver.wait(until.elementIsVisible(driver.findElement(By.id("button-1207-btnInnerEl")).catch));
-        await driver.findElement(By.id("button-1207-btnInnerEl")).click();
-        await driver.sleep(waitIntervalAfterClick)
+        await driver.wait(until.elementLocated(By.id("button-1287-btnEl")), 5000);
+        await driver.findElement(By.id("button-1287-btnEl")).click();
+        await driver.sleep(shortWaitInterval)
+        // click Yes
         await driver.findElement(By.id("button-1006-btnIconEl")).click();
-
-
-
-
-        // await driver.findElement(By.id("yui-gen1-button")).click();
     };
 
     async giveAdminRights(){
@@ -112,7 +104,7 @@ module.exports = class AdminFunctions{
 
 
     async logoutViaCasEndpoint(driver) {
-        await driver.get(config.baseUrl + '/cas/logoutViaCasEndpoint');
+        await driver.get(config.baseUrl + '/cas/logout');
     };
 
     async accessScriptingAPI(expectStatus){
