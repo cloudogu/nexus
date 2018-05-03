@@ -39,14 +39,6 @@ exports.login = async function login(driver) {
 };
 
 exports.isAdministrator = async function isAdministrator(driver){
-    // find admin button (gear symbol) at top navigation bar
-    return await driver.findElement(By.id("button-1126-btnIconEl")).then(function() {
-        return true;//element was found
-    }, function(err) {
-        if (err instanceof webdriver.error.NoSuchElementError) {
-            return false;//element did not exist
-        } else {
-            webdriver.promise.rejected(err);
-        }
-    });
+    // is admin button (gear symbol) at top navigation bar visible?
+    return await driver.findElement(By.id("button-1126-btnIconEl")).isDisplayed()
 };

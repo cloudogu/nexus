@@ -3,6 +3,7 @@ const utils = require('./utils');
 const webdriver = require('selenium-webdriver');
 const By = webdriver.By;
 const until = webdriver.until;
+const waitInterval = 2000;
 
 const logoutUrl = '/cas/logout';
 const loginUrl = '/cas/login';
@@ -31,7 +32,7 @@ describe('cas browser login', () => {
     test('login', async() => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
-        await driver.sleep(1000)
+        await driver.sleep(waitInterval)
         // find user account button holding the username
         const username = await driver.findElement(By.id('button-1142-btnInnerEl')).getText();
         expect(username.toLowerCase()).toContain(config.displayName);
@@ -54,7 +55,7 @@ describe('cas browser login', () => {
         await utils.login(driver);
         // wait for sign out button to appear
         await driver.wait(until.elementLocated(By.id('nx-header-signout-1145-btnIconEl')), 5000);
-        await driver.sleep(1000)
+        await driver.sleep(waitInterval)
         await driver.findElement(By.id("nx-header-signout-1145-btnIconEl")).click();
         const url = await driver.getCurrentUrl();
         expect(url).toMatch(logoutUrl);
@@ -78,10 +79,10 @@ describe('browser attributes', () => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
         await driver.wait(until.elementLocated(By.id('button-1142-btnIconEl')), 5000);
-        await driver.sleep(1000)
+        await driver.sleep(waitInterval)
         await driver.findElement(By.id("button-1142-btnIconEl")).click()
         await driver.wait(until.elementLocated(By.name('firstName')), 5000);
-        await driver.sleep(1000)
+        await driver.sleep(waitInterval)
         const firstname = await driver.findElement(By.name("firstName")).getAttribute("value");
         const emailAddress = await driver.findElement(By.name("email")).getAttribute("value");
         const lastName = await driver.findElement(By.name("lastName")).getAttribute("value");
@@ -95,8 +96,8 @@ describe('browser attributes', () => {
     test('front channel user administrator', async () => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
-        const isAdministrator = await utils.isAdministrator(driver);
-        expect(isAdministrator).toBe(true);
+        await driver.sleep(waitInterval)
+        expect(await utils.isAdministrator(driver)).toBe(true);
     });
 
 
