@@ -4,6 +4,7 @@ const request = require('supertest');
 const utils = require('./utils');
 const By = webdriver.By;
 const until = webdriver.until;
+const waitIntervalAfterClick = 2000;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -40,22 +41,22 @@ module.exports = class AdminFunctions{
             .auth(config.username, config.password);
         await utils.getCasUrl(driver);
         await utils.login(driver);
-        await driver.sleep(500)
+        await driver.sleep(waitIntervalAfterClick)
         //click admin menu button
         await driver.findElement(By.id("button-1127-btnIconEl")).click();
         // wait for admin options tree
         await driver.wait(until.elementLocated(By.className("x-tree-node-text")), 5000);
         // click users menu
         await driver.findElement(By.className(" x-tree-icon x-tree-icon-leaf nx-icon-feature-admin-security-users-x16")).click();
-        await driver.sleep(500)
+        await driver.sleep(waitIntervalAfterClick)
         //click testUser entry
         await driver.findElement(By.xpath("//tr[@id='gridview-1191-record-ext-record-156']/td[2]/div")).click();
-        await driver.sleep(500)
+        await driver.sleep(waitIntervalAfterClick)
         // click delete button
         await driver.wait(until.elementLocated(By.id("button-1207-btnInnerEl")), 5000);
         // await driver.wait(until.elementIsVisible(driver.findElement(By.id("button-1207-btnInnerEl")).catch));
         await driver.findElement(By.id("button-1207-btnInnerEl")).click();
-        await driver.sleep(500)
+        await driver.sleep(waitIntervalAfterClick)
         await driver.findElement(By.id("button-1006-btnIconEl")).click();
 
 
@@ -101,21 +102,22 @@ module.exports = class AdminFunctions{
 
     async testUserLogin(driver) {
         await driver.wait(until.elementLocated(By.id('password')), 5000);
+        await driver.wait(until.elementLocated(By.id('username')), 5000);
+
         await driver.findElement(By.id('username')).sendKeys(this.testuserName);
         await driver.findElement(By.id('password')).sendKeys(this.testuserPasswort);
-        await driver.findElement(By.css('input[name="submit"]')).click();
+        return driver.findElement(By.css('input[name="submit"]')).click();
     };
 
 
 
-    async testUserLogout(driver) {
-        await driver.wait(until.elementLocated(By.xpath("//div[@id='header']/div[2]/span/a[2]/b")),5000);
-        await driver.findElement(By.xpath("//div[@id='header']/div[2]/span/a[2]/b")).click();
+    async logoutViaCasEndpoint(driver) {
+        await driver.get(config.baseUrl + '/cas/logoutViaCasEndpoint');
     };
 
-    async accessUsersJson(expectStatus){
+    async accessScriptingAPI(expectStatus){
         await request(config.baseUrl)
-            .get(config.nexusContextPath+"/pluginManager/api/json")
+            .get(config.nexusContextPath+"/service/rest/v1/script")
             .auth(this.testuserName, this.testuserPasswort)
             .expect(expectStatus); //403 = "Forbidden", 200 = "OK"
     };
