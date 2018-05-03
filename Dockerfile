@@ -1,9 +1,9 @@
 # registry.cloudogu.com/official/nexus
 FROM registry.cloudogu.com/official/java:8u151-3
-MAINTAINER Sebastian Sdorra <sebastian.sdorra@cloudogu.com>
+LABEL maintainer="robert.auer@cloudogu.com"
 
 # The version of nexus to install
-ENV NEXUS_VERSION=3.10.0-04 \
+ENV NEXUS_VERSION=3.11.0-01 \
     TINI_VERSION=0.15.0 \
     NEXUS_CLAIM_VERSION=0.1.0 \
     NEXUS_CARP_VERSION=0.1.0 \
