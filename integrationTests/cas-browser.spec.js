@@ -32,7 +32,8 @@ describe('cas browser login', () => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
         await driver.sleep(1000)
-        const username = await driver.findElement(By.id('button-1145-btnInnerEl')).getText();
+        // find user account button holding the username
+        const username = await driver.findElement(By.id('button-1142-btnInnerEl')).getText();
         expect(username.toLowerCase()).toContain(config.displayName);
     });
 
@@ -51,8 +52,10 @@ describe('cas browser login', () => {
     test('logout front channel', async() => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
+        // wait for sign out button to appear
+        await driver.wait(until.elementLocated(By.id('nx-header-signout-1145-btnIconEl')), 5000);
         await driver.sleep(1000)
-        await driver.findElement(By.id("nx-header-signout-1148-btnInnerEl")).click();
+        await driver.findElement(By.id("nx-header-signout-1145-btnIconEl")).click();
         const url = await driver.getCurrentUrl();
         expect(url).toMatch(logoutUrl);
     });
