@@ -31,6 +31,7 @@ describe('cas browser login', () => {
     test('login', async() => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
+        await driver.sleep(1000)
         const username = await driver.findElement(By.id('button-1145-btnInnerEl')).getText();
         expect(username.toLowerCase()).toContain(config.displayName);
     });
@@ -50,6 +51,7 @@ describe('cas browser login', () => {
     test('logout front channel', async() => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
+        await driver.sleep(1000)
         await driver.findElement(By.id("nx-header-signout-1148-btnInnerEl")).click();
         const url = await driver.getCurrentUrl();
         expect(url).toMatch(logoutUrl);
@@ -72,14 +74,15 @@ describe('browser attributes', () => {
     test('front channel user attributes', async () => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
-        await driver.wait(until.elementLocated(By.id('button-1145-btnIconEl')), 5000);
-        await driver.sleep(100);
-        await driver.findElement(By.id("button-1145-btnIconEl")).click()
-        await driver.sleep(100);
-        const firstname = await driver.findElement(By.id("textfield-1175-inputEl")).getAttribute("value");
-        const emailAddress = await driver.findElement(By.id("nx-email-1177-inputEl")).getAttribute("value");
-        const lastName = await driver.findElement(By.id("textfield-1176-inputEl")).getAttribute("value");
-        const userId = await driver.findElement(By.id("textfield-1174-inputEl")).getAttribute("value");
+        await driver.wait(until.elementLocated(By.id('button-1142-btnIconEl')), 5000);
+        await driver.sleep(1000)
+        await driver.findElement(By.id("button-1142-btnIconEl")).click()
+        await driver.wait(until.elementLocated(By.name('firstName')), 5000);
+        await driver.sleep(1000)
+        const firstname = await driver.findElement(By.name("firstName")).getAttribute("value");
+        const emailAddress = await driver.findElement(By.name("email")).getAttribute("value");
+        const lastName = await driver.findElement(By.name("lastName")).getAttribute("value");
+        const userId = await driver.findElement(By.name("userId")).getAttribute("value");
         expect(firstname).toBe(config.firstname);
         expect(emailAddress).toBe(config.email);
         expect(lastName).toBe(config.lastname);
