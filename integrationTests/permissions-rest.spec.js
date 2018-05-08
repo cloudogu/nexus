@@ -30,18 +30,24 @@ describe('administration rest tests', () => {
 
     test('user (' + testUserName + ') has admin privileges', async() => {
         await adminFunctions.giveAdminRights();
+        await driver.sleep(1000)
         await adminFunctions.accessScriptingAPI(200);
     });
 
     test('user (' + testUserName + ') has no admin privileges', async() => {
+        await driver.sleep(11000) // wait for cache to expire
         await adminFunctions.accessScriptingAPI(403);
     });
 
 
     test('user (' + testUserName + ') remove admin privileges', async() => {
+        await driver.sleep(11000) // wait for cache to expire
         await adminFunctions.giveAdminRights();
+        await driver.sleep(1000)
         await adminFunctions.accessScriptingAPI(200);
+        await driver.sleep(11000) // wait for cache to expire
         await adminFunctions.takeAdminRights();
+        await driver.sleep(1000)
         await adminFunctions.accessScriptingAPI(403);
     });
 

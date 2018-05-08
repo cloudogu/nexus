@@ -4,7 +4,7 @@ const request = require('supertest');
 const utils = require('./utils');
 const By = webdriver.By;
 const until = webdriver.until;
-const waitInterval = 2000;
+const waitInterval = 3000;
 const shortWaitInterval = 200;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -52,7 +52,7 @@ module.exports = class AdminFunctions{
         // click delete button
         await driver.wait(until.elementLocated(By.id("button-1287-btnEl")), 5000);
         await driver.findElement(By.id("button-1287-btnEl")).click();
-        await driver.sleep(shortWaitInterval)
+        await driver.sleep(waitInterval)
         // click Yes
         await driver.findElement(By.id("button-1006-btnIconEl")).click();
     };
