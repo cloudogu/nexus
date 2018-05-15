@@ -50,9 +50,9 @@ EOF
 }
 
 function configureNexusAtFirstStart() {
-  if [ -f /opt/sonatype/nexus/resources/nexusConfigurationFirstStart.groovy ] && [ -f /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl ]; then
-    doguctl template /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl /opt/sonatype/nexus/resources/nexusConfParameters.json
-    nexus-scripting execute --file-payload /opt/sonatype/nexus/resources/nexusConfParameters.json /opt/sonatype/nexus/resources/nexusConfigurationFirstStart.groovy
+  if [ -f ${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy ] && [ -f ${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl ]; then
+    doguctl template ${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl ${NEXUS_WORKDIR}/resources/nexusConfParameters.json
+    nexus-scripting execute --file-payload ${NEXUS_WORKDIR}/resources/nexusConfParameters.json ${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy
     doguctl config -e "admin_password" "${NEWADMINPASSWORD}"
   else
     echo "Configuration files do not exist"
@@ -61,9 +61,9 @@ function configureNexusAtFirstStart() {
 }
 
 function configureNexusAtSubsequentStart() {
-  if [ -f /opt/sonatype/nexus/resources/nexusConfigurationSubsequentStart.groovy ] && [ -f /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl ]; then
-    doguctl template /opt/sonatype/nexus/resources/nexusConfParameters.json.tpl /opt/sonatype/nexus/resources/nexusConfParameters.json
-    nexus-scripting execute --file-payload /opt/sonatype/nexus/resources/nexusConfParameters.json /opt/sonatype/nexus/resources/nexusConfigurationSubsequentStart.groovy
+  if [ -f ${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy ] && [ -f ${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl ]; then
+    doguctl template ${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl ${NEXUS_WORKDIR}/resources/nexusConfParameters.json
+    nexus-scripting execute --file-payload ${NEXUS_WORKDIR}/resources/nexusConfParameters.json ${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy
   else
     echo "Configuration files do not exist"
     exit 1
