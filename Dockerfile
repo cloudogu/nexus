@@ -27,7 +27,7 @@ RUN set -x \
   | tar x -C /tmp nexus-${NEXUS_VERSION} \
   && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_WORKDIR}/ \
   && mv /tmp/nexus-${NEXUS_VERSION}/.[!.]* ${NEXUS_WORKDIR}/ \
-  && rm -rf /tmp/nexus-${NEXUS_VERSION} \
+  && rmdir /tmp/nexus-${NEXUS_VERSION} \
   # install nexus-claim
   && curl --fail --silent --location --retry 3 \
     https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
