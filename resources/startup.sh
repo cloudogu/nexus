@@ -21,7 +21,7 @@ export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 
 ### declaration of functions
 function setNexusVmoptionsAndProperties() {
-  cat <<EOF > ${NEXUS_WORKDIR}/bin/nexus.vmoptions
+  cat <<EOF > "${NEXUS_WORKDIR}/bin/nexus.vmoptions"
   -Xms1200M
   -Xmx1200M
   -XX:MaxDirectMemorySize=2G
@@ -50,9 +50,9 @@ EOF
 }
 
 function configureNexusAtFirstStart() {
-  if [ -f ${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy ] && [ -f ${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl ]; then
-    doguctl template ${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl ${NEXUS_WORKDIR}/resources/nexusConfParameters.json
-    nexus-scripting execute --file-payload ${NEXUS_WORKDIR}/resources/nexusConfParameters.json ${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy
+  if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
+    doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+    nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
     doguctl config -e "admin_password" "${NEWADMINPASSWORD}"
   else
     echo "Configuration files do not exist"
@@ -61,9 +61,9 @@ function configureNexusAtFirstStart() {
 }
 
 function configureNexusAtSubsequentStart() {
-  if [ -f ${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy ] && [ -f ${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl ]; then
-    doguctl template ${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl ${NEXUS_WORKDIR}/resources/nexusConfParameters.json
-    nexus-scripting execute --file-payload ${NEXUS_WORKDIR}/resources/nexusConfParameters.json ${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy
+  if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
+    doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+    nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
   else
     echo "Configuration files do not exist"
     exit 1
@@ -71,12 +71,12 @@ function configureNexusAtSubsequentStart() {
 }
 
 function stopNexus() {
-  timeout -t 60 kill ${NEXUS_PID}
+  timeout -t 60 kill "${NEXUS_PID}"
   wait $!
 }
 
 function startNexusAndWaitForHealth(){
-  ${NEXUS_WORKDIR}/bin/nexus run &
+  "${NEXUS_WORKDIR}/bin/nexus" run &
   NEXUS_PID=$!
   echo "wait until nexus passes all health checks"
   export HTTP_BASIC_AUTH_USERNAME=$1
@@ -116,7 +116,7 @@ NEXUS_PASSWORD=$(doguctl config -e admin_password)
 export NEXUS_PASSWORD=${NEXUS_PASSWORD}
 
 echo "Starting Nexus and waiting for healthy state..."
-startNexusAndWaitForHealth ${ADMINUSER} ${NEXUS_PASSWORD}
+startNexusAndWaitForHealth ${ADMINUSER} "${NEXUS_PASSWORD}"
 
 echo "Configuring Nexus..."
 configureNexusAtSubsequentStart
@@ -136,4 +136,4 @@ echo "starting claim tool in background"
 doguctl state ready
 
 echo "Running Nexus..."
-${NEXUS_WORKDIR}/bin/nexus run
+"${NEXUS_WORKDIR}/bin/nexus" run
