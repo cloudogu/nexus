@@ -33,7 +33,7 @@ file:
     contains: []
   /opt/sonatype/nexus/bin/nexus.vmoptions:
     exists: true
-    mode: "0777"
+    mode: "0770"
     size: 608
     owner: nexus
     group: nexus
