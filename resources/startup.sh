@@ -125,7 +125,7 @@ echo "Stopping Nexus..."
 stopNexus
 
 echo "configuring carp server"
-doguctl template /etc/carp/carp-tpl.yml ${NEXUS_DATA_DIR}/carp.yml
+doguctl template /etc/carp/carp.yml.tpl ${NEXUS_DATA_DIR}/carp.yml
 
 echo "starting carp in background"
 nexus-carp -logtostderr ${NEXUS_DATA_DIR}/carp.yml &
