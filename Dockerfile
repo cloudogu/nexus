@@ -42,7 +42,7 @@ RUN set -x \
   | gunzip \
   | tar x -C /usr/bin \
   && chown -R nexus:nexus ${NEXUS_WORKDIR} \
-  && chmod -R 777 ${NEXUS_WORKDIR}
+  && chmod -R 770 ${NEXUS_WORKDIR}
 
 COPY --chown=nexus resources /
 
