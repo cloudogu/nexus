@@ -7,17 +7,17 @@ set -o pipefail
 ADMINUSER="admin"
 export ADMINDEFAULTPASSWORD="admin123"
 NEXUS_DATA_DIR=/var/lib/nexus
-
 # credentials for nexus-scripting tool
 export NEXUS_URL="http://localhost:8081/nexus"
 export NEXUS_USER=${ADMINUSER}
 export NEXUS_PASSWORD=${ADMINDEFAULTPASSWORD}
-
 # create random admin password
-export NEWADMINPASSWORD=$(doguctl random)
+NEWADMINPASSWORD=$(doguctl random)
+export NEWADMINPASSWORD=${NEWADMINPASSWORD}
 
 # export ces admin group
-export CES_ADMIN_GROUP=$(doguctl config --global admin_group)
+CES_ADMIN_GROUP=$(doguctl config --global admin_group)
+export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 
 ### declaration of functions
 function setNexusVmoptionsAndProperties() {
@@ -112,8 +112,8 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
 fi
 
 echo "Getting current admin password"
-
-export NEXUS_PASSWORD=$(doguctl config -e admin_password)
+NEXUS_PASSWORD=$(doguctl config -e admin_password)
+export NEXUS_PASSWORD=${NEXUS_PASSWORD}
 
 echo "Starting Nexus and waiting for healthy state..."
 startNexusAndWaitForHealth ${ADMINUSER} ${NEXUS_PASSWORD}
