@@ -130,6 +130,9 @@ doguctl template /etc/carp/carp-tpl.yml ${NEXUS_DATA_DIR}/carp.yml
 echo "starting carp in background"
 nexus-carp -logtostderr ${NEXUS_DATA_DIR}/carp.yml &
 
+echo "starting claim tool in background"
+/claim.sh &
+
 doguctl state ready
 
 echo "Running Nexus..."

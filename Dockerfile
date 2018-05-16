@@ -5,8 +5,8 @@ LABEL maintainer="robert.auer@cloudogu.com"
 # The version of nexus to install
 ENV NEXUS_VERSION=3.11.0-01 \
     TINI_VERSION=0.15.0 \
-    NEXUS_CLAIM_VERSION=0.1.0 \
-    NEXUS_CARP_VERSION=0.2.0 \
+    NEXUS_CLAIM_VERSION=0.2.0 \
+    NEXUS_CARP_VERSION=0.2.1 \
     NEXUS_SCRIPTING_VERSION=0.1.1 \
     SERVICE_TAGS=webapp \
     NEXUS_WORKDIR=/opt/sonatype/nexus
