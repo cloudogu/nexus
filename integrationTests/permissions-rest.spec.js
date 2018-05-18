@@ -34,6 +34,7 @@ describe('administration rest tests', () => {
         await adminFunctions.accessScriptingAPI(403);
         await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.giveAdminRights();
+        await driver.sleep(100) //wait for apply
         await adminFunctions.accessScriptingAPI(200);
     });
 
@@ -48,6 +49,7 @@ describe('administration rest tests', () => {
         await adminFunctions.accessScriptingAPI(403);
         await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.giveAdminRights();
+        await driver.sleep(100) //wait for apply
         await adminFunctions.accessScriptingAPI(200);
         await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.takeAdminRights();
