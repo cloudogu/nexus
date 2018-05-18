@@ -30,6 +30,7 @@ afterEach(async() => {
 describe('administration rest tests', () => {
 
     test('user (' + testUserName + ') has admin privileges', async() => {
+        await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.accessScriptingAPI(403);
         await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.giveAdminRights();
@@ -43,6 +44,7 @@ describe('administration rest tests', () => {
 
 
     test('user (' + testUserName + ') remove admin privileges', async() => {
+        await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.accessScriptingAPI(403);
         await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.giveAdminRights();
