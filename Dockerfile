@@ -46,7 +46,9 @@ RUN set -x \
   && chown -R nexus:nexus ${NEXUS_WORKDIR} \
   && chmod -R 770 ${NEXUS_WORKDIR}
 
-COPY --chown=nexus resources /
+COPY resources /
+
+RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype
 
 USER nexus
 
