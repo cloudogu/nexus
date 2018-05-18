@@ -55,6 +55,8 @@ module.exports = class AdminFunctions{
         await driver.sleep(waitInterval)
         // click Yes
         await driver.findElement(By.id("button-1006-btnIconEl")).click();
+        // wait for success button
+        await driver.wait(until.elementLocated(By.className("x-header-text x-window-header-text x-window-header-text-nx-message-success")), 5000);
     };
 
     async giveAdminRights(){
