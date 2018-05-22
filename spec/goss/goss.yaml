@@ -1,14 +1,12 @@
 file:
   /opt/sonatype/nexus:
     exists: true
-    mode: "0755"
     owner: nexus
     group: nexus
     filetype: directory
     contains: []
   /startup.sh:
     exists: true
-    mode: "0755"
     owner: nexus
     group: nexus
     filetype: file
