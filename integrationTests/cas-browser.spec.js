@@ -35,7 +35,7 @@ describe('cas browser login', () => {
         await driver.sleep(waitInterval)
         // find user account button holding the username
         const username = await driver.findElement(By.id('button-1142-btnInnerEl')).getText();
-        expect(username.toLowerCase()).toContain(config.displayName);
+        expect(username.toLowerCase()).toMatch(config.displayName);
     });
 
     test('login with wrong password', async() => {

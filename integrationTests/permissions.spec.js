@@ -41,7 +41,7 @@ describe('user permissions', () => {
         await driver.sleep(waitInterval)
         // get username from user account button
         const username = await driver.findElement(By.id('button-1142-btnInnerEl')).getText();
-        expect(username.toLowerCase()).toContain(testUserName.toLowerCase());
+        expect(username.toLowerCase()).toMatch(testUserName.toLowerCase());
         expect(await utils.isAdministrator(driver)).toBe(true);
     });
 
