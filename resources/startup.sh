@@ -18,6 +18,7 @@ export NEWADMINPASSWORD=${NEWADMINPASSWORD}
 # export ces admin group
 CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
+TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 
 ### declaration of functions
 function setNexusVmoptionsAndProperties() {
@@ -70,12 +71,7 @@ function configureNexusAtSubsequentStart() {
   fi
 }
 
-function stopNexus() {
-  timeout -t 60 kill "${NEXUS_PID}"
-  wait $!
-}
-
-function startNexusAndWaitForHealth(){
+function startNexusAndWaitForHealth() {
   "${NEXUS_WORKDIR}/bin/nexus" run &
   NEXUS_PID=$!
   echo "wait until nexus passes all health checks"
@@ -87,17 +83,21 @@ function startNexusAndWaitForHealth(){
   fi
 }
 
+function exportNexusPassword() {
+  echo "Getting current admin password"
+  NEXUS_PASSWORD=$(doguctl config -e admin_password)
+  export NEXUS_PASSWORD=${NEXUS_PASSWORD}
+}
+
 ### beginning of startup
+echo "Setting nexus.vmoptions and properties..."
+setNexusVmoptionsAndProperties
 
 if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   doguctl state installing
 
   # create truststore
-  TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
   create_truststore.sh "${TRUSTSTORE}" > /dev/null
-
-  echo "Setting nexus.vmoptions and properties..."
-  setNexusVmoptionsAndProperties
 
   echo "Starting Nexus and waiting for healthy state..."
   startNexusAndWaitForHealth ${ADMINUSER} ${ADMINDEFAULTPASSWORD}
@@ -105,35 +105,49 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   echo "Configuring Nexus..."
   configureNexusAtFirstStart
 
-  echo "Stopping Nexus..."
-  stopNexus
-
   doguctl config successfulInitialConfiguration true
+  exportNexusPassword
+
+else
+
+  exportNexusPassword
+
+  echo "Starting Nexus and waiting for healthy state..."
+  startNexusAndWaitForHealth ${ADMINUSER} "${NEXUS_PASSWORD}"
+
+  echo "Configuring Nexus..."
+  configureNexusAtSubsequentStart
+
 fi
-
-echo "Getting current admin password"
-NEXUS_PASSWORD=$(doguctl config -e admin_password)
-export NEXUS_PASSWORD=${NEXUS_PASSWORD}
-
-echo "Starting Nexus and waiting for healthy state..."
-startNexusAndWaitForHealth ${ADMINUSER} "${NEXUS_PASSWORD}"
-
-echo "Configuring Nexus..."
-configureNexusAtSubsequentStart
-
-echo "Stopping Nexus..."
-stopNexus
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl ${NEXUS_DATA_DIR}/carp.yml
 
 echo "starting carp in background"
 nexus-carp -logtostderr ${NEXUS_DATA_DIR}/carp.yml &
+NEXUS_CARP_PID=$!
 
-echo "starting claim tool in background"
-/claim.sh &
+echo "starting claim tool"
+/claim.sh
 
 doguctl state ready
 
-echo "Running Nexus..."
-"${NEXUS_WORKDIR}/bin/nexus" run
+trap terminate SIGTERM
+
+# Wait for nexus or nexus-claim to stop
+# We use || true, otherwise the script would fail here because of 'set -o errexit'
+wait -n || true
+# Terminate the remaining process
+terminate
+
+function terminate() {
+  echo "Caught SIGTERM signal!"
+  echo "kill nexus"
+  kill -TERM "$NEXUS_PID" || true
+  wait "$NEXUS_PID" || true
+  echo "kill nexus-carp"
+  kill -TERM "$NEXUS_CARP_PID" || true
+  wait "$NEXUS_CARP_PID" || true
+  echo "Nexus shutdown gracefully"
+  exit 1
+}
