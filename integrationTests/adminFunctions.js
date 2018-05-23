@@ -5,7 +5,6 @@ const utils = require('./utils');
 const By = webdriver.By;
 const until = webdriver.until;
 const waitInterval = 3000;
-const shortWaitInterval = 200;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
