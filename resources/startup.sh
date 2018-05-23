@@ -89,6 +89,19 @@ function exportNexusPassword() {
   export NEXUS_PASSWORD=${NEXUS_PASSWORD}
 }
 
+function terminateNexusAndNexusCarp() {
+  echo "Caught SIGTERM signal!"
+  echo "kill nexus"
+  kill -TERM "$NEXUS_PID" || true
+  wait "$NEXUS_PID" || true
+  echo "kill nexus-carp"
+  kill -TERM "$NEXUS_CARP_PID" || true
+  wait "$NEXUS_CARP_PID" || true
+  echo "Nexus shut down gracefully"
+  exit 1
+}
+
+
 ### beginning of startup
 echo "Setting nexus.vmoptions and properties..."
 setNexusVmoptionsAndProperties
@@ -132,22 +145,10 @@ echo "starting claim tool"
 
 doguctl state ready
 
-trap terminate SIGTERM
+trap terminateNexusAndNexusCarp SIGTERM
 
 # Wait for nexus or nexus-claim to stop
 # We use || true, otherwise the script would fail here because of 'set -o errexit'
 wait -n || true
 # Terminate the remaining process
-terminate
-
-function terminate() {
-  echo "Caught SIGTERM signal!"
-  echo "kill nexus"
-  kill -TERM "$NEXUS_PID" || true
-  wait "$NEXUS_PID" || true
-  echo "kill nexus-carp"
-  kill -TERM "$NEXUS_CARP_PID" || true
-  wait "$NEXUS_CARP_PID" || true
-  echo "Nexus shutdown gracefully"
-  exit 1
-}
+terminateNexusAndNexusCarp
