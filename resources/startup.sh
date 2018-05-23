@@ -90,7 +90,6 @@ function exportNexusPassword() {
 }
 
 function terminateNexusAndNexusCarp() {
-  echo "Caught SIGTERM signal!"
   echo "kill nexus"
   kill -TERM "$NEXUS_PID" || true
   wait "$NEXUS_PID" || true
@@ -147,8 +146,9 @@ doguctl state ready
 
 trap terminateNexusAndNexusCarp SIGTERM
 
-# Wait for nexus or nexus-claim to stop
+# Wait for nexus or nexus-carp to stop
 # We use || true, otherwise the script would fail here because of 'set -o errexit'
 wait -n || true
+echo "A process failed, terminating dogu"
 # Terminate the remaining process
 terminateNexusAndNexusCarp
