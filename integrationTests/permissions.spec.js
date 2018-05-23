@@ -9,9 +9,9 @@ const until = webdriver.until;
 const testUserName = 'testUser';
 const testUserEmail = "testUser@test.de"
 const testUserPassword = "testuserpassword"
-const waitInterval = 2000;
+const waitInterval = 5000;
 
-jest.setTimeout(60000);
+jest.setTimeout(120000);
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 

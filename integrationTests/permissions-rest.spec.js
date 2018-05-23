@@ -3,9 +3,9 @@ const AdminFunctions = require('./adminFunctions');
 const utils = require('./utils');
 const webdriver = require('selenium-webdriver');
 const cacheWaitIntervall = 11000;
-const shortWaitInterval = 1000;
+const shortWaitInterval = 5000;
 
-jest.setTimeout(60000);
+jest.setTimeout(120000);
 let driver;
 let adminFunctions;
 

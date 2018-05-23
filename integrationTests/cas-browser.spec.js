@@ -3,13 +3,13 @@ const utils = require('./utils');
 const webdriver = require('selenium-webdriver');
 const By = webdriver.By;
 const until = webdriver.until;
-const waitInterval = 2000;
+const waitInterval = 5000;
 
 const logoutUrl = '/cas/logout';
 const loginUrl = '/cas/login';
 
 
-jest.setTimeout(30000);
+jest.setTimeout(120000);
 
 let driver;
 

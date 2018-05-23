@@ -4,7 +4,7 @@ const request = require('supertest');
 const utils = require('./utils');
 const By = webdriver.By;
 const until = webdriver.until;
-const waitInterval = 3000;
+const waitInterval = 5000;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
