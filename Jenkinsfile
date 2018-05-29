@@ -127,7 +127,7 @@ void writeVagrantConfiguration() {
     
     config.vm.box = "cloudogu/ecosystem-basebox"
     config.vm.hostname = "ces"
-    config.vm.box_version = "0.5.1"
+    config.vm.box_version = "0.6.2"
 
     # Mount ecosystem and local dogu
     config.vm.synced_folder ".", "/vagrant", disabled: true
