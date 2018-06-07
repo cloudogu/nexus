@@ -16,7 +16,7 @@ ENV NEXUS_VERSION=3.12.0-01 \
 RUN set -x \
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
-  && adduser -S -h /var/lib/nexus -s /bin/false -G nexus -u 1000 nexus \
+  && adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \
   # install tini
   && curl --fail --silent --location --retry 3 -o /bin/tini \
     https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-static-amd64 \
@@ -50,8 +50,6 @@ COPY resources /
 
 RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype
 
-USER nexus
-
 VOLUME /var/lib/nexus
 
 EXPOSE 8082
@@ -59,4 +57,4 @@ EXPOSE 8082
 WORKDIR ${NEXUS_WORKDIR}
 
 ENTRYPOINT [ "/bin/tini", "--" ]
-CMD ["/startup.sh"]
+CMD ["/pre-startup.sh"]

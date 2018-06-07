@@ -45,7 +45,7 @@ user:
     groups:
     - nexus
     home: /var/lib/nexus
-    shell: /bin/false
+    shell: /bin/bash
 group:
   nexus:
     exists: true
