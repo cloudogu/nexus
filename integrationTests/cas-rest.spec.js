@@ -12,12 +12,14 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 let driver;
 
-beforeEach(() => {
+beforeEach(async () => {
     driver = utils.createDriver(webdriver);
+    await driver.manage().window().maximize();
+
 });
 
-afterEach(() => {
-    driver.quit();
+afterEach(async () => {
+    await driver.quit();
 });
 
 
