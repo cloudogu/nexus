@@ -11,6 +11,7 @@ ENV NEXUS_VERSION=3.12.0-01 \
     NEXUS_CARP_VERSION=0.2.1 \
     NEXUS_SCRIPTING_VERSION=0.1.1 \
     SERVICE_TAGS=webapp \
+    SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus
 
 RUN set -x \
