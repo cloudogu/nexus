@@ -10,7 +10,7 @@
 
 **Name:** official/nexus
 
-**Description:** [Nexus Repository OSS](https://www.sonatype.com/nexus-repository-oss) is a open source artifact repository with universal support for popular formats.
+**Description:** [Nexus Repository OSS](https://www.sonatype.com/nexus-repository-oss) is an open source artifact repository with universal support for popular formats.
 
 **Website:** https://www.sonatype.com/nexus-repository-oss
 
@@ -26,7 +26,7 @@ cesapp start nexus
 ## Claim
 
 The preconfigured nexus repositories can be changed by using [nexus-claim](https://github.com/cloudogu/nexus-claim).
-First we have to create a model for our changes e.g.: [sample](https://github.com/cloudogu/nexus-claim/blob/develop/resources/nexus-initial-example.hcl). 
+First we have to create a model for our changes, e.g.: [sample](https://github.com/cloudogu/nexus-claim/blob/develop/resources/nexus-initial-example.hcl). 
 We could test our model by using the plan command against a running instance of nexus (note: do not forget to set credentials):
 
 ```bash
