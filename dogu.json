@@ -28,8 +28,10 @@
       "Type": "state"
     }
   ],
-  "ExposedCommands": {
-    "Name": "upgrade-notification",
-    "Command": "/upgrade-notification.sh"
-  }
+  "ExposedCommands": [
+    {
+      "Name": "upgrade-notification",
+      "Command": "/upgrade-notification.sh"
+    }
+  ]
 }
