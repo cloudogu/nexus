@@ -19,6 +19,12 @@ export NEWADMINPASSWORD=${NEWADMINPASSWORD}
 CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 
+### backup
+if [ -e "${NEXUS_DATA_DIR}"/nexusFullBackup.dump ]; then
+    echo "do backup"
+    mv ${NEXUS_DATA_DIR}/* /var/lib/NexusBackup/
+fi
+
 ### declaration of functions
 function setNexusVmoptionsAndProperties() {
   cat <<EOF > "${NEXUS_WORKDIR}/bin/nexus.vmoptions"
