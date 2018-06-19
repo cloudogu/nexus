@@ -1,4 +1,4 @@
-<img src="https://cloudogu.com/images/dogus/nexus.png" alt="jenkins logo" height="100px">
+<img src="https://cloudogu.com/images/dogus/nexus.png" alt="nexus logo" height="100px">
 
 
 [![GitHub license](https://img.shields.io/github/license/cloudogu/nexus.svg)](https://github.com/cloudogu/nexus/blob/master/LICENSE)
