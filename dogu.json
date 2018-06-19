@@ -19,6 +19,12 @@
     "Owner": "1000",
     "Group": "1000"
   }],
+  "ExposedCommands": [
+    {
+      "Name": "pre-upgrade",
+      "Command": "/pre-upgrade.sh"
+    }
+  ],
   "HealthChecks": [
     {
       "Type": "tcp",
