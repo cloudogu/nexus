@@ -57,23 +57,21 @@ timestamps{
             sh 'vagrant ssh -c "sudo cesapp --log-level debug build /dogu"'
         }
 
-        stage('Verify') {
-            if (!fileExists('reports/goss_official')) {
-                sh 'mkdir -p reports/goss_official'
+         stage('Verify') {
+            if (!fileExists('reports/goss_testing')) {
+                sh 'mkdir -p reports/goss_testing'
             } else {
-                sh 'rm -f reports/goss_official/*.xml'
+                sh 'rm -f reports/goss_testing/*.xml'
             }
             try {
-                sh 'vagrant ssh -c "sudo cesapp --log-level debug verify --health-timeout 600 --keep-container --ci --report-directory=/dogu/reports /dogu"'
+                sh 'vagrant ssh -c "sudo cesapp verify --health-timeout 600 --keep-container --ci --report-directory=/dogu/reports /dogu"'
             } finally {
-                junit allowEmptyResults: true, testResults: 'reports/goss_official/*.xml'
+                junit allowEmptyResults: true, testResults: 'reports/goss_testing/*.xml'
             }
         }
 
         stage('Integration Tests') {
 
-            // Due to a faulty health check, sonar may not be fully up at this point
-            sleep 40
 
             if (fileExists('integrationTests/it-results.xml')) {
                 sh 'rm -f integrationTests/it-results.xml'
