@@ -117,9 +117,12 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   echo "Configuring Nexus..."
   configureNexusAtFirstStart
 
-  doguctl config successfulInitialConfiguration true
   exportNexusPassword
 
+  export NEXUS_SERVER="http://localhost:8081/nexus"
+  nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+
+  doguctl config successfulInitialConfiguration true
 else
 
   exportNexusPassword
