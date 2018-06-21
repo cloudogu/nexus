@@ -180,7 +180,6 @@ void writeSetupStagingJSON() {
       "official/cas",
       "official/nginx",
       "official/postfix",
-      "official/postgresql",
       "official/usermgt"
     ],
     "completed":true
