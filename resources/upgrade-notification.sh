@@ -10,6 +10,6 @@ TO_VERSION="${2}"
 if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
     YELLOW='\033[1;33m'
     NC='\033[0m'
-    printf "${YELLOW}~~~~CAUTION~~~~\n"
-    printf "${NC}Upgrading to nexus 3 now will delete every data from nexus 2. You won't be able to recreate them. Please ensure you have backed up your data.\n"
+    printf "${YELLOW}~~~~Information~~~~\n"
+    printf "${NC}Before upgrading to nexus 3, we will back up your data at /var/lib/NexusBackup. Please follow our instruction if you wish to import your nexus 2 data to your upgraded nexus 3 \n"
 fi
