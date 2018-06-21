@@ -20,7 +20,7 @@
     "Group": "1000"
   },
     {
-      "Name": "dataForMigration",
+      "Name": "migration",
       "Path": "/var/lib/migration",
       "Owner": "1000",
       "Group": "1000"

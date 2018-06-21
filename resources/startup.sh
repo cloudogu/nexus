@@ -21,8 +21,8 @@ export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 
 ### backup
-if [ -e "${NEXUS_DATA_DIR}"/dataForMigration ]; then
-    rm ${NEXUS_DATA_DIR}/dataForMigration
+if [ -e "${NEXUS_DATA_DIR}"/migration ]; then
+    rm ${NEXUS_DATA_DIR}/migration
     mv ${NEXUS_DATA_DIR}/* /var/lib/migration/
 fi
 
