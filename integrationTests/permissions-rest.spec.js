@@ -3,8 +3,9 @@ const AdminFunctions = require('./adminFunctions');
 const utils = require('./utils');
 const webdriver = require('selenium-webdriver');
 const cacheWaitIntervall = 11000;
+const shortWaitInterval = 5000;
 
-jest.setTimeout(60000);
+jest.setTimeout(120000);
 let driver;
 let adminFunctions;
 
@@ -34,6 +35,7 @@ describe('administration rest tests', () => {
         await adminFunctions.accessScriptingAPI(403);
         await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.giveAdminRights();
+        await driver.sleep(shortWaitInterval) //wait for apply
         await adminFunctions.accessScriptingAPI(200);
     });
 
@@ -48,9 +50,11 @@ describe('administration rest tests', () => {
         await adminFunctions.accessScriptingAPI(403);
         await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.giveAdminRights();
+        await driver.sleep(shortWaitInterval) //wait for apply
         await adminFunctions.accessScriptingAPI(200);
         await driver.sleep(cacheWaitIntervall) // wait for cache to expire
         await adminFunctions.takeAdminRights();
+        await driver.sleep(shortWaitInterval) //wait for apply
         await adminFunctions.accessScriptingAPI(403);
     });
 
