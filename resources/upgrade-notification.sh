@@ -11,5 +11,5 @@ if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
     YELLOW='\033[1;33m'
     NC='\033[0m'
     printf "${YELLOW}~~~~Information~~~~\n"
-    printf "${NC}Before upgrading to nexus 3, we will back up your data at /var/lib/NexusBackup. Please follow our instruction if you wish to import your nexus 2 data to your upgraded nexus 3 \n"
+    printf "${NC}Before upgrading to nexus 3, we will back up your data at /var/lib/NexusBackup so you can migrate your nexus 2 datas to your new upgraded nexus 3.\nContact hello@cloudogu.com for question\n"
 fi
