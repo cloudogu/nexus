@@ -1,4 +1,3 @@
-
 file:
   /opt/sonatype/nexus:
     exists: true
@@ -7,6 +6,12 @@ file:
     filetype: directory
     contains: []
   /startup.sh:
+    exists: true
+    owner: nexus
+    group: nexus
+    filetype: file
+    contains: []
+  /pre-upgrade.sh:
     exists: true
     owner: nexus
     group: nexus
