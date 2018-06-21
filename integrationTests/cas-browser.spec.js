@@ -61,7 +61,7 @@ describe('cas browser login', () => {
         expect(url).toMatch(logoutUrl);
     });
 
-    test('logout back channel', async() => {
+    xtest('logout back channel', async() => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
         await driver.get(config.baseUrl + logoutUrl);
