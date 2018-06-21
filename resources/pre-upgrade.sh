@@ -12,5 +12,5 @@ FROM_VERSION="${1}"
 TO_VERSION="${2}"
 
 if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
-    touch "${NEXUS_DATA_DIR}"/dataForMigration.dump
+    touch "${NEXUS_DATA_DIR}"/dataForMigration
 fi
