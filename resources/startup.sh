@@ -21,9 +21,9 @@ export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 
 ### backup
-if [ -e "${NEXUS_DATA_DIR}"/nexusFullBackup.dump ]; then
-    rm ${NEXUS_DATA_DIR}/nexusFullBackup.dump
-    mv ${NEXUS_DATA_DIR}/* /var/lib/NexusBackup/
+if [ -e "${NEXUS_DATA_DIR}"/dataForMigration.dump ]; then
+    rm ${NEXUS_DATA_DIR}/dataForMigration.dump
+    mv ${NEXUS_DATA_DIR}/* /var/lib/migration/
 fi
 
 ### declaration of functions

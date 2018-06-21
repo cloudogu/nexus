@@ -1,5 +1,5 @@
 {
-  "Name": "testing/nexus",
+  "Name": "official/nexus",
   "Version": "3.12.0-1",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
@@ -20,8 +20,8 @@
     "Group": "1000"
   },
     {
-      "Name": "backup",
-      "Path": "/var/lib/NexusBackup",
+      "Name": "dataForMigration",
+      "Path": "/var/lib/migration",
       "Owner": "1000",
       "Group": "1000"
     }],
