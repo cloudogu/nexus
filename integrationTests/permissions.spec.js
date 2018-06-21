@@ -9,9 +9,9 @@ const until = webdriver.until;
 const testUserName = 'testUser';
 const testUserEmail = "testUser@test.de"
 const testUserPassword = "testuserpassword"
-const waitInterval = 2000;
+const waitInterval = 5000;
 
-jest.setTimeout(60000);
+jest.setTimeout(120000);
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -21,6 +21,7 @@ let adminFunctions;
 
 beforeEach(async() => {
     driver = await utils.createDriver(webdriver);
+    await driver.manage().window().maximize();
     adminFunctions = new AdminFunctions(testUserName, testUserName, testUserName, testUserEmail, testUserPassword);
     await adminFunctions.createUser();
 });
@@ -41,7 +42,7 @@ describe('user permissions', () => {
         await driver.sleep(waitInterval)
         // get username from user account button
         const username = await driver.findElement(By.id('button-1142-btnInnerEl')).getText();
-        expect(username.toLowerCase()).toContain(testUserName.toLowerCase());
+        expect(username.toLowerCase()).toMatch(testUserName.toLowerCase());
         expect(await utils.isAdministrator(driver)).toBe(true);
     });
 

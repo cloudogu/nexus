@@ -3,22 +3,24 @@ const utils = require('./utils');
 const webdriver = require('selenium-webdriver');
 const By = webdriver.By;
 const until = webdriver.until;
-const waitInterval = 2000;
+const waitInterval = 5000;
 
 const logoutUrl = '/cas/logout';
 const loginUrl = '/cas/login';
 
 
-jest.setTimeout(30000);
+jest.setTimeout(120000);
 
 let driver;
 
-beforeEach(() => {
+beforeEach(async () => {
     driver = utils.createDriver(webdriver);
+    await driver.manage().window().maximize();
+
 });
 
-afterEach(() => {
-    driver.quit();
+afterEach(async() => {
+    await driver.quit();
 });
 
 describe('cas browser login', () => {
@@ -35,7 +37,7 @@ describe('cas browser login', () => {
         await driver.sleep(waitInterval)
         // find user account button holding the username
         const username = await driver.findElement(By.id('button-1142-btnInnerEl')).getText();
-        expect(username.toLowerCase()).toContain(config.displayName);
+        expect(username.toLowerCase()).toMatch(config.displayName);
     });
 
     test('login with wrong password', async() => {

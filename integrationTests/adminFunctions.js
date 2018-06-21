@@ -4,8 +4,7 @@ const request = require('supertest');
 const utils = require('./utils');
 const By = webdriver.By;
 const until = webdriver.until;
-const waitInterval = 3000;
-const shortWaitInterval = 200;
+const waitInterval = 5000;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -46,15 +45,20 @@ module.exports = class AdminFunctions{
         await driver.sleep(waitInterval)
         // get to testuser's user menu entry
         driver.get(config.baseUrl + config.nexusContextPath + "#admin/security/users:" + this.testuserName)
+        await driver.wait(until.elementLocated(By.id("tool-1156-toolEl")), 5000);
         await driver.sleep(waitInterval)
         // dismiss popup box
         await driver.findElement(By.id("tool-1156-toolEl")).click();
         // click delete button
         await driver.wait(until.elementLocated(By.id("button-1287-btnEl")), 5000);
         await driver.findElement(By.id("button-1287-btnEl")).click();
+        // wait for yes button
+        await driver.wait(until.elementLocated(By.id("button-1006-btnIconEl")), 5000);
         await driver.sleep(waitInterval)
         // click Yes
         await driver.findElement(By.id("button-1006-btnIconEl")).click();
+        // wait for success button
+        await driver.wait(until.elementLocated(By.className("x-header-text x-window-header-text x-window-header-text-nx-message-success")), 5000);
     };
 
     async giveAdminRights(){
