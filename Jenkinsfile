@@ -48,13 +48,13 @@ timestamps{
 
         stage('Wait for dependencies') {
             timeout(15) {
-                sh 'vagrant ssh -c "sudo cesapp --log-level debug healthy --wait --timeout 600 --fail-fast cas"'
-                sh 'vagrant ssh -c "sudo cesapp --log-level debug healthy --wait --timeout 600 --fail-fast usermgt"'
+                sh 'vagrant ssh -c "sudo cesapp healthy --wait --timeout 600 --fail-fast cas"'
+                sh 'vagrant ssh -c "sudo cesapp healthy --wait --timeout 600 --fail-fast usermgt"'
             }
         }
 
         stage('Build') {
-            sh 'vagrant ssh -c "sudo cesapp --log-level debug build /dogu"'
+            sh 'vagrant ssh -c "sudo cesapp build /dogu"'
         }
 
          stage('Verify') {
@@ -180,7 +180,6 @@ void writeSetupStagingJSON() {
       "official/cas",
       "official/nginx",
       "official/postfix",
-      "official/postgresql",
       "official/usermgt"
     ],
     "completed":true
