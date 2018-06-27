@@ -72,7 +72,6 @@ describe('cas browser login', () => {
         const url = await driver.getCurrentUrl();
         expect(url).toMatch(loginUrl);
     });
-
 });
 
 
