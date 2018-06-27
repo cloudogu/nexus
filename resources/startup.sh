@@ -77,7 +77,7 @@ function startNexusAndWaitForHealth() {
   echo "wait until nexus passes all health checks"
   export HTTP_BASIC_AUTH_USERNAME=$1
   export HTTP_BASIC_AUTH_PASSWORD=$2
-  if ! doguctl wait-for-http --timeout 120 --method GET http://localhost:8081/nexus/service/metrics/healthcheck; then
+  if ! doguctl wait-for-http --timeout 300 --method GET http://localhost:8081/nexus/service/metrics/healthcheck; then
     echo "timeout reached while waiting for nexus to get healthy"
     exit 1
   fi
@@ -117,9 +117,12 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   echo "Configuring Nexus..."
   configureNexusAtFirstStart
 
-  doguctl config successfulInitialConfiguration true
   exportNexusPassword
 
+  export NEXUS_SERVER="http://localhost:8081/nexus"
+  nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+
+  doguctl config successfulInitialConfiguration true
 else
 
   exportNexusPassword
