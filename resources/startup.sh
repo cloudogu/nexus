@@ -22,8 +22,10 @@ TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 
 ### backup
 if [ -e "${NEXUS_DATA_DIR}"/migration ]; then
-    rm ${NEXUS_DATA_DIR}/migration
     mv ${NEXUS_DATA_DIR}/* /var/lib/migration/
+    # also move hidden files
+    mv ${NEXUS_DATA_DIR}/.[!.]* /var/lib/migration/
+    rm ${NEXUS_DATA_DIR}/migration
 fi
 
 ### declaration of functions
