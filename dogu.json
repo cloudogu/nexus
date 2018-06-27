@@ -18,7 +18,19 @@
     "Path": "/var/lib/nexus",
     "Owner": "1000",
     "Group": "1000"
-  }],
+  },
+    {
+      "Name": "migration",
+      "Path": "/var/lib/migration",
+      "Owner": "1000",
+      "Group": "1000"
+    }],
+  "ExposedCommands": [
+    {
+      "Name": "pre-upgrade",
+      "Command": "/pre-upgrade.sh"
+    }
+  ],
   "HealthChecks": [
     {
       "Type": "tcp",

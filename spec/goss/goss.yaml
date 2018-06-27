@@ -11,7 +11,20 @@ file:
     group: nexus
     filetype: file
     contains: []
+  /pre-upgrade.sh:
+    exists: true
+    owner: root
+    group: root
+    filetype: file
+    contains: []
   /var/lib/nexus:
+    exists: true
+    mode: "0755"
+    owner: nexus
+    group: nexus
+    filetype: directory
+    contains: []
+  /var/lib/migration:
     exists: true
     mode: "0755"
     owner: nexus
