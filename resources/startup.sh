@@ -23,10 +23,12 @@ TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 ### backup
 if [ -e "${NEXUS_DATA_DIR}"/migration ]; then
   echo "moving old nexus data to migration volume"
+  # remove flag so it won't be moved to migration volume
+  rm ${NEXUS_DATA_DIR}/migration
+  # move all nexus 2 data to migration volume
   mv ${NEXUS_DATA_DIR}/* /var/lib/migration/
   # also move hidden files
   mv ${NEXUS_DATA_DIR}/.[!.]* /var/lib/migration/
-  rm ${NEXUS_DATA_DIR}/migration
 fi
 
 ### declaration of functions
