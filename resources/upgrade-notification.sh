@@ -21,8 +21,11 @@ if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
 
     Afterwards please follow the official migration steps for Nexus 3
     (https://help.sonatype.com/repomanager3/upgrading/upgrade-procedures) and keep in mind:
-    - Agent Connection step: The base URL of the remote server is the URL of your local Nexus 2 created in step 1 above
-    - Content step: DO NOT check the \"server configuration\" option!\n"
+    - Agent Connection step: The base URL of the remote server is the URL of your local Nexus 2 created in step 1 above.
+    - Content step: DO NOT select the \"server configuration\" option!\n"
 
-    printf "\nFeel free to contact hello@cloudogu.com for questions\n"
+    printf "\nAfter you have finished the migration, please restart your nexus dogu and check the user privileges and roles in the Administration --> Security menu, as they have most likely changed.
+Most notably, if you are using the CES user management, make sure that the admin group role (defined during CES setup) is granted the \"nx-all\" privilege!\n"
+
+    printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
 fi
