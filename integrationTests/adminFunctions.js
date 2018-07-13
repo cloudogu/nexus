@@ -35,6 +35,64 @@ module.exports = class AdminFunctions{
             });
     };
 
+    async createLocalNexusUser() {
+        // add nexus script for adding test user
+        let addUserScriptName = "addUser"
+        await request(config.baseUrl)
+            .post('/nexus/service/rest/v1/script')
+            .auth(config.username, config.password)
+            .set('Content-Type', 'application/json;charset=UTF-8')
+            .type('json')
+            .send({
+                'name': addUserScriptName,
+                'content': "security.addUser(\"" + this.testuserName + "\", \"" + this.testuserFirstname + "\",\"" + this.testuserSurname + "\",\"" + this.testuserEmail + "\",true,\"" + this.testuserPasswort + "\",[\"nx-admin\"])",
+                'type': "groovy"
+            })
+            .expect(204);
+        // execute nexus script
+        await request(config.baseUrl)
+            .post('/nexus/service/rest/v1/script/'+addUserScriptName+'/run')
+            .auth(config.username, config.password)
+            .set('Content-Type', 'application/json;charset=UTF-8')
+            .type('text/plain')
+            .send("groovy")
+            .expect(200);
+        // remove nexus script
+        await request(config.baseUrl)
+            .delete('/nexus/service/rest/v1/script/'+addUserScriptName)
+            .auth(config.username, config.password)
+            .expect(204);
+    };
+
+    async removeLocalNexusUser() {
+        // add nexus script for removing test user
+        let removeUserScriptName = "removeUser"
+        await request(config.baseUrl)
+            .post('/nexus/service/rest/v1/script')
+            .auth(config.username, config.password)
+            .set('Content-Type', 'application/json;charset=UTF-8')
+            .type('json')
+            .send({
+                'name': removeUserScriptName,
+                'content': "security.securitySystem.deleteUser(\"" + this.testuserName + "\")",
+                'type': "groovy"
+            })
+            .expect(204);
+        // execute nexus script
+        await request(config.baseUrl)
+            .post('/nexus/service/rest/v1/script/'+removeUserScriptName+'/run')
+            .auth(config.username, config.password)
+            .set('Content-Type', 'application/json;charset=UTF-8')
+            .type('text/plain')
+            .send("groovy")
+            .expect(200);
+        // remove nexus script
+        await request(config.baseUrl)
+            .delete('/nexus/service/rest/v1/script/'+removeUserScriptName)
+            .auth(config.username, config.password)
+            .expect(204);
+    };
+
     async removeUser(driver){
         await request(config.baseUrl)
             .del('/usermgt/api/users/' + this.testuserName)
