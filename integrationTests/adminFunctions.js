@@ -37,7 +37,7 @@ module.exports = class AdminFunctions{
 
     async createLocalNexusUser() {
         // add nexus script for adding test user
-        let addUserScriptName = "addUser"
+        let addUserScriptName = "addUserForIntegrationTesting"
         await request(config.baseUrl)
             .post('/nexus/service/rest/v1/script')
             .auth(config.username, config.password)
@@ -66,7 +66,7 @@ module.exports = class AdminFunctions{
 
     async removeLocalNexusUser() {
         // add nexus script for removing test user
-        let removeUserScriptName = "removeUser"
+        let removeUserScriptName = "removeIntegrationTestingUser"
         await request(config.baseUrl)
             .post('/nexus/service/rest/v1/script')
             .auth(config.username, config.password)
