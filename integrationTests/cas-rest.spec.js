@@ -65,5 +65,16 @@ describe('cas rest basic authentication', () => {
         await adminFunctions.removeLocalNexusUser(driver);
     });
 
+    test('authentication with carp header and wrong credentials of local Nexus user', async () => {
+        adminFunctions = new AdminFunctions(testUserName, testUserName, testUserName, testUserEmail, testUserPassword);
+        await adminFunctions.createLocalNexusUser();
+        await request(config.baseUrl)
+            .get(config.nexusContextPath + "/service/rest/v1/script")
+            .auth(testUserName, "46Y2RjZjVnZWg2dGdmcmVjZGZ0c")
+            .set('X-CARP-Authentication', 'admin')
+            .expect(401);
+        await adminFunctions.removeLocalNexusUser(driver);
+    });
+
 });
 
