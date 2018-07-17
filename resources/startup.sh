@@ -54,13 +54,15 @@ function setNexusVmoptionsAndProperties() {
   -Djavax.net.ssl.trustStorePassword=changeit
   -Djava.net.preferIPv4Stack=true
 EOF
+}
 
+function setNexusProperties() {
   mkdir -p ${NEXUS_DATA_DIR}/etc
   cat <<EOF > ${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
 EOF
-}
 
+}
 function configureNexusAtFirstStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
@@ -118,6 +120,8 @@ setNexusVmoptionsAndProperties
 
 if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   doguctl state installing
+
+  setNexusProperties
 
   # create truststore
   create_truststore.sh "${TRUSTSTORE}" > /dev/null
