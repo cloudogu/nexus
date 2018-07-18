@@ -1,7 +1,7 @@
 # registry.cloudogu.com/official/nexus
 FROM registry.cloudogu.com/official/java:8u151-3
 LABEL maintainer="robert.auer@cloudogu.com" \
-    NAME="testing/nexus" \
+    NAME="official/nexus" \
     VERSION="3.12.1-01"
 
 # The version of nexus to install
