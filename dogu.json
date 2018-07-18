@@ -35,6 +35,11 @@
       "Command": "/upgrade-notification.sh"
     }
   ],
+  "Configuration": [{
+    "Name": "nexus.repository.sandbox.enable",
+    "Description": "Enable repository sandboxing",
+    "Optional": true
+  }],
   "HealthChecks": [
     {
       "Type": "tcp",

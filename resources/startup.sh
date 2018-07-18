@@ -61,8 +61,8 @@ function setNexusProperties() {
   cat <<EOF > ${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
 EOF
-
 }
+
 function configureNexusAtFirstStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
@@ -115,13 +115,20 @@ function terminateNexusAndNexusCarp() {
 
 
 ### beginning of startup
-echo "Setting nexus.vmoptions and properties..."
+echo "Setting nexus.vmoptions..."
 setNexusVmoptionsAndProperties
+
+echo "Setting nexus.properties..."
+setNexusProperties
+
+if [ $(doguctl config nexus.repository.sandbox.enable) ]; then
+  sandboxEnable=$(doguctl config nexus.repository.sandbox.enable)
+  echo "Setting repository sandboxing to "${sandboxEnable}
+  echo "nexus.repository.sandbox.enable="${sandboxEnable} >> ${NEXUS_DATA_DIR}/etc/nexus.properties
+fi
 
 if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   doguctl state installing
-
-  setNexusProperties
 
   # create truststore
   create_truststore.sh "${TRUSTSTORE}" > /dev/null
