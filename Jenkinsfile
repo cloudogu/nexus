@@ -58,15 +58,15 @@ timestamps{
         }
 
          stage('Verify') {
-            if (!fileExists('reports/goss_testing')) {
-                sh 'mkdir -p reports/goss_testing'
+            if (!fileExists('reports/goss_official')) {
+                sh 'mkdir -p reports/goss_official'
             } else {
-                sh 'rm -f reports/goss_testing/*.xml'
+                sh 'rm -f reports/goss_official/*.xml'
             }
             try {
                 sh 'vagrant ssh -c "sudo cesapp verify --health-timeout 600 --keep-container --ci --report-directory=/dogu/reports /dogu"'
             } finally {
-                junit allowEmptyResults: true, testResults: 'reports/goss_testing/*.xml'
+                junit allowEmptyResults: true, testResults: 'reports/goss_official/*.xml'
             }
         }
 
