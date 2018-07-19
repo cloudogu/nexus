@@ -61,6 +61,12 @@ function setNexusProperties() {
   cat <<EOF > ${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
 EOF
+
+if [ $(doguctl config nexus.repository.sandbox.enable) ]; then
+  sandboxEnable=$(doguctl config nexus.repository.sandbox.enable)
+  echo "Setting repository sandboxing to "${sandboxEnable}
+  echo "nexus.repository.sandbox.enable="${sandboxEnable} >> ${NEXUS_DATA_DIR}/etc/nexus.properties
+fi
 }
 
 function configureNexusAtFirstStart() {
@@ -120,12 +126,6 @@ setNexusVmoptionsAndProperties
 
 echo "Setting nexus.properties..."
 setNexusProperties
-
-if [ $(doguctl config nexus.repository.sandbox.enable) ]; then
-  sandboxEnable=$(doguctl config nexus.repository.sandbox.enable)
-  echo "Setting repository sandboxing to "${sandboxEnable}
-  echo "nexus.repository.sandbox.enable="${sandboxEnable} >> ${NEXUS_DATA_DIR}/etc/nexus.properties
-fi
 
 if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   doguctl state installing
