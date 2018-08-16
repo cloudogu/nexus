@@ -17,13 +17,15 @@
     "Name": "data",
     "Path": "/var/lib/nexus",
     "Owner": "1000",
-    "Group": "1000"
+    "Group": "1000",
+    "NeedsBackup": true
   },
     {
       "Name": "migration",
       "Path": "/var/lib/migration",
       "Owner": "1000",
-      "Group": "1000"
+      "Group": "1000",
+      "NeedsBackup": true
     }],
   "ExposedCommands": [
     {
