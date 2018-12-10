@@ -142,9 +142,17 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   exportNexusPassword
 
   export NEXUS_SERVER="http://localhost:8081/nexus"
-  nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+
+  # Install default docker registry if requested via etcd
+  if doguctl config installDefaultDockerRegistry > /dev/null ; then
+    if "$(doguctl config installDefaultDockerRegistry)" == "true" ; then
+      echo "Installing default docker registry"
+      nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+    fi
+  fi
 
   doguctl config successfulInitialConfiguration true
+
 else
 
   exportNexusPassword
