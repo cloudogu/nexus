@@ -45,7 +45,7 @@
     },
     {
       "Name": "installDefaultDockerRegistry",
-      "Description": "If set to true, the default docker registry is installed",
+      "Description": "If set to false, the default docker registry is not installed",
       "Optional": true
     }
   ],

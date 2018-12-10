@@ -145,10 +145,13 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
 
   # Install default docker registry if requested via etcd
   if doguctl config installDefaultDockerRegistry > /dev/null ; then
-    if "$(doguctl config installDefaultDockerRegistry)" == "true" ; then
+    if "$(doguctl config installDefaultDockerRegistry)" != "false" ; then
       echo "Installing default docker registry"
       nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
     fi
+  else
+    echo "Installing default docker registry"
+    nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
   fi
 
   doguctl config successfulInitialConfiguration true
