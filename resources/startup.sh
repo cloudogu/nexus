@@ -119,6 +119,12 @@ function terminateNexusAndNexusCarp() {
   exit 1
 }
 
+function installDefaultDockerRegistry() {
+  echo "Installing default docker registry"
+  nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+}
+
+
 
 ### beginning of startup
 echo "Setting nexus.vmoptions..."
@@ -146,12 +152,10 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   # Install default docker registry if requested via etcd
   if doguctl config installDefaultDockerRegistry > /dev/null ; then
     if "$(doguctl config installDefaultDockerRegistry)" != "false" ; then
-      echo "Installing default docker registry"
-      nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+      installDefaultDockerRegistry
     fi
   else
-    echo "Installing default docker registry"
-    nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+    installDefaultDockerRegistry
   fi
 
   doguctl config successfulInitialConfiguration true
