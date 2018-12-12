@@ -148,12 +148,8 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
 
   exportNexusPassword
 
-  # Install default docker registry if requested via etcd
-  if doguctl config installDefaultDockerRegistry > /dev/null ; then
-    if "$(doguctl config installDefaultDockerRegistry)" != "false" ; then
-      installDefaultDockerRegistry
-    fi
-  else
+  # Install default docker registry if not prohibited by etcd key
+  if "$(doguctl config --default true installDefaultDockerRegistry)" != "false" ; then
     installDefaultDockerRegistry
   fi
 
