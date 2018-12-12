@@ -121,6 +121,7 @@ function terminateNexusAndNexusCarp() {
 
 function installDefaultDockerRegistry() {
   echo "Installing default docker registry"
+  export NEXUS_SERVER="http://localhost:8081/nexus"
   nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
 }
 
@@ -146,8 +147,6 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   configureNexusAtFirstStart
 
   exportNexusPassword
-
-  export NEXUS_SERVER="http://localhost:8081/nexus"
 
   # Install default docker registry if requested via etcd
   if doguctl config installDefaultDockerRegistry > /dev/null ; then
