@@ -119,6 +119,13 @@ function terminateNexusAndNexusCarp() {
   exit 1
 }
 
+function installDefaultDockerRegistry() {
+  echo "Installing default docker registry"
+  export NEXUS_SERVER="http://localhost:8081/nexus"
+  nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+}
+
+
 
 ### beginning of startup
 echo "Setting nexus.vmoptions..."
@@ -141,10 +148,13 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
 
   exportNexusPassword
 
-  export NEXUS_SERVER="http://localhost:8081/nexus"
-  nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+  # Install default docker registry if not prohibited by etcd key
+  if "$(doguctl config --default true installDefaultDockerRegistry)" != "false" ; then
+    installDefaultDockerRegistry
+  fi
 
   doguctl config successfulInitialConfiguration true
+
 else
 
   exportNexusPassword
