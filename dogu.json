@@ -37,11 +37,18 @@
       "Command": "/upgrade-notification.sh"
     }
   ],
-  "Configuration": [{
+  "Configuration": [
+    {
     "Name": "nexus.repository.sandbox.enable",
     "Description": "Enable repository sandboxing",
     "Optional": true
-  }],
+    },
+    {
+      "Name": "installDefaultDockerRegistry",
+      "Description": "If set to false, the default docker registry is not installed",
+      "Optional": true
+    }
+  ],
   "HealthChecks": [
     {
       "Type": "tcp",
