@@ -103,20 +103,17 @@ module.exports = class AdminFunctions{
         await driver.sleep(waitInterval)
         // get to testuser's user menu entry
         driver.get(config.baseUrl + config.nexusContextPath + "#admin/security/users:" + this.testuserName)
-        await driver.wait(until.elementLocated(By.id("tool-1156-toolEl")), 5000);
         await driver.sleep(waitInterval)
-        // dismiss popup box
-        await driver.findElement(By.id("tool-1156-toolEl")).click();
         // click delete button
-        await driver.wait(until.elementLocated(By.id("button-1287-btnEl")), 5000);
-        await driver.findElement(By.id("button-1287-btnEl")).click();
+        await driver.wait(until.elementLocated(By.xpath("//span[.='Delete user']")), 5000);
+        await driver.findElement(By.xpath("//span[.='Delete user']")).click();
         // wait for yes button
-        await driver.wait(until.elementLocated(By.id("button-1006-btnIconEl")), 5000);
+        await driver.wait(until.elementLocated(By.xpath("//span[.='Yes']")), 5000);
         await driver.sleep(waitInterval)
         // click Yes
-        await driver.findElement(By.id("button-1006-btnIconEl")).click();
+        await driver.findElement(By.xpath("//span[.='Yes']")).click();
         // wait for success button
-        await driver.wait(until.elementLocated(By.className("x-header-text x-window-header-text x-window-header-text-nx-message-success")), 5000);
+        await driver.wait(until.elementLocated(By.className("x-title-text x-title-text-nx-message-success x-title-item")), 5000);
     };
 
     async giveAdminRights(){
