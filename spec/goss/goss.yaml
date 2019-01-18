@@ -33,7 +33,7 @@ file:
     contains: []
   /usr/bin/nexus-claim:
     exists: true
-    mode: "0755"
+    mode: "0775"
     filetype: file
   /usr/bin/nexus-carp:
     exists: true
@@ -65,6 +65,8 @@ group:
     gid: 1000
 process:
   nexus-carp:
+    running: true
+  tini:
     running: true
 port:
   tcp:8081:
