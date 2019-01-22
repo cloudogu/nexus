@@ -7,7 +7,7 @@ LABEL maintainer="robert.auer@cloudogu.com" \
 # The version of nexus to install
 ENV NEXUS_VERSION=3.15.0-01 \
     TINI_VERSION=0.18.0 \
-    NEXUS_CLAIM_VERSION=0.2.1 \
+    NEXUS_CLAIM_VERSION=0.2.2 \
     NEXUS_CARP_VERSION=0.2.3 \
     NEXUS_SCRIPTING_VERSION=0.1.1 \
     SERVICE_TAGS=webapp \
