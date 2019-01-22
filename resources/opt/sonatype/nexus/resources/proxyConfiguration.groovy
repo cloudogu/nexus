@@ -26,6 +26,7 @@ def nonProxyHostsArePresent() {
 def configurationParameters = new JsonSlurper().parseText(args)
 
 println("Setting HTTP proxy configuration")
+core.removeHTTPProxy()
 if (httpHostAndPortArePresent()){
     String host = configurationParameters.proxyConfigurationHttpHost
     int port = configurationParameters.proxyConfigurationHttpPort as int
@@ -45,7 +46,9 @@ if (httpHostAndPortArePresent()){
 }
 
 println("Setting HTTPS proxy configuration")
-if (httpsHostAndPortArePresent()){
+core.removeHTTPSProxy()
+// Can only activate HTTPS proxy settings if HTTP is also activated
+if (httpsHostAndPortArePresent() && httpHostAndPortArePresent()){
     String httpshost = configurationParameters.proxyConfigurationHttpsHost
     int httpsport = configurationParameters.proxyConfigurationHttpsPort as int
     if (httpsBasicAuthConfigIsPresent()){
@@ -64,7 +67,8 @@ if (httpsHostAndPortArePresent()){
 }
 
 println("Setting non-proxy hosts")
-if (nonProxyHostsArePresent()){
+// Can only set non-proxy hosts if HTTP proxy configuration is set
+if (nonProxyHostsArePresent() && httpHostAndPortArePresent()){
     String[] nonProxyHosts = configurationParameters.proxyConfigurationNonProxyHosts.split(",")
     core.nonProxyHosts(nonProxyHosts)
 }
