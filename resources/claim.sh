@@ -22,7 +22,7 @@ function claim() {
     echo "exec claim ${CLAIM}"
     nexus-claim plan -i "${PLAN}" -o "-" | nexus-claim apply -i "-"
 
-    if [ "${LOCK}" != "" ]; then
+    if [[ "${LOCK}" != "" ]]; then
       echo 1 > "${ONCE_LOCK}"
     fi
   fi
@@ -37,7 +37,7 @@ function claim_always() {
   claim "always" ""
 }
 
-if [ ! -f "${ONCE_LOCK}" ]; then
+if [[ ! -f "${ONCE_LOCK}" ]]; then
   claim_once
 fi
 
