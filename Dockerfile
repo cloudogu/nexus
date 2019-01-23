@@ -12,7 +12,8 @@ ENV NEXUS_VERSION=3.15.0-01 \
     NEXUS_SCRIPTING_VERSION=0.1.1 \
     SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
-    NEXUS_WORKDIR=/opt/sonatype/nexus
+    NEXUS_WORKDIR=/opt/sonatype/nexus \
+    NEXUS_SERVER="http://localhost:8081/nexus"
 
 RUN set -x \
   # add nexus user and group
