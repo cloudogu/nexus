@@ -16,16 +16,12 @@ jest.setTimeout(30000);
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 
-let driver;
 let adminFunctions;
 
 beforeEach(async () => {
-    driver = utils.createDriver(webdriver);
-    await driver.manage().window().maximize();
 });
 
 afterEach(async () => {
-    await driver.quit();
 });
 
 
@@ -52,7 +48,7 @@ describe('cas rest basic authentication', () => {
             .get(config.nexusContextPath + "/service/rest/v1/script")
             .auth(testUserName, testUserPassword)
             .expect(200);
-        await adminFunctions.removeLocalNexusUser(driver);
+        await adminFunctions.removeLocalNexusUser();
     });
 
     test('authentication with wrong username and password of local Nexus user', async () => {
@@ -62,7 +58,7 @@ describe('cas rest basic authentication', () => {
             .get(config.nexusContextPath + "/service/rest/v1/script")
             .auth(testUserName, "46Y2RjZjVnZWg2dGdmcmVjZGZ0c")
             .expect(401);
-        await adminFunctions.removeLocalNexusUser(driver);
+        await adminFunctions.removeLocalNexusUser();
     });
 
     test('authentication with carp header and wrong credentials of local Nexus user', async () => {
@@ -73,7 +69,7 @@ describe('cas rest basic authentication', () => {
             .auth(testUserName, "46Y2RjZjVnZWg2dGdmcmVjZGZ0c")
             .set('X-CARP-Authentication', 'admin')
             .expect(401);
-        await adminFunctions.removeLocalNexusUser(driver);
+        await adminFunctions.removeLocalNexusUser();
     });
 
 });
