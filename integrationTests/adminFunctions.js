@@ -4,7 +4,8 @@ const request = require('supertest');
 const utils = require('./utils');
 const By = webdriver.By;
 const until = webdriver.until;
-const waitInterval = 5000;
+const generalWaitInterval = 5000;
+const interfaceWaitInterval = 8000;
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -100,23 +101,20 @@ module.exports = class AdminFunctions{
         await utils.getCasUrl(driver);
         // login admin
         await utils.login(driver);
-        await driver.sleep(waitInterval)
+        await driver.sleep(generalWaitInterval)
         // get to testuser's user menu entry
         driver.get(config.baseUrl + config.nexusContextPath + "#admin/security/users:" + this.testuserName)
-        await driver.wait(until.elementLocated(By.id("tool-1156-toolEl")), 5000);
-        await driver.sleep(waitInterval)
-        // dismiss popup box
-        await driver.findElement(By.id("tool-1156-toolEl")).click();
+        await driver.sleep(generalWaitInterval)
         // click delete button
-        await driver.wait(until.elementLocated(By.id("button-1287-btnEl")), 5000);
-        await driver.findElement(By.id("button-1287-btnEl")).click();
+        await driver.wait(until.elementLocated(By.xpath("//span[.='Delete user']")), interfaceWaitInterval);
+        await driver.findElement(By.xpath("//span[.='Delete user']")).click();
         // wait for yes button
-        await driver.wait(until.elementLocated(By.id("button-1006-btnIconEl")), 5000);
-        await driver.sleep(waitInterval)
+        await driver.wait(until.elementLocated(By.xpath("//span[.='Yes']")), interfaceWaitInterval);
+        await driver.sleep(generalWaitInterval)
         // click Yes
-        await driver.findElement(By.id("button-1006-btnIconEl")).click();
+        await driver.findElement(By.xpath("//span[.='Yes']")).click();
         // wait for success button
-        await driver.wait(until.elementLocated(By.className("x-header-text x-window-header-text x-window-header-text-nx-message-success")), 5000);
+        await driver.wait(until.elementLocated(By.className("x-title-text x-title-text-nx-message-success x-title-item")), interfaceWaitInterval);
     };
 
     async giveAdminRights(){
@@ -155,8 +153,8 @@ module.exports = class AdminFunctions{
     };
 
     async testUserLogin(driver) {
-        await driver.wait(until.elementLocated(By.id('password')), 5000);
-        await driver.wait(until.elementLocated(By.id('username')), 5000);
+        await driver.wait(until.elementLocated(By.id('password')), interfaceWaitInterval);
+        await driver.wait(until.elementLocated(By.id('username')), interfaceWaitInterval);
 
         await driver.findElement(By.id('username')).sendKeys(this.testuserName);
         await driver.findElement(By.id('password')).sendKeys(this.testuserPasswort);

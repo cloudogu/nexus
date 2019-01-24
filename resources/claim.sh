@@ -12,7 +12,7 @@ ONCE_LOCK="/var/lib/nexus/claim.once"
 
 export NEXUS_USER="admin"
 export NEXUS_PASSWORD=$(doguctl config -e "admin_password")
-export NEXUS_SERVER="http://localhost:8081/nexus"
+# NEXUS_SERVER is already set in Dockerfile
 
 function claim() {
   CLAIM="${1}"
@@ -22,7 +22,7 @@ function claim() {
     echo "exec claim ${CLAIM}"
     nexus-claim plan -i "${PLAN}" -o "-" | nexus-claim apply -i "-"
 
-    if [ "${LOCK}" != "" ]; then
+    if [[ "${LOCK}" != "" ]]; then
       echo 1 > "${ONCE_LOCK}"
     fi
   fi
@@ -37,7 +37,7 @@ function claim_always() {
   claim "always" ""
 }
 
-if [ ! -f "${ONCE_LOCK}" ]; then
+if [[ ! -f "${ONCE_LOCK}" ]]; then
   claim_once
 fi
 
