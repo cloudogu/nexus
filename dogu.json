@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.12.1-7",
+  "Version": "3.15.0-01",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
