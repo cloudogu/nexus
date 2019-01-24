@@ -66,6 +66,8 @@ group:
 process:
   nexus-carp:
     running: true
+  tini:
+    running: true
 port:
   tcp:8081:
     listening: true

@@ -1,8 +1,11 @@
 repository "docker-registry" {
-  name = "docker-registry"
   online = true
   recipeName = "docker-hosted"
   attributes = {
+    docker = {
+      forceBasicAuth = true
+      v1Enabled = false
+    }
     storage = {
         blobStoreName = "default"
         strictContentTypeValidation = true
