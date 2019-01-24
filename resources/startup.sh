@@ -167,6 +167,9 @@ else
 
 fi
 
+echo "importing HTTP/S proxy settings from registry"
+nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
+
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl ${NEXUS_DATA_DIR}/carp.yml
 

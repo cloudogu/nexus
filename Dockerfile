@@ -2,17 +2,18 @@
 FROM registry.cloudogu.com/official/java:8u171-1
 LABEL maintainer="robert.auer@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.12.1-01"
+    VERSION="3.15.0-01"
 
 # The version of nexus to install
-ENV NEXUS_VERSION=3.12.1-01 \
-    TINI_VERSION=0.15.0 \
-    NEXUS_CLAIM_VERSION=0.2.0 \
+ENV NEXUS_VERSION=3.15.0-01 \
+    TINI_VERSION=0.18.0 \
+    NEXUS_CLAIM_VERSION=0.2.2 \
     NEXUS_CARP_VERSION=0.2.3 \
     NEXUS_SCRIPTING_VERSION=0.1.1 \
     SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
-    NEXUS_WORKDIR=/opt/sonatype/nexus
+    NEXUS_WORKDIR=/opt/sonatype/nexus \
+    NEXUS_SERVER="http://localhost:8081/nexus"
 
 RUN set -x \
   # add nexus user and group
