@@ -15,14 +15,7 @@ jest.setTimeout(30000);
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-
 let adminFunctions;
-
-beforeEach(async () => {
-});
-
-afterEach(async () => {
-});
 
 
 describe('cas rest basic authentication', () => {
