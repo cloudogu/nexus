@@ -57,21 +57,27 @@ EOF
 }
 
 function setNexusProperties() {
+  echo "Creating properties file..."
   mkdir -p ${NEXUS_DATA_DIR}/etc
   cat <<EOF > ${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
 EOF
 
-if [ $(doguctl config nexus.repository.sandbox.enable) ]; then
+echo "Checking if repository sandboxing should be enabled..."
+if doguctl config nexus.repository.sandbox.enable > /dev/null; then
   sandboxEnable=$(doguctl config nexus.repository.sandbox.enable)
-  echo "Setting repository sandboxing to "${sandboxEnable}
-  echo "nexus.repository.sandbox.enable="${sandboxEnable} >> ${NEXUS_DATA_DIR}/etc/nexus.properties
+  echo "Setting repository sandboxing to ${sandboxEnable}"
+  echo "nexus.repository.sandbox.enable=${sandboxEnable}" >> ${NEXUS_DATA_DIR}/etc/nexus.properties
+else
+  echo "Not enabling repository sandboxing"
 fi
 }
 
 function configureNexusAtFirstStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
+    echo "Rendering nexusConfParameters template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+    echo "Executing nexusConfigurationFirstStart script"
     nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
     doguctl config -e "admin_password" "${NEWADMINPASSWORD}"
   else
@@ -82,7 +88,9 @@ function configureNexusAtFirstStart() {
 
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
+    echo "Rendering nexusConfParameters template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+    echo "Executing nexusConfigurationSubsequentStart script"
     nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
   else
     echo "Configuration files do not exist"
@@ -99,6 +107,9 @@ function startNexusAndWaitForHealth() {
   if ! doguctl wait-for-http --timeout 300 --method GET http://localhost:8081/nexus/service/metrics/healthcheck; then
     echo "timeout reached while waiting for nexus to get healthy"
     exit 1
+  else
+    HEALTH_INFORMATION=$(curl -s -u "${HTTP_BASIC_AUTH_USERNAME}":"${HTTP_BASIC_AUTH_PASSWORD}" http://localhost:8081/nexus/service/metrics/healthcheck)
+    echo "Nexus is healthy: ${HEALTH_INFORMATION}"
   fi
 }
 
