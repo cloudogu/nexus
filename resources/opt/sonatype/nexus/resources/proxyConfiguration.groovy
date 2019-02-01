@@ -25,7 +25,7 @@ def nonProxyHostsArePresent() {
 // get parameters from payload JSON file
 def configurationParameters = new JsonSlurper().parseText(args)
 
-println("Setting HTTP proxy configuration")
+println("Setting HTTP proxy configuration according to registry settings...")
 core.removeHTTPProxy()
 if (httpHostAndPortArePresent()){
     String host = configurationParameters.proxyConfigurationHttpHost
@@ -43,9 +43,11 @@ if (httpHostAndPortArePresent()){
     } else {
         core.httpProxy(host, port)
     }
+} else {
+    println("No HTTP proxy configuration set")
 }
 
-println("Setting HTTPS proxy configuration")
+println("Setting HTTPS proxy configuration according to registry settings...")
 core.removeHTTPSProxy()
 // Can only activate HTTPS proxy settings if HTTP is also activated
 if (httpsHostAndPortArePresent() && httpHostAndPortArePresent()){
@@ -64,11 +66,15 @@ if (httpsHostAndPortArePresent() && httpHostAndPortArePresent()){
     } else {
         core.httpsProxy(httpshost, httpsport)
     }
+} else {
+    println("No HTTPS proxy configuration set")
 }
 
-println("Setting non-proxy hosts")
+println("Setting non-proxy hosts according to registry settings...")
 // Can only set non-proxy hosts if HTTP proxy configuration is set
 if (nonProxyHostsArePresent() && httpHostAndPortArePresent()){
     String[] nonProxyHosts = configurationParameters.proxyConfigurationNonProxyHosts.split(",")
     core.nonProxyHosts(nonProxyHosts)
+} else {
+    println("No non-proxy hosts configuration set")
 }
