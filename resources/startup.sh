@@ -78,6 +78,13 @@ function startNexusAndWaitForHealth(){
   fi
 }
 
+function terminateNexus() {
+  echo "terminate nexus ($1) and wait"
+  kill -TERM "$1" || true
+  wait "$1" || true
+  echo "successfully terminated nexus"
+}
+
 doguctl state installing
 
 # create truststore
@@ -106,20 +113,20 @@ if ! [ -d /var/lib/nexus/plugin-repository/nexus-cas-plugin-"${CAS_PLUGIN_VERSIO
       curl -s --retry 3 --retry-delay 10 -H "Content-Type: application/json" -X PUT -d "$MAIL_CONFIGURATION" "http://127.0.0.1:8081/nexus/service/local/global_settings/current" -u "$ADMUSR":"$ADMPW"
       # disable new version info
       curl -s -H "Content-Type: application/json" -X PUT -d "{data:{enabled:false}}" "http://127.0.0.1:8081/nexus/service/local/lvo_config" -u "$ADMUSR":"$ADMPW"
-      kill $!
+      terminateNexus $!
 fi
 
 if  ! doguctl config -e "admin_password" > /dev/null ; then
   startNexusAndWaitForHealth
   set_random_admin_password
-  kill $!
+  terminateNexus $!
 fi
 
 ADMPW=$(doguctl config -e "admin_password")
 
 startNexusAndWaitForHealth
 setProxyConfiguration
-kill $!
+terminateNexus $!
 
 echo "render_template"
 # update cas url
