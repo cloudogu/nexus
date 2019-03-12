@@ -52,13 +52,13 @@ describe('cas browser login', () => {
         expect(url).toMatch(loginUrl);
     });
 
-    xtest('logout front channel', async() => {
+    test('logout front channel', async() => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
         // wait for sign out button to appear
-        await driver.wait(until.elementLocated(By.id('nx-header-signout-1145-btnIconEl')), 5000);
-        await driver.sleep(waitInterval)
-        await driver.findElement(By.id("nx-header-signout-1145-btnIconEl")).click();
+        await driver.wait(until.elementLocated(By.id('nx-header-signout-1144-btnIconEl')), 5000);
+        await driver.sleep(waitInterval);
+        await driver.findElement(By.id("nx-header-signout-1144-btnIconEl")).click();
         const url = await driver.getCurrentUrl();
         expect(url).toMatch(logoutUrl);
     });
@@ -66,10 +66,13 @@ describe('cas browser login', () => {
     test('logout back channel', async() => {
         await driver.get(utils.getCasUrl(driver));
         await utils.login(driver);
+        var url = await driver.getCurrentUrl();
+        expect(url).toMatch(config.baseUrl + config.nexusContextPath);
+
         await driver.get(config.baseUrl + logoutUrl);
-        await driver.sleep(waitInterval) //wait for logout to happen
+        await driver.sleep(waitInterval); //wait for logout to happen
         await driver.get(config.baseUrl + config.nexusContextPath);
-        const url = await driver.getCurrentUrl();
+        url = await driver.getCurrentUrl();
         expect(url).toMatch(loginUrl);
     });
 });
