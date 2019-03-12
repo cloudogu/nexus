@@ -2,7 +2,7 @@
 FROM registry.cloudogu.com/official/java:8u171-1
 LABEL maintainer="robert.auer@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.15.2-1"
+    VERSION="3.15.2-2"
 
 # The version of nexus to install
 ENV NEXUS_VERSION=3.15.2-01 \
