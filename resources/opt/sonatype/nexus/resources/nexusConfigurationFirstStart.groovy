@@ -19,6 +19,15 @@ Map properties = new HashMap<String, String>();
 properties.put("httpHeader", "X-CARP-Authentication")
 capabilityRegistry.add(capabilityType, true, null, properties)
 
+if (configurationParameters.disableOutreachManagement == "true") {
+    for (c in capabilityRegistry.getAll()) {
+        if (c.context().type().toString().startsWith("OutreachManagementCapability")) {
+            log.info("Disable outreach capability")
+            capabilityRegistry.disable(c.context().id())
+        }
+    }
+}
+
 println("Setting base URL")
 core.baseUrl("https://" + configurationParameters.fqdn + "/nexus")
 

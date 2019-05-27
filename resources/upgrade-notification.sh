@@ -8,11 +8,11 @@ FROM_VERSION="${1}"
 TO_VERSION="${2}"
 
 if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
-    YELLOW='\033[1;33m'
+    RED='\033[1;31m'
     NC='\033[0m'
-    printf "${YELLOW}~~~~Information~~~~\n"
-    printf "${NC}During the upgrade to Nexus 3, your Nexus 2 data will be backed up to /var/lib/ces/nexus/volumes/migration.\n"
-    printf "\nPlease backup your local Nexus users as they will not get migrated to Nexus 3 and have to be recreated after the upgrade. This does not affect users from the user backend which are authenticated via CAS.\n"
+    printf "${RED}~~~~Warning~~~~\n"
+    printf "${NC}During the upgrade to Nexus 3, your Nexus 2 data will be backed up to /var/lib/ces/nexus/volumes/migration. Make sure to provide at least twice the amount of storage space your nexus is using right now!\n"
+    printf "\nPlease backup your local Nexus users, because they will not get migrated to Nexus 3 and have to be recreated after the upgrade. This does not affect users from the user backend which are authenticated via CAS.\n"
     printf "\nTo migrate your data to Nexus 3, please follow these instructions after upgrading:
     1. Install Nexus 2 via docker locally (see https://hub.docker.com/r/sonatype/nexus/)
     2. Start your local Nexus 2 and create the repositories you wish to migrate via the UI
@@ -27,6 +27,8 @@ if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
 
     printf "\nAfter you have finished the migration, please restart your nexus dogu and check the user privileges and roles in the Administration --> Security menu, as they have most likely changed.
 Most notably, if you are using the CES user management, make sure that the admin group role (defined during CES setup) is granted the \"nx-all\" privilege!\n"
+
+    printf "\nAfter a successful migration, remember to remove your old nexus 2 data from the /var/lib/ces/nexus/volumes/migration folder to recover the disc space it occupied.\n"
 
     printf "\nPlease be aware that the repository URLs have changed in Nexus 3. You might need to adapt your access routines.\n"
 
