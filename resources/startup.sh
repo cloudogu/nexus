@@ -5,12 +5,12 @@ set -o pipefail
 
 # variables
 ADMINUSER="admin"
-export ADMINDEFAULTPASSWORD="admin123"
 NEXUS_DATA_DIR=/var/lib/nexus
+
 # credentials for nexus-scripting tool
 export NEXUS_URL="http://localhost:8081/nexus"
 export NEXUS_USER=${ADMINUSER}
-export NEXUS_PASSWORD=${ADMINDEFAULTPASSWORD}
+
 # create random admin password
 NEWADMINPASSWORD=$(doguctl random)
 export NEWADMINPASSWORD=${NEWADMINPASSWORD}
@@ -75,10 +75,20 @@ fi
 
 function configureNexusAtFirstStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
+    local nexusPassword
+    nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
+
     echo "Rendering nexusConfParameters template"
-    doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+    ADMINDEFAULTPASSWORD="${nexusPassword}" \
+      doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
+        "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+
     echo "Executing nexusConfigurationFirstStart script"
-    nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
+
+    NEXUS_PASSWORD="$(<${NEXUS_DATA_DIR}/admin.password)" \
+      nexus-scripting execute \
+        --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
+        "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
     doguctl config -e "admin_password" "${NEWADMINPASSWORD}"
   else
     echo "Configuration files do not exist"
@@ -88,22 +98,52 @@ function configureNexusAtFirstStart() {
 
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
+    local nexusPassword
+    nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
+
     echo "Rendering nexusConfParameters template"
-    doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+    ADMINDEFAULTPASSWORD="${nexusPassword}" \
+      doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
+        "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+
     echo "Executing nexusConfigurationSubsequentStart script"
-    nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
+    NEXUS_PASSWORD="$(<${NEXUS_DATA_DIR}/admin.password)" \
+      nexus-scripting execute \
+        --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
+        "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
   else
     echo "Configuration files do not exist"
     exit 1
   fi
 }
 
-function startNexusAndWaitForHealth() {
+function waitForFile() {
+  local file="$1"; shift
+  local wait_seconds="${1:-10}"; shift
+
+  until test $((wait_seconds--)) -eq 0 -o -f "$file" ; do sleep 1; done
+
+  ((++wait_seconds))
+}
+
+function startNexus() {
   "${NEXUS_WORKDIR}/bin/nexus" run &
   NEXUS_PID=$!
+
+  echo "waiting for file ${NEXUS_DATA_DIR}/admin.password to appear"
+  waitForFile "${NEXUS_DATA_DIR}/admin.password" 300 || {
+    echo "${NEXUS_DATA_DIR}/admin.password did not appear, something is broken"
+    exit 1
+  }
+}
+
+function waitForHealthCheck() {
   echo "wait until nexus passes all health checks"
+
   export HTTP_BASIC_AUTH_USERNAME=$1
-  export HTTP_BASIC_AUTH_PASSWORD=$2
+  HTTP_BASIC_AUTH_PASSWORD="$(<${NEXUS_DATA_DIR}/admin.password)"
+  export HTTP_BASIC_AUTH_PASSWORD
+
   if ! doguctl wait-for-http --timeout 300 --method GET http://localhost:8081/nexus/service/metrics/healthcheck; then
     echo "timeout reached while waiting for nexus to get healthy"
     exit 1
@@ -151,12 +191,16 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   # create truststore
   create_truststore.sh "${TRUSTSTORE}" > /dev/null
 
-  echo "Starting Nexus and waiting for healthy state..."
-  startNexusAndWaitForHealth ${ADMINUSER} ${ADMINDEFAULTPASSWORD}
+  echo "Starting Nexus..."
+  startNexus
 
-  echo "Configuring Nexus..."
+  echo "Waiting for healthy state..."
+  waitForHealthCheck ${ADMINUSER}
+
+  echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
 
+  echo "Exporting nexus password..."
   exportNexusPassword
 
   # Install default docker registry if not prohibited by etcd key
@@ -168,12 +212,16 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
 
 else
 
+  echo "Exporting nexus password..."
   exportNexusPassword
 
-  echo "Starting Nexus and waiting for healthy state..."
-  startNexusAndWaitForHealth ${ADMINUSER} "${NEXUS_PASSWORD}"
+  echo "Starting Nexus..."
+  startNexus
 
-  echo "Configuring Nexus..."
+  echo "Waiting for healthy state..."
+  waitForHealthCheck ${ADMINUSER}
+
+  echo "Configuring Nexus for subsequent start..."
   configureNexusAtSubsequentStart
 
 fi
