@@ -85,7 +85,7 @@ function configureNexusAtFirstStart() {
 
     echo "Executing nexusConfigurationFirstStart script"
 
-    NEXUS_PASSWORD="$(<${NEXUS_DATA_DIR}/admin.password)" \
+    NEXUS_PASSWORD="${nexusPassword}" \
       nexus-scripting execute \
         --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
         "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
@@ -99,7 +99,7 @@ function configureNexusAtFirstStart() {
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
     local nexusPassword
-    nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
+    nexusPassword="$(doguctl config -e admin_password)"
 
     echo "Rendering nexusConfParameters template"
     ADMINDEFAULTPASSWORD="${nexusPassword}" \
@@ -107,7 +107,7 @@ function configureNexusAtSubsequentStart() {
         "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
     echo "Executing nexusConfigurationSubsequentStart script"
-    NEXUS_PASSWORD="$(<${NEXUS_DATA_DIR}/admin.password)" \
+    NEXUS_PASSWORD="${nexusPassword}" \
       nexus-scripting execute \
         --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
         "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
@@ -137,11 +137,11 @@ function startNexus() {
   }
 }
 
-function waitForHealthCheck() {
+function doHealthCheck() {
   echo "wait until nexus passes all health checks"
 
   export HTTP_BASIC_AUTH_USERNAME=$1
-  HTTP_BASIC_AUTH_PASSWORD="$(<${NEXUS_DATA_DIR}/admin.password)"
+  HTTP_BASIC_AUTH_PASSWORD=$2
   export HTTP_BASIC_AUTH_PASSWORD
 
   if ! doguctl wait-for-http --timeout 300 --method GET http://localhost:8081/nexus/service/metrics/healthcheck; then
@@ -153,6 +153,14 @@ function waitForHealthCheck() {
     HEALTH_INFORMATION=$(curl -s -u "${HTTP_BASIC_AUTH_USERNAME}":"${HTTP_BASIC_AUTH_PASSWORD}" http://localhost:8081/nexus/service/metrics/healthcheck)
     echo "Nexus is healthy: ${HEALTH_INFORMATION}"
   fi
+}
+
+function waitForHealthCheck() {
+  doHealthCheck $1 "$(<${NEXUS_DATA_DIR}/admin.password)"
+}
+
+function waitForHealthCheckAtSubsequentStart() {
+  doHealthCheck $1 "$(doguctl config -e admin_password)"
 }
 
 function exportNexusPassword() {
@@ -221,7 +229,7 @@ else
   startNexus
 
   echo "Waiting for healthy state..."
-  waitForHealthCheck ${ADMINUSER}
+  waitForHealthCheckAtSubsequentStart ${ADMINUSER}
 
   echo "Configuring Nexus for subsequent start..."
   configureNexusAtSubsequentStart
