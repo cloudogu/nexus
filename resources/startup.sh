@@ -146,6 +146,8 @@ function waitForHealthCheck() {
 
   if ! doguctl wait-for-http --timeout 300 --method GET http://localhost:8081/nexus/service/metrics/healthcheck; then
     echo "timeout reached while waiting for nexus to get healthy"
+    HEALTH_INFORMATION=$(curl -s -u "${HTTP_BASIC_AUTH_USERNAME}":"${HTTP_BASIC_AUTH_PASSWORD}" http://localhost:8081/nexus/service/metrics/healthcheck)
+    echo "Nexus Health information: ${HEALTH_INFORMATION}"
     exit 1
   else
     HEALTH_INFORMATION=$(curl -s -u "${HTTP_BASIC_AUTH_USERNAME}":"${HTTP_BASIC_AUTH_PASSWORD}" http://localhost:8081/nexus/service/metrics/healthcheck)
