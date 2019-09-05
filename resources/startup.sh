@@ -8,12 +8,10 @@ ADMINUSER="admin"
 NEXUS_DATA_DIR=/var/lib/nexus
 
 # credentials for nexus-scripting tool
+# NEXUS_PASSWORD cannot be set here because it needs to be fetched from
+# different sources, depending on whether this is a restart or a first time start
 export NEXUS_URL="http://localhost:8081/nexus"
 export NEXUS_USER=${ADMINUSER}
-
-# create random admin password
-NEWADMINPASSWORD=$(doguctl random)
-export NEWADMINPASSWORD=${NEWADMINPASSWORD}
 
 # export ces admin group
 CES_ADMIN_GROUP=$(doguctl config --global admin_group)
@@ -78,8 +76,12 @@ function configureNexusAtFirstStart() {
     local nexusPassword
     nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
 
+    local newAdminPassword
+    newAdminPassword="$(doguctl random)"
+
     echo "Rendering nexusConfParameters template"
     ADMINDEFAULTPASSWORD="${nexusPassword}" \
+    NEWADMINPASSWORD="${newAdminPassword}" \
       doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
         "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
@@ -89,7 +91,7 @@ function configureNexusAtFirstStart() {
       nexus-scripting execute \
         --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
         "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
-    doguctl config -e "admin_password" "${NEWADMINPASSWORD}"
+    doguctl config -e "admin_password" "${newAdminPassword}"
   else
     echo "Configuration files do not exist"
     exit 1
@@ -98,19 +100,15 @@ function configureNexusAtFirstStart() {
 
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
-    local nexusPassword
-    nexusPassword="$(doguctl config -e admin_password)"
-
     echo "Rendering nexusConfParameters template"
-    ADMINDEFAULTPASSWORD="${nexusPassword}" \
-      doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
-        "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+    doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
+      "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
+    # uses NEXUS_PASSWORD set by exportNexusPasswordFromEtcd
     echo "Executing nexusConfigurationSubsequentStart script"
-    NEXUS_PASSWORD="${nexusPassword}" \
-      nexus-scripting execute \
-        --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
-        "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
+    nexus-scripting execute \
+      --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
+      "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
   else
     echo "Configuration files do not exist"
     exit 1
@@ -118,12 +116,12 @@ function configureNexusAtSubsequentStart() {
 }
 
 function waitForFile() {
-  local file="$1"; shift
-  local wait_seconds="${1:-10}"; shift
+  local file="$1";
+  local wait_seconds="${2}";
 
   until test $((wait_seconds--)) -eq 0 -o -f "$file" ; do sleep 1; done
 
-  ((++wait_seconds))
+  test -f "$file"
 }
 
 function startNexus() {
@@ -141,8 +139,7 @@ function doHealthCheck() {
   echo "wait until nexus passes all health checks"
 
   export HTTP_BASIC_AUTH_USERNAME=$1
-  HTTP_BASIC_AUTH_PASSWORD=$2
-  export HTTP_BASIC_AUTH_PASSWORD
+  export HTTP_BASIC_AUTH_PASSWORD=$2
 
   if ! doguctl wait-for-http --timeout 300 --method GET http://localhost:8081/nexus/service/metrics/healthcheck; then
     echo "timeout reached while waiting for nexus to get healthy"
@@ -156,14 +153,14 @@ function doHealthCheck() {
 }
 
 function waitForHealthCheck() {
-  doHealthCheck $1 "$(<${NEXUS_DATA_DIR}/admin.password)"
+  doHealthCheck "$1" "$(<${NEXUS_DATA_DIR}/admin.password)"
 }
 
 function waitForHealthCheckAtSubsequentStart() {
-  doHealthCheck $1 "$(doguctl config -e admin_password)"
+  doHealthCheck "$1" "$(doguctl config -e admin_password)"
 }
 
-function exportNexusPassword() {
+function exportNexusPasswordFromEtcd() {
   echo "Getting current admin password"
   NEXUS_PASSWORD=$(doguctl config -e admin_password)
   export NEXUS_PASSWORD=${NEXUS_PASSWORD}
@@ -211,7 +208,7 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   configureNexusAtFirstStart
 
   echo "Exporting nexus password..."
-  exportNexusPassword
+  exportNexusPasswordFromEtcd
 
   # Install default docker registry if not prohibited by etcd key
   if "$(doguctl config --default true installDefaultDockerRegistry)" != "false" ; then
@@ -222,8 +219,10 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
 
 else
 
+  # needs to be called before configureNexusAtSubsequentStart because it sets
+  # NEXUS_PASSWORD env var
   echo "Exporting nexus password..."
-  exportNexusPassword
+  exportNexusPasswordFromEtcd
 
   echo "Starting Nexus..."
   startNexus
