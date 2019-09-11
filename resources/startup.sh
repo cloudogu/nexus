@@ -31,7 +31,7 @@ fi
 
 ### declaration of functions
 function setNexusVmoptionsAndProperties() {
-  cat <<EOF > "${NEXUS_WORKDIR}/bin/nexus.vmoptions"
+  cat <<EOF >"${NEXUS_WORKDIR}/bin/nexus.vmoptions"
   -Xms1200M
   -Xmx1200M
   -XX:MaxDirectMemorySize=2G
@@ -57,18 +57,18 @@ EOF
 function setNexusProperties() {
   echo "Creating properties file..."
   mkdir -p ${NEXUS_DATA_DIR}/etc
-  cat <<EOF > ${NEXUS_DATA_DIR}/etc/nexus.properties
+  cat <<EOF >${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
 EOF
 
-echo "Checking if repository sandboxing should be enabled..."
-if doguctl config nexus.repository.sandbox.enable > /dev/null; then
-  sandboxEnable=$(doguctl config nexus.repository.sandbox.enable)
-  echo "Setting repository sandboxing to ${sandboxEnable}"
-  echo "nexus.repository.sandbox.enable=${sandboxEnable}" >> ${NEXUS_DATA_DIR}/etc/nexus.properties
-else
-  echo "Not enabling repository sandboxing"
-fi
+  echo "Checking if repository sandboxing should be enabled..."
+  if doguctl config nexus.repository.sandbox.enable >/dev/null; then
+    sandboxEnable=$(doguctl config nexus.repository.sandbox.enable)
+    echo "Setting repository sandboxing to ${sandboxEnable}"
+    echo "nexus.repository.sandbox.enable=${sandboxEnable}" >>${NEXUS_DATA_DIR}/etc/nexus.properties
+  else
+    echo "Not enabling repository sandboxing"
+  fi
 }
 
 function configureNexusAtFirstStart() {
@@ -81,16 +81,16 @@ function configureNexusAtFirstStart() {
 
     echo "Rendering nexusConfParameters template"
     ADMINDEFAULTPASSWORD="${nexusPassword}" \
-    NEWADMINPASSWORD="${newAdminPassword}" \
+      NEWADMINPASSWORD="${newAdminPassword}" \
       doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
-        "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+      "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
     echo "Executing nexusConfigurationFirstStart script"
 
     NEXUS_PASSWORD="${nexusPassword}" \
       nexus-scripting execute \
-        --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
-        "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
+      --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
+      "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
     doguctl config -e "admin_password" "${newAdminPassword}"
   else
     echo "Configuration files do not exist"
@@ -116,10 +116,10 @@ function configureNexusAtSubsequentStart() {
 }
 
 function waitForFile() {
-  local file="$1";
-  local wait_seconds="${2}";
+  local file="$1"
+  local wait_seconds="${2}"
 
-  until test $((wait_seconds--)) -eq 0 -o -f "$file" ; do sleep 1; done
+  until test $((wait_seconds--)) -eq 0 -o -f "$file"; do sleep 1; done
 
   test -f "$file"
 }
@@ -183,8 +183,6 @@ function installDefaultDockerRegistry() {
   nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
 }
 
-
-
 ### beginning of startup
 echo "Setting nexus.vmoptions..."
 setNexusVmoptionsAndProperties
@@ -196,7 +194,7 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   doguctl state installing
 
   # create truststore
-  create_truststore.sh "${TRUSTSTORE}" > /dev/null
+  create_truststore.sh "${TRUSTSTORE}" >/dev/null
 
   echo "Starting Nexus..."
   startNexus
@@ -211,7 +209,7 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   exportNexusPasswordFromEtcd
 
   # Install default docker registry if not prohibited by etcd key
-  if "$(doguctl config --default true installDefaultDockerRegistry)" != "false" ; then
+  if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
     installDefaultDockerRegistry
   fi
 
@@ -234,6 +232,9 @@ else
   configureNexusAtSubsequentStart
 
 fi
+
+echo "writing admin_group_last to etcd"
+doguctl config admin_group_last ${CES_ADMIN_GROUP}
 
 echo "importing HTTP/S proxy settings from registry"
 nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"

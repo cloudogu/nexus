@@ -2,6 +2,7 @@
   "fqdn": "{{ .GlobalConfig.Get "fqdn" }}",
   "defaultAdminPassword": "{{ .Env.Get "ADMINDEFAULTPASSWORD" }}",
   "newAdminPassword": "{{ .Env.Get "NEWADMINPASSWORD" }}",
+  "lastAdminGroup": "{{ .Config.GetOrDefault "admin_group_last" "" }}",
   "adminGroup": "{{ .GlobalConfig.Get "admin_group" }}",
   "disableOutreachManagement": "{{ .Config.GetOrDefault "disableOutreachManagement" "false" }}",
   {{ if .Config.Exists "proxyConfiguration/http/host" }}
