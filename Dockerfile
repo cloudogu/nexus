@@ -10,6 +10,8 @@ ENV NEXUS_VERSION=3.18.1-01 \
     NEXUS_CLAIM_VERSION=0.3.0 \
     NEXUS_CARP_VERSION=0.3.2 \
     NEXUS_SCRIPTING_VERSION=0.2.0 \
+    NEXUS_REPOSITORY_R_PLUGIN_VERSION="1.0.4" \
+    NEXUS_REPOSITORY_HELM_PLUGIN_VERSION="0.0.13" \
     SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
@@ -45,6 +47,10 @@ RUN set -x \
   https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
   | gunzip \
   | tar x -C /usr/bin \
+  && curl --fail --silent --location --retry 3 -o ${NEXUS_WORKDIR}/deploy/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}-bundle.kar \
+  https://repo1.maven.org/maven2/org/sonatype/nexus/plugins/nexus-repository-r/${NEXUS_REPOSITORY_R_PLUGIN_VERSION}/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}-bundle.kar \
+  && curl --fail --silent --location --retry 3 -o ${NEXUS_WORKDIR}/deploy/nexus-repository-helm-${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}-bundle.kar \
+  https://repo1.maven.org/maven2/org/sonatype/nexus/plugins/nexus-repository-helm/${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}/nexus-repository-helm-${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}-bundle.kar \
   && chown -R nexus:nexus ${NEXUS_WORKDIR} \
   && chmod -R 770 ${NEXUS_WORKDIR}
 
