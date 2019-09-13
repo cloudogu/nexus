@@ -1,4 +1,5 @@
-const config = require('./config');
+import {UI} from "./utils";
+
 const utils = require('./utils');
 const AdminFunctions = require('./adminFunctions');
 
@@ -7,8 +8,8 @@ const By = webdriver.By;
 const until = webdriver.until;
 
 const testUserName = 'testUser';
-const testUserEmail = "testUser@test.de"
-const testUserPassword = "testuserpassword"
+const testUserEmail = "testUser@test.de";
+const testUserPassword = "testuserpassword";
 const waitInterval = 5000;
 
 jest.setTimeout(120000);
@@ -39,9 +40,9 @@ describe('user permissions', () => {
         await driver.get(utils.getCasUrl(driver));
         await adminFunctions.giveAdminRights();
         await adminFunctions.testUserLogin(driver);
-        await driver.sleep(waitInterval)
+        await driver.sleep(waitInterval);
         // get username from user account button
-        const username = await driver.findElement(By.id('button-1142-btnInnerEl')).getText();
+        const username = await driver.findElement(By.id(UI.myAccount)).getText();
         expect(username.toLowerCase()).toMatch(testUserName.toLowerCase());
         expect(await utils.isAdministrator(driver)).toBe(true);
     });
@@ -49,8 +50,8 @@ describe('user permissions', () => {
     test('user (testUser) has no admin privileges', async() => {
         await driver.get(utils.getCasUrl(driver));
         await adminFunctions.testUserLogin(driver);
-        await driver.sleep(waitInterval)
-        const username = await driver.findElement(By.id('button-1142-btnInnerEl')).getText();
+        await driver.sleep(waitInterval);
+        const username = await driver.findElement(By.id(UI.myAccount)).getText();
         expect(username.toLowerCase()).toContain(testUserName.toLowerCase());
         expect(await utils.isAdministrator(driver)).toBe(false);
     });
@@ -59,12 +60,12 @@ describe('user permissions', () => {
         await driver.get(utils.getCasUrl(driver));
         await adminFunctions.giveAdminRights();
         await adminFunctions.testUserLogin(driver);
-        await driver.sleep(waitInterval)
+        await driver.sleep(waitInterval);
         await adminFunctions.logoutViaCasEndpoint(driver);
         await adminFunctions.takeAdminRights();
         await driver.get(utils.getCasUrl(driver));
         await adminFunctions.testUserLogin(driver);
-        await driver.sleep(waitInterval)
+        await driver.sleep(waitInterval);
         const adminPermissions = await utils.isAdministrator(driver);
         expect(adminPermissions).toBe(false);
     });
