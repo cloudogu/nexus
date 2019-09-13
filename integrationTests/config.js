@@ -1,12 +1,12 @@
 let cesFqdn = process.env.CES_FQDN;
 if (!cesFqdn) {
-  // url from ecosystem with private network
-  cesFqdn = "192.168.56.2"
+    // url from ecosystem with private network
+    cesFqdn = "192.168.56.2"
 }
 
 let webdriverType = process.env.WEBDRIVER;
 if (!webdriverType) {
-  webdriverType = 'local';
+    webdriverType = 'local';
 }
 
 module.exports = {
