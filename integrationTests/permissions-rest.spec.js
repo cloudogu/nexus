@@ -1,4 +1,3 @@
-const config = require('./config');
 const AdminFunctions = require('./adminFunctions');
 const utils = require('./utils');
 const webdriver = require('selenium-webdriver');

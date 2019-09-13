@@ -1,5 +1,3 @@
-import {getUIElements} from "./utils";
-
 const config = require('./config');
 const utils = require('./utils');
 const webdriver = require('selenium-webdriver');
