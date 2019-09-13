@@ -11,7 +11,7 @@ const chromeOptions = {
 };
 
 // identifiers for UI interactions
-export const UI = {
+const UI = {
     myAccount: "button-1141-btnInnerEl",
     changeSettingsButton: "button-1125-btnIconEl",// indicates admin user
     logoutButton: "nx-header-signout-1143-btnIconEl"
@@ -87,4 +87,8 @@ exports.login = async function login(driver) {
 exports.isAdministrator = async function isAdministrator(driver){
     // is admin button (gear symbol) at top navigation bar visible?
     return await driver.findElement(By.id(UI.changeSettingsButton)).isDisplayed()
+};
+
+exports.getUIElements = function(){
+    return UI;
 };

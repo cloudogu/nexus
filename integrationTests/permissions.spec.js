@@ -1,5 +1,3 @@
-import {UI} from "./utils";
-
 const utils = require('./utils');
 const AdminFunctions = require('./adminFunctions');
 
@@ -42,7 +40,7 @@ describe('user permissions', () => {
         await adminFunctions.testUserLogin(driver);
         await driver.sleep(waitInterval);
         // get username from user account button
-        const username = await driver.findElement(By.id(UI.myAccount)).getText();
+        const username = await driver.findElement(By.id(utils.getUIElements().myAccount)).getText();
         expect(username.toLowerCase()).toMatch(testUserName.toLowerCase());
         expect(await utils.isAdministrator(driver)).toBe(true);
     });
@@ -51,7 +49,7 @@ describe('user permissions', () => {
         await driver.get(utils.getCasUrl(driver));
         await adminFunctions.testUserLogin(driver);
         await driver.sleep(waitInterval);
-        const username = await driver.findElement(By.id(UI.myAccount)).getText();
+        const username = await driver.findElement(By.id(utils.getUIElements().myAccount)).getText();
         expect(username.toLowerCase()).toContain(testUserName.toLowerCase());
         expect(await utils.isAdministrator(driver)).toBe(false);
     });
