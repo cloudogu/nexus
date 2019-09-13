@@ -36,7 +36,7 @@ describe('cas browser login', () => {
         await utils.login(driver);
         await driver.sleep(waitInterval);
         // find user account button holding the username
-        const username = await driver.findElement(By.id(getUIElements().myAccount)).getText();
+        const username = await driver.findElement(By.id(utils.getUIElements().myAccount)).getText();
         expect(username.toLowerCase()).toMatch(config.displayName);
     });
 
