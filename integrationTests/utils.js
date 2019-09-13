@@ -10,6 +10,13 @@ const chromeOptions = {
     'args': ['--test-type', '--start-maximized']
 };
 
+// identifiers for UI interactions
+const UI = {
+    myAccount: "button-1141-btnInnerEl",
+    changeSettingsButton: "button-1125-btnIconEl",// indicates admin user
+    logoutButton: "nx-header-signout-1143-btnIconEl"
+};
+
 chromeCapabilities.set('chromeOptions', chromeOptions);
 chromeCapabilities.set('name', 'Nexus ITs');
 
@@ -79,5 +86,9 @@ exports.login = async function login(driver) {
 
 exports.isAdministrator = async function isAdministrator(driver){
     // is admin button (gear symbol) at top navigation bar visible?
-    return await driver.findElement(By.id("button-1126-btnIconEl")).isDisplayed()
+    return await driver.findElement(By.id(UI.changeSettingsButton)).isDisplayed()
+};
+
+exports.getUIElements = function(){
+    return UI;
 };
