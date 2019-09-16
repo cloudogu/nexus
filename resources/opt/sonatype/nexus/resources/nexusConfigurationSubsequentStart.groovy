@@ -1,10 +1,14 @@
 import groovy.json.JsonSlurper
+import groovy.transform.Field
 import org.sonatype.nexus.capability.*
 
-static def removeAdminPrivilege(role) {
+@Field final String ADMIN_ROLE_PRIVILEGES = "nx-all"
+
+static def removeAdminPrivilege(role, adminPrivileges) {
+
     def privs = role.getPrivileges()
 
-    privs.remove("nx-all")
+    privs.remove(adminPrivileges)
     role.setPrivileges(privs)
 }
 
@@ -17,7 +21,7 @@ core.baseUrl("https://" + configurationParameters.fqdn + "/nexus")
 def adminGroup = configurationParameters.adminGroup
 def lastAdminGroup = configurationParameters.lastAdminGroup
 
-if (!adminGroup.equals(lastAdminGroup) && !lastAdminGroup.equals("")) {
+if ( !(adminGroup.equals(lastAdminGroup) || lastAdminGroup.equals("")) ) {
     def securitySystem = security.getSecuritySystem()
     def authManager = securitySystem.getAuthorizationManager('default')
 
@@ -25,12 +29,12 @@ if (!adminGroup.equals(lastAdminGroup) && !lastAdminGroup.equals("")) {
 
     try {
         adminRole = authManager.getRole(adminGroup)
-        adminRole.addPrivilege("nx-all")
+        adminRole.addPrivilege(ADMIN_ROLE_PRIVILEGES)
 
         println("persisting new admin role after updating it")
         authManager.updateRole(adminRole)
     } catch (org.sonatype.nexus.security.role.NoSuchRoleException e) {
-        println("role " + adminRole + " does not exist, creating")
+        println("role " + adminRole + " does not exist, creating" + e)
 
         adminRole = new org.sonatype.nexus.security.role.Role(
                 roleId: adminGroup,
@@ -38,7 +42,7 @@ if (!adminGroup.equals(lastAdminGroup) && !lastAdminGroup.equals("")) {
                 name: adminGroup,
                 description: "Administrator of CES",
                 readOnly: false,
-                privileges: ["nx-all"],
+                privileges: [ADMIN_ROLE_PRIVILEGES],
                 roles: []
         )
 
@@ -49,9 +53,9 @@ if (!adminGroup.equals(lastAdminGroup) && !lastAdminGroup.equals("")) {
     println("removing admin privilege from last admin group")
     try {
         def lastAdminRole = authManager.getRole(lastAdminGroup)
-        removeAdminPrivilege(lastAdminRole)
+        removeAdminPrivilege(lastAdminRole, ADMIN_ROLE_PRIVILEGES)
         authManager.updateRole(lastAdminRole)
     } catch (org.sonatype.nexus.security.role.NoSuchRoleException e) {
-        println("last admin group " + lastAdminGroup + " does not exist. Ignoring")
+        println("last admin group " + lastAdminGroup + " does not exist. Ignoring"+ e)
     }
 }
