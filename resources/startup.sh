@@ -127,12 +127,6 @@ function waitForFile() {
 function startNexus() {
   "${NEXUS_WORKDIR}/bin/nexus" run &
   NEXUS_PID=$!
-
-  echo "waiting for file ${NEXUS_DATA_DIR}/admin.password to appear"
-  waitForFile "${NEXUS_DATA_DIR}/admin.password" 300 || {
-    echo "${NEXUS_DATA_DIR}/admin.password did not appear, something is broken"
-    exit 1
-  }
 }
 
 function doHealthCheck() {
@@ -198,6 +192,12 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
 
   echo "Starting Nexus..."
   startNexus
+
+  echo "waiting for file ${NEXUS_DATA_DIR}/admin.password to appear"
+  waitForFile "${NEXUS_DATA_DIR}/admin.password" 300 || {
+    echo "${NEXUS_DATA_DIR}/admin.password did not appear, something is broken"
+    exit 1
+  }
 
   echo "Waiting for healthy state..."
   waitForHealthCheck ${ADMINUSER}
