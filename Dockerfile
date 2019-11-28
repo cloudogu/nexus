@@ -2,10 +2,10 @@
 FROM registry.cloudogu.com/official/java:8u212-1
 LABEL maintainer="robert.auer@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.18.1-2"
+    VERSION="3.19.1-1"
 
 # The version of nexus to install
-ENV NEXUS_VERSION=3.18.1-01 \
+ENV NEXUS_VERSION=3.19.1-01 \
     TINI_VERSION=0.18.0 \
     NEXUS_CLAIM_VERSION=0.3.0 \
     NEXUS_CARP_VERSION=0.3.2 \

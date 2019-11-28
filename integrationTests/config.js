@@ -13,13 +13,13 @@ module.exports = {
     fqdn: cesFqdn,
     baseUrl: 'https://' + cesFqdn,
     nexusContextPath: '/nexus',
-    username: 'ces-admin',
-    password: 'ecosystem2016',
+    username: 'admin',
+    password: 'admin',
     firstname: 'admin',
     lastname: 'admin',
-    displayName: 'ces-admin',
-    email: 'ces-admin@cloudogu.com',
+    displayName: 'admin',
+    email: 'simon.klein@cloudogu.com',
     webdriverType: webdriverType,
     debug: true,
-    adminGroup: 'CesAdministrators'
+    adminGroup: 'cesAdmin'
 };

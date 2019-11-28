@@ -114,7 +114,7 @@ module.exports = class AdminFunctions{
         // click Yes
         await driver.findElement(By.xpath("//span[.='Yes']")).click();
         // wait for success button
-        await driver.wait(until.elementLocated(By.className("x-title-text x-title-text-nx-message-success x-title-item")), interfaceWaitInterval);
+        await driver.wait(until.elementLocated(By.className("success x-toast x-layer success-default x-border-box")), interfaceWaitInterval);
     };
 
     async giveAdminRights(){

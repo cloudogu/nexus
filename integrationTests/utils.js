@@ -12,9 +12,9 @@ const chromeOptions = {
 
 // identifiers for UI interactions
 const UI = {
-    myAccount: "button-1141-btnInnerEl",
+    myAccount: "button-1142-btnInnerEl",
     changeSettingsButton: "button-1125-btnIconEl",// indicates admin user
-    logoutButton: "nx-header-signout-1143-btnIconEl"
+    logoutButton: "nx-header-signout-1144-btnIconEl"
 };
 
 chromeCapabilities.set('chromeOptions', chromeOptions);
