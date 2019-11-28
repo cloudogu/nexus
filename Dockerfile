@@ -64,5 +64,7 @@ EXPOSE 8082
 
 WORKDIR ${NEXUS_WORKDIR}
 
+HEALTHCHECK CMD [ $(doguctl healthy jenkins; echo $?) == 0 ]
+
 ENTRYPOINT [ "/bin/tini", "--" ]
 CMD ["/pre-startup.sh"]
