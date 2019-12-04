@@ -38,9 +38,7 @@ RUN set -x \
   && curl --fail --silent --location --retry 3 -o nexus.tar.gz \
     https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-unix.tar.gz \
   && echo "${SHA256_NEXUS_TAR} *nexus.tar.gz" |sha256sum -c - \  
-  && cat nexus.tar.gz \
-  | gunzip \
-  | tar x -C /tmp nexus-${NEXUS_VERSION} \
+  && tar -xf nexus.tar.gz -C /tmp nexus-${NEXUS_VERSION} \
   && rm nexus.tar.gz \
   && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_WORKDIR}/ \
   && mv /tmp/nexus-${NEXUS_VERSION}/.[!.]* ${NEXUS_WORKDIR}/ \
@@ -49,23 +47,17 @@ RUN set -x \
   && curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
     https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
   && echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
-  && cat nexus-claim.tar.gz \
-  | gunzip \
-  | tar x -C /usr/bin \
+  && tar -xf nexus-claim.tar.gz -C /usr/bin \
   && rm nexus-claim.tar.gz \
   && curl --fail --silent --location --retry 3 -o nexus-scripting.tar.gz \
   https://github.com/cloudogu/nexus-scripting/releases/download/v${NEXUS_SCRIPTING_VERSION}/nexus-scripting-${NEXUS_SCRIPTING_VERSION}.tar.gz \
   && echo "${SHA256_NEXUS_SCRIPTING} *nexus-scripting.tar.gz" |sha256sum -c - \
-  && cat nexus-scripting.tar.gz \
-  | gunzip \
-  | tar x -C /usr/bin \
+  && tar -xf nexus-scripting.tar.gz -C /usr/bin \
   && rm nexus-scripting.tar.gz \
   && curl --fail --silent --location --retry 3 -o nexus-carp.tar.gz \
   https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
   && echo "${SHA256_NEXUS_CARP} *nexus-carp.tar.gz" | sha256sum -c - \
-  && cat nexus-carp.tar.gz \
-  | gunzip \
-  | tar x -C /usr/bin \
+  && tar -xf nexus-carp.tar.gz -C /usr/bin \
   && rm nexus-carp.tar.gz \
   && curl --fail --silent --location --retry 3 -o ${NEXUS_WORKDIR}/deploy/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}-bundle.kar \
   https://repo1.maven.org/maven2/org/sonatype/nexus/plugins/nexus-repository-r/${NEXUS_REPOSITORY_R_PLUGIN_VERSION}/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}-bundle.kar \
