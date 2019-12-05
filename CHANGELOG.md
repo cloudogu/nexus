@@ -9,3 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed version from 3.18.1-2 to 3.19.1-1
 - Changed java version in Dockerfile to 8u222-1
+
+### Added
+- Added docker health check
