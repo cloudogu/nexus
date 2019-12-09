@@ -12,3 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added docker health check
+- Add a start-up check whether the minimum number of CPU cores is reached (#36)
+   - Starting with [Nexus Repository Manager 3.17](https://issues.sonatype.org/secure/ReleaseNote.jspa?projectId=10001&version=17890) a minimum number of 4 CPU cores is enforced, otherwise the Repository Manager is no longer guaranteed to work.
+   - The added check adds a new healthy state during the Dogu start-up in order to provide a better visibility of the originating problem.
+   - You can check for the health with the CES command `cesapp healthy nexus`
+

@@ -3,6 +3,13 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+if [[ $(nproc) -lt 4 ]]; then
+  echo "ERROR: Your environment does not provide enough processing units for Sonatype Nexus. At least four cores are required.";
+  doguctl state "ErrorNotEnoughProcessingUnits"
+  sleep 300;
+  exit 1;
+fi
+
 # variables
 ADMINUSER="admin"
 NEXUS_DATA_DIR=/var/lib/nexus
