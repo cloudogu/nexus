@@ -4,11 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
+## [3.19.1-1] - 2019-12-09
 ### Changed
-- Changed version from 3.18.1 to 3.19.1
-- Changed java version in Dockerfile to 8u222-1
+- Changed Nexus version from 3.18.1 to 3.19.1
+- Changed Java version in Dockerfile to 8u222-1
 
 ### Added
 - Added docker health check
