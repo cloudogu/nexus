@@ -70,7 +70,7 @@ RUN set -x \
 
 COPY resources /
 
-RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype
+RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /logback.xml.tpl
 
 VOLUME /var/lib/nexus
 
@@ -78,7 +78,7 @@ EXPOSE 8082
 
 WORKDIR ${NEXUS_WORKDIR}
 
-HEALTHCHECK CMD [ $(doguctl healthy nexus; echo $?) == 0 ]
+HEALTHCHECK CMD $(doguctl healthy nexus || exit 1
 
 ENTRYPOINT [ "/bin/tini", "--" ]
 CMD ["/pre-startup.sh"]

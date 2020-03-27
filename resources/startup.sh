@@ -13,6 +13,9 @@ fi
 # variables
 ADMINUSER="admin"
 NEXUS_DATA_DIR=/var/lib/nexus
+LOCKBACK_CONF_DIR=${NEXUS_WORKDIR}/etc/logback/
+LOGBACK_FILE=${LOCKBACK_CONF_DIR}/logback.xml
+LOGBACK_TEMPLATE_FILE=/logback.xml.tpl
 
 # credentials for nexus-scripting tool
 # NEXUS_PASSWORD cannot be set here because it needs to be fetched from
@@ -185,14 +188,60 @@ function installDefaultDockerRegistry() {
   nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
 }
 
+function renderLoggingConfig() {
+  [[ -d ${LOCKBACK_CONF_DIR} ]]  || mkdir -p ${LOCKBACK_CONF_DIR}
+
+  doguctl template ${LOGBACK_TEMPLATE_FILE} ${LOGBACK_FILE}
+}
+
+function validateDoguLogLevel() {
+  validLogValues=( ERROR WARN INFO DEBUG )
+  doguLogLevelKey="logging/root"
+  defaultLogLevel="WARN"
+
+  logLevel=$(doguctl config --default "${defaultLogLevel}" "${doguLogLevelKey}")
+
+  # "config --default" accepts a set key with an empty value
+  if [[ "${logLevel}" == "" ]]; then
+    echo "Did not find missing log level."
+    resetDoguLogLevel ${logLevel} ${defaultLogLevel}
+    return
+  fi
+
+  uppercaseLogLevel=${logLevel^^}
+  if [[ "${logLevel}" != "${uppercaseLogLevel}" ]]; then
+    echo "Found lowercase log level. Converting ${logLevel} to ${uppercaseLogLevel}..."
+  fi
+
+  # The added spaces in this test avoid partial matches. F. ex., the invalid value "ERR" could falsely match "ERROR"
+  if [[ " ${validLogValues[@]} " =~ " ${uppercaseLogLevel} " ]]; then
+    echo "Using log level ${uppercaseLogLevel}..."
+    return
+  else
+    echo "Found unsupported log level ${uppercaseLogLevel}. These log levels are supported: ${validLogValues[@]}"
+    resetDoguLogLevel ${uppercaseLogLevel} ${defaultLogLevel}
+    return
+  fi
+}
+
+function resetDoguLogLevel() {
+  targetLogLevel=${2}
+  echo "Resetting dogu log level from ${1} to ${targetLogLevel}..."
+  doguctl config "${doguLogLevelKey}" "${targetLogLevel}"
+}
+
 ### beginning of startup
+echo "Rendering logging configuration..."
+validateDoguLogLevel
+renderLoggingConfig
+
 echo "Setting nexus.vmoptions..."
 setNexusVmoptionsAndProperties
 
 echo "Setting nexus.properties..."
 setNexusProperties
 
-if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
+if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl state installing
 
   # create truststore
