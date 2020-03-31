@@ -40,17 +40,32 @@
   "Configuration": [
     {
       "Name": "nexus.repository.sandbox.enable",
-      "Description": "Enable repository sandboxing",
+      "Description": "Enable repository sandboxing. This key is going to be deprecated. Please use 'enable_repository_sandbox' as direct replacement.",
       "Optional": true
     },
     {
       "Name": "installDefaultDockerRegistry",
-      "Description": "If set to false, the default docker registry is not installed",
+      "Description": "If set to false, the default docker registry is not installed. This key is going to be deprecated. Please use 'install_default_docker_registry' as direct replacement.",
       "Optional": true
     },
     {
       "Name": "disableOutreachManagement",
-      "Description": "Disable the outreach management capability",
+      "Description": "Disable the outreach management capability. This key is going to be deprecated. Please use 'disable_outreach_management' as direct replacement.",
+      "Optional": true
+    },
+    {
+      "Name": "enable_repository_sandbox",
+      "Description": "Enable repository sandboxing.",
+      "Optional": true
+    },
+    {
+      "Name": "install_default_docker_registry",
+      "Description": "If set to false, the default docker registry is not installed.",
+      "Optional": true
+    },
+    {
+      "Name": "disable_outreach_management",
+      "Description": "Disable the outreach management capability.",
       "Optional": true
     }
   ],

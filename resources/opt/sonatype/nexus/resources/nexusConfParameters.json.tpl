@@ -4,7 +4,7 @@
   "newAdminPassword": "{{ .Env.Get "NEWADMINPASSWORD" }}",
   "lastAdminGroup": "{{ .Config.GetOrDefault "admin_group_last" "" }}",
   "adminGroup": "{{ .GlobalConfig.Get "admin_group" }}",
-  "disableOutreachManagement": "{{ .Config.GetOrDefault "disableOutreachManagement" "false" }}",
+  "disableOutreachManagement": "{{ .Config.GetOrDefault "disable_outreach_management" "false" }}",
   {{ if .Config.Exists "proxyConfiguration/http/host" }}
   "proxyConfigurationHttpHost": "{{ .Config.Get "proxyConfiguration/http/host" }}"{{ end }}{{ if .Config.Exists "proxyConfiguration/http/port" }},
   "proxyConfigurationHttpPort": {{ .Config.Get "proxyConfiguration/http/port" }}{{ end }}{{ if .Config.Exists "proxyConfiguration/http/authentication/username" }},

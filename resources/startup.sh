@@ -70,8 +70,8 @@ function setNexusProperties() {
 EOF
 
   echo "Checking if repository sandboxing should be enabled..."
-  if doguctl config nexus.repository.sandbox.enable >/dev/null; then
-    sandboxEnable=$(doguctl config nexus.repository.sandbox.enable)
+  if doguctl config enable_repository_sandbox >/dev/null; then
+    sandboxEnable=$(doguctl config enable_repository_sandbox)
     echo "Setting repository sandboxing to ${sandboxEnable}"
     echo "nexus.repository.sandbox.enable=${sandboxEnable}" >>${NEXUS_DATA_DIR}/etc/nexus.properties
   else
@@ -217,7 +217,7 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   exportNexusPasswordFromEtcd
 
   # Install default docker registry if not prohibited by etcd key
-  if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
+  if "$(doguctl config --default true install_default_docker_registry)" != "false"; then
     installDefaultDockerRegistry
   fi
 
