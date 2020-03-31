@@ -1,5 +1,5 @@
 # registry.cloudogu.com/official/nexus
-FROM registry.cloudogu.com/official/java:8u222-1
+FROM registry.cloudogu.com/official/java:8u242-1
 LABEL maintainer="robert.auer@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.19.1-1"
@@ -78,7 +78,7 @@ EXPOSE 8082
 
 WORKDIR ${NEXUS_WORKDIR}
 
-HEALTHCHECK CMD $(doguctl healthy nexus || exit 1
+HEALTHCHECK CMD doguctl healthy nexus || exit 1
 
 ENTRYPOINT [ "/bin/tini", "--" ]
 CMD ["/pre-startup.sh"]
