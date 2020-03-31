@@ -201,9 +201,9 @@ function validateDoguLogLevel() {
 
   logLevel=$(doguctl config --default "${defaultLogLevel}" "${doguLogLevelKey}")
 
-  # "config --default" accepts a set key with an empty value
+  # check empty string because "config --default" accepts a set key with an empty value as a valid value.
   if [[ "${logLevel}" == "" ]]; then
-    echo "Did not find missing log level."
+    echo "Did not find root log level."
     resetDoguLogLevel ${logLevel} ${defaultLogLevel}
     return
   fi
