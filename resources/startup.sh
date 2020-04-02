@@ -13,9 +13,14 @@ fi
 # variables
 ADMINUSER="admin"
 NEXUS_DATA_DIR=/var/lib/nexus
+
 LOCKBACK_CONF_DIR=${NEXUS_WORKDIR}/etc/logback/
 LOGBACK_FILE=${LOCKBACK_CONF_DIR}/logback.xml
 LOGBACK_TEMPLATE_FILE=/logback.xml.tpl
+DEFAULT_LOGGING_KEY="logging/root"
+VALID_LOG_VALUES=( ERROR WARN INFO DEBUG )
+DEFAULT_LOG_LEVEL=WARN
+SCRIPT_LOG_PREFIX="Log level mapping:"
 
 # credentials for nexus-scripting tool
 # NEXUS_PASSWORD cannot be set here because it needs to be fetched from
@@ -195,44 +200,74 @@ function renderLoggingConfig() {
 }
 
 function validateDoguLogLevel() {
-  validLogValues=( ERROR WARN INFO DEBUG )
-  doguLogLevelKey="logging/root"
-  defaultLogLevel="WARN"
+  echo "${SCRIPT_LOG_PREFIX} Validate root log level"
 
-  logLevel=$(doguctl config --default "${defaultLogLevel}" "${doguLogLevelKey}")
+  logLevelExitCode=0
+  logLevel=$(doguctl config "${DEFAULT_LOGGING_KEY}") || logLevelExitCode=$?
 
+  if [[ ${logLevelExitCode} -ne 0 ]]; then
+    if [[ "${logLevel}" =~ "100: Key not found" ]]; then
+      echo "${SCRIPT_LOG_PREFIX} Did not find root log level. Log level will default to ${DEFAULT_LOG_LEVEL}"
+      return
+    else
+      echo "ERROR: ${SCRIPT_LOG_PREFIX} Error while accessing registry key ${DEFAULT_LOGGING_KEY}. Command returned with ${logLevelExitCode}: ${logLevel}"
+      doguctl state "ErrorRootLogLevelKey"
+      sleep 3000
+      exit 2
+    fi
+  fi
+
+  # fast return
+  if containsValidLogLevel "${logLevel}" ; then
+    return
+  fi
+
+  # Start weird log lovel handling
   # check empty string because "config --default" accepts a set key with an empty value as a valid value.
   if [[ "${logLevel}" == "" ]]; then
-    echo "Did not find root log level."
-    resetDoguLogLevel ${logLevel} ${defaultLogLevel}
+    echo "${SCRIPT_LOG_PREFIX} Found empty root log level. Setting log level default to ${DEFAULT_LOG_LEVEL}"
+    # note the quotations to force bash to use it as the first argument.
+    resetDoguLogLevel "${logLevel}" ${DEFAULT_LOG_LEVEL}
     return
   fi
 
   uppercaseLogLevel=${logLevel^^}
   if [[ "${logLevel}" != "${uppercaseLogLevel}" ]]; then
-    echo "Found lowercase log level. Converting ${logLevel} to ${uppercaseLogLevel}..."
+    echo "${SCRIPT_LOG_PREFIX} Log level contains lowercase characters. Converting '${logLevel}' to '${uppercaseLogLevel}'..."
+    if containsValidLogLevel "${uppercaseLogLevel}" ; then
+      echo "${SCRIPT_LOG_PREFIX} Log level seems valid..."
+      resetDoguLogLevel "${logLevel}" "${uppercaseLogLevel}"
+      return
+    fi
   fi
 
+  # Things really got weird: Falling back to default
+  echo "${SCRIPT_LOG_PREFIX} Found unsupported log level ${logLevel}. These log levels are supported: ${VALID_LOG_VALUES[@]}"
+  resetDoguLogLevel ${logLevel} ${DEFAULT_LOG_LEVEL}
+  return
+}
+
+function containsValidLogLevel() {
+  foundLogLevel="${1}"
+
   # The added spaces in this test avoid partial matches. F. ex., the invalid value "ERR" could falsely match "ERROR"
-  if [[ " ${validLogValues[@]} " =~ " ${uppercaseLogLevel} " ]]; then
-    echo "Using log level ${uppercaseLogLevel}..."
-    return
+  if [[ " ${VALID_LOG_VALUES[@]} " =~ " ${foundLogLevel} " ]]; then
+    return 0
   else
-    echo "Found unsupported log level ${uppercaseLogLevel}. These log levels are supported: ${validLogValues[@]}"
-    resetDoguLogLevel ${uppercaseLogLevel} ${defaultLogLevel}
-    return
+    return 1
   fi
 }
 
 function resetDoguLogLevel() {
-  targetLogLevel=${2}
-  echo "Resetting dogu log level from ${1} to ${targetLogLevel}..."
-  doguctl config "${doguLogLevelKey}" "${targetLogLevel}"
+  oldLogLevel="${1}"
+  targetLogLevel="${2}"
+  echo "${SCRIPT_LOG_PREFIX} Resetting dogu log level from '${oldLogLevel}' to '${targetLogLevel}'..."
+  doguctl config "${DEFAULT_LOGGING_KEY}" "${targetLogLevel}"
 }
 
 ### beginning of startup
-echo "Rendering logging configuration..."
 validateDoguLogLevel
+echo "Rendering logging configuration..."
 renderLoggingConfig
 
 echo "Setting nexus.vmoptions..."
