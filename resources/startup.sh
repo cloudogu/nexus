@@ -14,8 +14,8 @@ fi
 ADMINUSER="admin"
 NEXUS_DATA_DIR=/var/lib/nexus
 
-LOCKBACK_CONF_DIR=${NEXUS_WORKDIR}/etc/logback/
-LOGBACK_FILE=${LOCKBACK_CONF_DIR}/logback.xml
+LOGBACK_CONF_DIR=${NEXUS_WORKDIR}/etc/logback/
+LOGBACK_FILE=${LOGBACK_CONF_DIR}/logback.xml
 LOGBACK_TEMPLATE_FILE=/logback.xml.tpl
 DEFAULT_LOGGING_KEY="logging/root"
 VALID_LOG_VALUES=( ERROR WARN INFO DEBUG )
@@ -194,7 +194,7 @@ function installDefaultDockerRegistry() {
 }
 
 function renderLoggingConfig() {
-  [[ -d ${LOCKBACK_CONF_DIR} ]]  || mkdir -p ${LOCKBACK_CONF_DIR}
+  [[ -d ${LOGBACK_CONF_DIR} ]]  || mkdir -p ${LOGBACK_CONF_DIR}
 
   doguctl template ${LOGBACK_TEMPLATE_FILE} ${LOGBACK_FILE}
 }
