@@ -78,21 +78,18 @@
 
     <appender name="metrics" class="org.sonatype.nexus.pax.logging.InstrumentedAppender"/>
 
-    <logger name="org.eclipse.jetty.webapp" level="WARN"/>
-    <logger name="org.eclipse.jetty.webapp.StandardDescriptorProcessor" level="WARN"/>
+    <logger name="org.eclipse.jetty.webapp" level="{{ .Config.GetOrDefault "logging/root" "WARN"}}"/>
+    <logger name="org.eclipse.jetty.webapp.StandardDescriptorProcessor" level="{{ .Config.GetOrDefault "logging/root" "WARN"}}"/>
 
-    <logger name="org.apache.aries" level="WARN"/>
-    <logger name="org.apache.felix" level="WARN"/>
-    <logger name="org.apache.karaf" level="WARN"/>
+    <logger name="org.apache.aries" level="{{ .Config.GetOrDefault "logging/root" "WARN"}}"/>
+    <logger name="org.apache.felix" level="{{ .Config.GetOrDefault "logging/root" "WARN"}}"/>
+    <logger name="org.apache.karaf" level="{{ .Config.GetOrDefault "logging/root" "WARN"}}"/>
 
     <include file="${karaf.data}/etc/logback/logback-overrides.xml" optional="true"/>
 
     <root level="{{ .Config.GetOrDefault "logging/root" "WARN"}}">
         <appender-ref ref="osgi"/>
         <appender-ref ref="console"/>
-        <appender-ref ref="logfile"/>
-        <appender-ref ref="clusterlogfile"/>
-        <appender-ref ref="tasklogfile"/>
         <appender-ref ref="metrics"/>
     </root>
 </configuration>
