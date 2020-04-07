@@ -7,11 +7,11 @@ set -o pipefail
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
 
-if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
+if [[ "${FROM_VERSION}" == 2* ]] && [[ "${TO_VERSION}" == 3* ]]; then
     RED='\033[1;31m'
     NC='\033[0m'
-    printf "${RED}~~~~Warning~~~~\n"
-    printf "${NC}During the upgrade to Nexus 3, your Nexus 2 data will be backed up to /var/lib/ces/nexus/volumes/migration. Make sure to provide at least twice the amount of storage space your nexus is using right now!\n"
+    printf "%s~~~~Warning~~~~\n" "${RED}"
+    printf "%sDuring the upgrade to Nexus 3, your Nexus 2 data will be backed up to /var/lib/ces/nexus/volumes/migration. Make sure to provide at least twice the amount of storage space your nexus is using right now!\n" ${NC}
     printf "\nPlease backup your local Nexus users, because they will not get migrated to Nexus 3 and have to be recreated after the upgrade. This does not affect users from the user backend which are authenticated via CAS.\n"
     printf "\nTo migrate your data to Nexus 3, please follow these instructions after upgrading:
     1. Install Nexus 2 via docker locally (see https://hub.docker.com/r/sonatype/nexus/)

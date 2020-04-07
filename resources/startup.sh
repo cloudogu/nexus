@@ -194,9 +194,9 @@ function installDefaultDockerRegistry() {
 }
 
 function renderLoggingConfig() {
-  [[ -d ${LOGBACK_CONF_DIR} ]]  || mkdir -p ${LOGBACK_CONF_DIR}
+  [[ -d "${LOGBACK_CONF_DIR}" ]]  || mkdir -p "${LOGBACK_CONF_DIR}"
 
-  doguctl template ${LOGBACK_TEMPLATE_FILE} ${LOGBACK_FILE}
+  doguctl template "${LOGBACK_TEMPLATE_FILE}" "${LOGBACK_FILE}"
 }
 
 function validateDoguLogLevel() {
@@ -243,19 +243,20 @@ function validateDoguLogLevel() {
 
   # Things really got weird: Falling back to default
   echo "${SCRIPT_LOG_PREFIX} Found unsupported log level ${logLevel}. These log levels are supported: ${VALID_LOG_VALUES[@]}"
-  resetDoguLogLevel ${logLevel} ${DEFAULT_LOG_LEVEL}
+  resetDoguLogLevel "${logLevel}" "${DEFAULT_LOG_LEVEL}"
   return
 }
 
 function containsValidLogLevel() {
   foundLogLevel="${1}"
 
-  # The added spaces in this test avoid partial matches. F. ex., the invalid value "ERR" could falsely match "ERROR"
-  if [[ " ${VALID_LOG_VALUES[@]} " =~ " ${foundLogLevel} " ]]; then
-    return 0
-  else
-    return 1
-  fi
+  for value in "${VALID_LOG_VALUES[@]}"; do
+    if [[ "${value}" == "${foundLogLevel}" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
 }
 
 function resetDoguLogLevel() {
@@ -292,7 +293,7 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   }
 
   echo "Waiting for healthy state..."
-  waitForHealthCheck ${ADMINUSER}
+  waitForHealthCheck "${ADMINUSER}"
 
   echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
@@ -318,7 +319,7 @@ else
   startNexus
 
   echo "Waiting for healthy state..."
-  waitForHealthCheckAtSubsequentStart ${ADMINUSER}
+  waitForHealthCheckAtSubsequentStart "${ADMINUSER}"
 
   echo "Configuring Nexus for subsequent start..."
   configureNexusAtSubsequentStart
@@ -326,16 +327,16 @@ else
 fi
 
 echo "writing admin_group_last to etcd"
-doguctl config admin_group_last ${CES_ADMIN_GROUP}
+doguctl config admin_group_last "${CES_ADMIN_GROUP}"
 
 echo "importing HTTP/S proxy settings from registry"
 nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "configuring carp server"
-doguctl template /etc/carp/carp.yml.tpl ${NEXUS_DATA_DIR}/carp.yml
+doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"
 
 echo "starting carp in background"
-nexus-carp -logtostderr ${NEXUS_DATA_DIR}/carp.yml &
+nexus-carp -logtostderr "${NEXUS_DATA_DIR}/carp.yml" &
 NEXUS_CARP_PID=$!
 
 echo "starting claim tool"
