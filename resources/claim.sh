@@ -11,7 +11,8 @@ fi
 ONCE_LOCK="/var/lib/nexus/claim.once"
 
 export NEXUS_USER="admin"
-export NEXUS_PASSWORD=$(doguctl config -e "admin_password")
+NEXUS_PASSWORD=$(doguctl config -e "admin_password")
+export NEXUS_PASSWORD
 # NEXUS_SERVER is already set in Dockerfile
 
 function claim() {

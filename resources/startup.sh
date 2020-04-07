@@ -242,7 +242,7 @@ function validateDoguLogLevel() {
   fi
 
   # Things really got weird: Falling back to default
-  echo "${SCRIPT_LOG_PREFIX} Found unsupported log level ${logLevel}. These log levels are supported: ${VALID_LOG_VALUES[@]}"
+  echo "${SCRIPT_LOG_PREFIX} Found unsupported log level ${logLevel}. These log levels are supported: ${VALID_LOG_VALUES[*]}"
   resetDoguLogLevel "${logLevel}" "${DEFAULT_LOG_LEVEL}"
   return
 }
