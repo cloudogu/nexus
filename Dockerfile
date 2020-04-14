@@ -70,7 +70,7 @@ RUN set -x \
 
 COPY resources /
 
-RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /logback.xml.tpl
+RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /*.tpl
 
 VOLUME /var/lib/nexus
 

@@ -14,9 +14,12 @@ fi
 ADMINUSER="admin"
 NEXUS_DATA_DIR=/var/lib/nexus
 
-LOGBACK_CONF_DIR=${NEXUS_WORKDIR}/etc/logback/
-LOGBACK_FILE=${LOGBACK_CONF_DIR}/logback.xml
+LOGBACK_CONF_DIR="${NEXUS_WORKDIR}/etc/logback"
+LOGBACK_FILE="${LOGBACK_CONF_DIR}/logback.xml"
 LOGBACK_TEMPLATE_FILE=/logback.xml.tpl
+LOGBACK_OVERRIDE_DIR="${NEXUS_DATA_DIR}/etc/logback"
+LOGBACK_OVERRIDE_FILE="${LOGBACK_OVERRIDE_DIR}/logback-overrides.xml"
+LOGBACK_OVERRIDE_TEMPLATE_FILE=/logback-overrides.xml.tpl
 DEFAULT_LOGGING_KEY="logging/root"
 VALID_LOG_VALUES=( ERROR WARN INFO DEBUG )
 DEFAULT_LOG_LEVEL=WARN
@@ -197,6 +200,9 @@ function renderLoggingConfig() {
   [[ -d "${LOGBACK_CONF_DIR}" ]]  || mkdir -p "${LOGBACK_CONF_DIR}"
 
   doguctl template "${LOGBACK_TEMPLATE_FILE}" "${LOGBACK_FILE}"
+
+  [[ -d "${LOGBACK_OVERRIDE_DIR}" ]]  || mkdir -p "${LOGBACK_OVERRIDE_DIR}"
+  doguctl template "${LOGBACK_OVERRIDE_TEMPLATE_FILE}" "${LOGBACK_OVERRIDE_FILE}"
 }
 
 function validateDoguLogLevel() {
