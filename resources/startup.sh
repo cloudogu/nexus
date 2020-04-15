@@ -14,6 +14,17 @@ fi
 ADMINUSER="admin"
 NEXUS_DATA_DIR=/var/lib/nexus
 
+LOGBACK_CONF_DIR="${NEXUS_WORKDIR}/etc/logback"
+LOGBACK_FILE="${LOGBACK_CONF_DIR}/logback.xml"
+LOGBACK_TEMPLATE_FILE=/logback.xml.tpl
+LOGBACK_OVERRIDE_DIR="${NEXUS_DATA_DIR}/etc/logback"
+LOGBACK_OVERRIDE_FILE="${LOGBACK_OVERRIDE_DIR}/logback-overrides.xml"
+LOGBACK_OVERRIDE_TEMPLATE_FILE=/logback-overrides.xml.tpl
+DEFAULT_LOGGING_KEY="logging/root"
+VALID_LOG_VALUES=( ERROR WARN INFO DEBUG )
+DEFAULT_LOG_LEVEL=WARN
+SCRIPT_LOG_PREFIX="Log level mapping:"
+
 # credentials for nexus-scripting tool
 # NEXUS_PASSWORD cannot be set here because it needs to be fetched from
 # different sources, depending on whether this is a restart or a first time start
@@ -185,14 +196,94 @@ function installDefaultDockerRegistry() {
   nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
 }
 
+function renderLoggingConfig() {
+  [[ -d "${LOGBACK_CONF_DIR}" ]]  || mkdir -p "${LOGBACK_CONF_DIR}"
+
+  doguctl template "${LOGBACK_TEMPLATE_FILE}" "${LOGBACK_FILE}"
+
+  [[ -d "${LOGBACK_OVERRIDE_DIR}" ]]  || mkdir -p "${LOGBACK_OVERRIDE_DIR}"
+  doguctl template "${LOGBACK_OVERRIDE_TEMPLATE_FILE}" "${LOGBACK_OVERRIDE_FILE}"
+}
+
+function validateDoguLogLevel() {
+  echo "${SCRIPT_LOG_PREFIX} Validate root log level"
+
+  logLevelExitCode=0
+  logLevel=$(doguctl config "${DEFAULT_LOGGING_KEY}") || logLevelExitCode=$?
+
+  if [[ ${logLevelExitCode} -ne 0 ]]; then
+    if [[ "${logLevel}" =~ "100: Key not found" ]]; then
+      echo "${SCRIPT_LOG_PREFIX} Did not find root log level. Log level will default to ${DEFAULT_LOG_LEVEL}"
+      return
+    else
+      echo "ERROR: ${SCRIPT_LOG_PREFIX} Error while accessing registry key ${DEFAULT_LOGGING_KEY}. Command returned with ${logLevelExitCode}: ${logLevel}"
+      doguctl state "ErrorRootLogLevelKey"
+      sleep 3000
+      exit 2
+    fi
+  fi
+
+  # fast return
+  if containsValidLogLevel "${logLevel}" ; then
+    return
+  fi
+
+  # Start weird log lovel handling
+  # check empty string because "config --default" accepts a set key with an empty value as a valid value.
+  if [[ "${logLevel}" == "" ]]; then
+    echo "${SCRIPT_LOG_PREFIX} Found empty root log level. Setting log level default to ${DEFAULT_LOG_LEVEL}"
+    # note the quotations to force bash to use it as the first argument.
+    resetDoguLogLevel "${logLevel}" ${DEFAULT_LOG_LEVEL}
+    return
+  fi
+
+  uppercaseLogLevel=${logLevel^^}
+  if [[ "${logLevel}" != "${uppercaseLogLevel}" ]]; then
+    echo "${SCRIPT_LOG_PREFIX} Log level contains lowercase characters. Converting '${logLevel}' to '${uppercaseLogLevel}'..."
+    if containsValidLogLevel "${uppercaseLogLevel}" ; then
+      echo "${SCRIPT_LOG_PREFIX} Log level seems valid..."
+      resetDoguLogLevel "${logLevel}" "${uppercaseLogLevel}"
+      return
+    fi
+  fi
+
+  # Things really got weird: Falling back to default
+  echo "${SCRIPT_LOG_PREFIX} Found unsupported log level ${logLevel}. These log levels are supported: ${VALID_LOG_VALUES[*]}"
+  resetDoguLogLevel "${logLevel}" "${DEFAULT_LOG_LEVEL}"
+  return
+}
+
+function containsValidLogLevel() {
+  foundLogLevel="${1}"
+
+  for value in "${VALID_LOG_VALUES[@]}"; do
+    if [[ "${value}" == "${foundLogLevel}" ]]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+function resetDoguLogLevel() {
+  oldLogLevel="${1}"
+  targetLogLevel="${2}"
+  echo "${SCRIPT_LOG_PREFIX} Resetting dogu log level from '${oldLogLevel}' to '${targetLogLevel}'..."
+  doguctl config "${DEFAULT_LOGGING_KEY}" "${targetLogLevel}"
+}
+
 ### beginning of startup
+validateDoguLogLevel
+echo "Rendering logging configuration..."
+renderLoggingConfig
+
 echo "Setting nexus.vmoptions..."
 setNexusVmoptionsAndProperties
 
 echo "Setting nexus.properties..."
 setNexusProperties
 
-if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
+if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl state installing
 
   # create truststore
@@ -208,7 +299,7 @@ if [ "$(doguctl config successfulInitialConfiguration)" != "true" ]; then
   }
 
   echo "Waiting for healthy state..."
-  waitForHealthCheck ${ADMINUSER}
+  waitForHealthCheck "${ADMINUSER}"
 
   echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
@@ -234,7 +325,7 @@ else
   startNexus
 
   echo "Waiting for healthy state..."
-  waitForHealthCheckAtSubsequentStart ${ADMINUSER}
+  waitForHealthCheckAtSubsequentStart "${ADMINUSER}"
 
   echo "Configuring Nexus for subsequent start..."
   configureNexusAtSubsequentStart
@@ -242,16 +333,16 @@ else
 fi
 
 echo "writing admin_group_last to etcd"
-doguctl config admin_group_last ${CES_ADMIN_GROUP}
+doguctl config admin_group_last "${CES_ADMIN_GROUP}"
 
 echo "importing HTTP/S proxy settings from registry"
 nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "configuring carp server"
-doguctl template /etc/carp/carp.yml.tpl ${NEXUS_DATA_DIR}/carp.yml
+doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"
 
 echo "starting carp in background"
-nexus-carp -logtostderr ${NEXUS_DATA_DIR}/carp.yml &
+nexus-carp -logtostderr "${NEXUS_DATA_DIR}/carp.yml" &
 NEXUS_CARP_PID=$!
 
 echo "starting claim tool"
