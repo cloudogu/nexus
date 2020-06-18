@@ -33,7 +33,6 @@ file:
     contains: []
   /usr/bin/nexus-claim:
     exists: true
-    mode: "0755"
     filetype: file
   /usr/bin/nexus-carp:
     exists: true

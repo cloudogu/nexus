@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- updated Nexus version to 3.23.0
+- enabled groovy scripting during startup in `nexus.properties`
+- update nexus-claim to v1.0.0
+
 ## [3.19.1-2] - 2020-04-15
 
 ### Added
