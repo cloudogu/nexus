@@ -6,8 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.19.1-2] - 2020-04-15
+## [v3.23.0-1] - 2020-06-18
+### Changed
+- updated Nexus version to 3.23.0
+- enabled groovy scripting during startup in `nexus.properties`
+- update nexus-claim to v1.0.0
 
+## [3.19.1-2] - 2020-04-15
 ### Added
 
 A new CES registry key `logging/root` is evaluated to override the default root log level. One of these values can be set in order to increase the log verbosity: `ERROR`, `WARN`, `INFO`, `DEBUG`. These log levels are directly applied to Nexus's logback root appender configuration.

@@ -88,6 +88,8 @@ EOF
   else
     echo "Not enabling repository sandboxing"
   fi
+  echo "enabling groovy scripting"
+  echo "nexus.scripts.allowCreation=true" >> ${NEXUS_DATA_DIR}/etc/nexus.properties
 }
 
 function configureNexusAtFirstStart() {
