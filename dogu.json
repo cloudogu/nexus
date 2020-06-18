@@ -7,26 +7,33 @@
   "Logo": "https://cloudogu.com/images/dogus/nexus.png",
   "Category": "Development Apps",
   "Tags": [
-    "warp", "build", "artifact", "maven"
+    "warp",
+    "build",
+    "artifact",
+    "maven"
   ],
   "Image": "registry.cloudogu.com/official/nexus",
   "Dependencies": [
-    "cas", "nginx", "postfix"
+    "cas",
+    "nginx",
+    "postfix"
   ],
-  "Volumes": [{
-    "Name": "data",
-    "Path": "/var/lib/nexus",
-    "Owner": "1000",
-    "Group": "1000",
-    "NeedsBackup": true
-  },
+  "Volumes": [
+    {
+      "Name": "data",
+      "Path": "/var/lib/nexus",
+      "Owner": "1000",
+      "Group": "1000",
+      "NeedsBackup": true
+    },
     {
       "Name": "migration",
       "Path": "/var/lib/migration",
       "Owner": "1000",
       "Group": "1000",
       "NeedsBackup": true
-    }],
+    }
+  ],
   "ExposedCommands": [
     {
       "Name": "pre-upgrade",
