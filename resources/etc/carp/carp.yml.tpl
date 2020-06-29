@@ -9,4 +9,4 @@ logout-method: DELETE
 logout-path: /rapture/session
 forward-unauthenticated-rest-requests: true
 log-format: "%{time:2006-01-02 15:04:05.000-0700} %{level:.4s} [%{module}:%{shortfile}] %{message}"
-log-level: {{ .Config.GetOrDefault "logging/root" "DEBUG" }}
+log-level: {{ .Config.GetOrDefault "logging/root" "WARN" }}
