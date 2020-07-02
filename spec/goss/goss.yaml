@@ -26,9 +26,6 @@ file:
     contains: []
   /var/lib/migration:
     exists: true
-    mode: "0755"
-    owner: nexus
-    group: nexus
     filetype: directory
     contains: []
   /usr/bin/nexus-claim:
@@ -36,11 +33,7 @@ file:
     filetype: file
   /usr/bin/nexus-carp:
     exists: true
-    mode: "0755"
-    owner: nexus
-    group: nexus
     filetype: file
-    contains: []
   /opt/sonatype/nexus/bin/nexus.vmoptions:
     exists: true
     mode: "0770"

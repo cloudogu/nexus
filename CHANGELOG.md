@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.23.0-2] - 2020-07-02
+### Changed
+- update carp.yml.tpl to contain log-level and log-format
+- update nexus-carp to v1.0.0
+
 ## [v3.23.0-1] - 2020-06-18
 ### Changed
 - updated Nexus version to 3.23.0
