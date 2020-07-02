@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v3.23.0-2] - 2020-07-02
 ### Changed
 - update carp.yml.tpl to contain log-level and log-format
 - update nexus-carp to v1.0.0
