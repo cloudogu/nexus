@@ -46,6 +46,7 @@ const zaleniumReporter = {
 jasmine.getEnv().addReporter(zaleniumReporter);
 
 exports.createDriver = function(){
+    chromeCapabilities. setAcceptInsecureCerts(true);
     if (config.webdriverType === 'local') {
         driver = createLocalDriver();
     } else {
