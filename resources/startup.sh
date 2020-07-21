@@ -21,8 +21,6 @@ LOGBACK_OVERRIDE_DIR="${NEXUS_DATA_DIR}/etc/logback"
 LOGBACK_OVERRIDE_FILE="${LOGBACK_OVERRIDE_DIR}/logback-overrides.xml"
 LOGBACK_OVERRIDE_TEMPLATE_FILE=/logback-overrides.xml.tpl
 DEFAULT_LOGGING_KEY="logging/root"
-VALID_LOG_VALUES=( ERROR WARN INFO DEBUG )
-DEFAULT_LOG_LEVEL=WARN
 SCRIPT_LOG_PREFIX="Log level mapping:"
 
 # credentials for nexus-scripting tool
