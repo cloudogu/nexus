@@ -1,5 +1,5 @@
 #!groovy
-@Library(['github.com/cloudogu/ces-build-lib@1.43.0', 'github.com/cloudogu/dogu-build-lib@v1.0.0', 'github.com/cloudogu/zalenium-build-lib@30923630'])
+@Library(['github.com/cloudogu/ces-build-lib@1.44.2', 'github.com/cloudogu/dogu-build-lib@v1.1.0', 'github.com/cloudogu/zalenium-build-lib@30923630'])
 import com.cloudogu.ces.cesbuildlib.*
 import com.cloudogu.ces.dogubuildlib.*
 import com.cloudogu.ces.zaleniumbuildlib.*
@@ -61,34 +61,7 @@ node('vagrant') {
             }
 
             stage('Integration Tests') {
-
-                String externalIP = ecoSystem.externalIP
-
-                if (fileExists('integrationTests/it-results.xml')) {
-                    sh 'rm -f integrationTests/it-results.xml'
-                }
-
-                timeout(time: 15, unit: 'MINUTES') {
-
-                    try {
-
-                        withZalenium { zaleniumIp ->
-
-                            dir('integrationTests') {
-
-                                docker.image('node:8.14.0-stretch').inside("-e WEBDRIVER=remote -e CES_FQDN=${externalIP} -e SELENIUM_BROWSER=chrome -e SELENIUM_REMOTE_URL=http://${zaleniumIp}:4444/wd/hub") {
-                                    sh 'yarn install'
-                                    sh 'yarn run ci-test'
-                                }
-
-                            }
-
-                        }
-                    } finally {
-                        // archive test results
-                        junit allowEmptyResults: true, testResults: 'integrationTests/it-results.xml'
-                    }
-                }
+                ecoSystem.runYarnIntegrationTests(15, 'node:8.14.0-stretch')
             }
 
             if (gitflow.isReleaseBranch()) {

@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.23.0-3] - 2020-07-24
+### Changed
+- update dogu-build-lib
+- update ces-build-lib
+- update java image
+- use doguctl validation
+
 ## [v3.23.0-2] - 2020-07-02
 ### Changed
 - update carp.yml.tpl to contain log-level and log-format
