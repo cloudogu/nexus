@@ -56,5 +56,6 @@
     <root level="${root.level:-{{ .Config.GetOrDefault "logging/root" "WARN"}}}">
         <appender-ref ref="console"/>
         <appender-ref ref="logfile"/>
-    </root>
+        <appender-ref ref="tasklogfile"/>
+</root>
 </configuration>
