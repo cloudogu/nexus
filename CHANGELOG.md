@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.23.0-4] - 2020-09-04
+### Changed
+- register missing appenders in logging configuration 
+
 ## [v3.23.0-3] - 2020-07-24
 ### Changed
 - update dogu-build-lib
