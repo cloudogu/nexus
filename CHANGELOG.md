@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add `base-url` and `resource-path` configuration for carp
+
+### Changed
+- Upgrade nexus-carp to v1.1.0; #47
 
 ## [v3.23.0-4] - 2020-09-04
 ### Changed

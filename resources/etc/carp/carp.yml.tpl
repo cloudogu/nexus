@@ -1,7 +1,9 @@
 ---
+base-url: https://{{ .GlobalConfig.Get "fqdn" }}
 cas-url: https://{{ .GlobalConfig.Get "fqdn" }}/cas
 service-url: https://{{ .GlobalConfig.Get "fqdn" }}/nexus
 target-url: http://localhost:8081
+resource-path: /nexus/repository
 skip-ssl-verification: false
 port: 8082
 principal-header: X-CARP-Authentication
