@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Don't fail to start the dogu if any of the Nexus health checks fails; #51
+- Provide information about failed Nexus health checks in log file, if any
 
 ## [v3.23.0-5] - 2020-09-04
 ### Added
