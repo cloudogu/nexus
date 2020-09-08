@@ -148,29 +148,41 @@ function startNexus() {
   NEXUS_PID=$!
 }
 
-function doHealthCheck() {
-  echo "wait until nexus passes all health checks"
+function waitForHealthEndpoint() {
+  local username=$1
+  local password=$2
+  local attempt_counter=0
+  local max_attempts=300
 
-  export HTTP_BASIC_AUTH_USERNAME=$1
-  export HTTP_BASIC_AUTH_PASSWORD=$2
+  echo "Waiting until Nexus health endpoint is available (max. ${max_attempts} seconds)..."
 
-  if ! doguctl wait-for-http --timeout 300 --method GET http://localhost:8081/nexus/service/metrics/healthcheck; then
-    echo "timeout reached while waiting for nexus to get healthy"
-    HEALTH_INFORMATION=$(curl -s -u "${HTTP_BASIC_AUTH_USERNAME}":"${HTTP_BASIC_AUTH_PASSWORD}" http://localhost:8081/nexus/service/metrics/healthcheck)
-    echo "Nexus Health information: ${HEALTH_INFORMATION}"
-    exit 1
+  until curl --user "${username}":"${password}" --silent --output /dev/null http://localhost:8081/nexus/service/metrics/healthcheck; do
+    if [ ${attempt_counter} -eq ${max_attempts} ];then
+      echo "Max attempts reached; exiting..."
+      exit 1
+    fi
+    attempt_counter=$((attempt_counter+1))
+    sleep 1
+  done
+
+  local health_endpoint_response
+  local unhealthy_checks
+  health_endpoint_response=$(curl --user "${username}":"${password}" --silent http://localhost:8081/nexus/service/metrics/healthcheck)
+  unhealthy_checks=$(echo "${health_endpoint_response}" | jq -c 'to_entries[] | select(.value.healthy==false) | [.key, .value.message]')
+  if [[ ${unhealthy_checks} != "" ]]; then
+    echo "WARNING! Some of the Sonatype Nexus health checks have failed:"
+    echo "${unhealthy_checks}"
   else
-    HEALTH_INFORMATION=$(curl -s -u "${HTTP_BASIC_AUTH_USERNAME}":"${HTTP_BASIC_AUTH_PASSWORD}" http://localhost:8081/nexus/service/metrics/healthcheck)
-    echo "Nexus is healthy: ${HEALTH_INFORMATION}"
+    echo "All Sonatype Nexus health checks have succeeded"
   fi
 }
 
-function waitForHealthCheck() {
-  doHealthCheck "$1" "$(<${NEXUS_DATA_DIR}/admin.password)"
+function waitForHealthEndpointAtFirstStart() {
+  waitForHealthEndpoint "$1" "$(<${NEXUS_DATA_DIR}/admin.password)"
 }
 
-function waitForHealthCheckAtSubsequentStart() {
-  doHealthCheck "$1" "$(doguctl config -e admin_password)"
+function waitForHealthEndpointAtSubsequentStart() {
+  waitForHealthEndpoint "$1" "$(doguctl config -e admin_password)"
 }
 
 function exportNexusPasswordFromEtcd() {
@@ -246,8 +258,8 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
     exit 1
   }
 
-  echo "Waiting for healthy state..."
-  waitForHealthCheck "${ADMINUSER}"
+  echo "Waiting for health endpoint..."
+  waitForHealthEndpointAtFirstStart "${ADMINUSER}"
 
   echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
@@ -272,8 +284,8 @@ else
   echo "Starting Nexus..."
   startNexus
 
-  echo "Waiting for healthy state..."
-  waitForHealthCheckAtSubsequentStart "${ADMINUSER}"
+  echo "Waiting for health endpoint..."
+  waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
 
   echo "Configuring Nexus for subsequent start..."
   configureNexusAtSubsequentStart
