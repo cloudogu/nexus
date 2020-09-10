@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v3.23.0-6] - 2020-09-10
 ### Changed
 - Don't fail to start the dogu if any of the Nexus health checks fails; #51
    - less than 4 processors do no longer raise an error and will not lead to a Nexus reboot
