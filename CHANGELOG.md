@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.23.0-6] - 2020-09-10
+### Changed
+- Don't fail to start the dogu if any of the Nexus health checks fails; #51
+   - less than 4 processors do no longer raise an error and will not lead to a Nexus reboot
+   - as [Nexus still requires 4 processors](https://issues.sonatype.org/browse/NEXUS-19839) a warning will be logged instead
+- Provide information about failed Nexus health checks in log file, if any
+
 ## [v3.23.0-5] - 2020-09-04
 ### Added
 - Add `base-url` and `resource-path` configuration for carp
@@ -68,4 +75,3 @@ Reduce the default root log level to WARN. Nexus's defaults to INFO which leads 
    - Starting with [Nexus Repository Manager 3.17](https://issues.sonatype.org/secure/ReleaseNote.jspa?projectId=10001&version=17890) a minimum number of 4 CPU cores is enforced, otherwise the Repository Manager is no longer guaranteed to work.
    - The added check adds a new healthy state during the Dogu start-up in order to provide a better visibility of the originating problem.
    - You can check for the health with the CES command `cesapp healthy nexus`
-
