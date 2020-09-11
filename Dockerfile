@@ -6,7 +6,7 @@ LABEL maintainer="robert.auer@cloudogu.com" \
 
 # The version of nexus to install
 ENV NEXUS_VERSION=3.27.0-03 \
-    TINI_VERSION=0.18.0 \
+    TINI_VERSION=0.19.0 \
     NEXUS_CLAIM_VERSION=1.0.0 \
     NEXUS_CARP_VERSION=1.2.0 \
     NEXUS_SCRIPTING_VERSION=0.2.0 \
@@ -16,7 +16,7 @@ ENV NEXUS_VERSION=3.27.0-03 \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
     NEXUS_SERVER="http://localhost:8081/nexus" \
-    SHA256_TINI="eadb9d6e2dc960655481d78a92d2c8bc021861045987ccd3e27c7eae5af0cf33" \
+    SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
     SHA256_NEXUS_TAR="ba90c2ea1d4f74acb89917d09744a97e97c1377301ec7aaed7f1ea75412735c0" \
     SHA256_NEXUS_CLAIM="a34608ac7b516d6bc91f8a157bea286919c14e5fb5ecc76fc15edccb35adec42" \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
