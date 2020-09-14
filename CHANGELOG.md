@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v3.27.0-1] - 2020-09-14
 ### Changed
 - Upgrade Nexus to 3.27.0; #53
 - Upgrade java base image to 8u242-3
