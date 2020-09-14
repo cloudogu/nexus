@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.27.0-1] - 2020-09-14
+### Changed
+- Upgrade Nexus to 3.27.0; #53
+- Upgrade java base image to 8u242-3
+- Upgrade R Plugin to 1.1.20
+- Upgrade Helm plugin to 1.0.20
+- Upgrade tini to 0.19.0
+
 ## [v3.23.0-6] - 2020-09-10
 ### Changed
 - Don't fail to start the dogu if any of the Nexus health checks fails; #51

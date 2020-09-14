@@ -1,28 +1,28 @@
 # registry.cloudogu.com/official/nexus
-FROM registry.cloudogu.com/official/java:8u242-2
+FROM registry.cloudogu.com/official/java:8u242-3
 LABEL maintainer="robert.auer@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.23.0-6"
+    VERSION="3.27.0-1"
 
 # The version of nexus to install
-ENV NEXUS_VERSION=3.23.0-03 \
-    TINI_VERSION=0.18.0 \
+ENV NEXUS_VERSION=3.27.0-03 \
+    TINI_VERSION=0.19.0 \
     NEXUS_CLAIM_VERSION=1.0.0 \
     NEXUS_CARP_VERSION=1.2.0 \
     NEXUS_SCRIPTING_VERSION=0.2.0 \
-    NEXUS_REPOSITORY_R_PLUGIN_VERSION="1.0.5" \
-    NEXUS_REPOSITORY_HELM_PLUGIN_VERSION="0.0.13" \
+    NEXUS_REPOSITORY_R_PLUGIN_VERSION="1.1.20" \
+    NEXUS_REPOSITORY_HELM_PLUGIN_VERSION="1.0.20" \
     SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
     NEXUS_SERVER="http://localhost:8081/nexus" \
-    SHA256_TINI="eadb9d6e2dc960655481d78a92d2c8bc021861045987ccd3e27c7eae5af0cf33" \
-    SHA256_NEXUS_TAR="673492fc4f281df31c4f023aac1cc0e423ded6703b5a9c6a2b455265312ee8cb" \
+    SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
+    SHA256_NEXUS_TAR="ba90c2ea1d4f74acb89917d09744a97e97c1377301ec7aaed7f1ea75412735c0" \
     SHA256_NEXUS_CLAIM="a34608ac7b516d6bc91f8a157bea286919c14e5fb5ecc76fc15edccb35adec42" \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
     SHA256_NEXUS_CARP="29f8a0dba8519183cef73a69a32a59759114ec97c6a1ef9e4d11b899eacd4854" \
-    SHA256_NEXUS_R="8a13c4327b346743b0fbee533871d20719510c7c2d88ecd74574ca636e085372" \
-    SHA256_NEXUS_HELM="1ed0e77b8cdff52ad6b27eb297bcfcf64c2fed7c0cd1462bd8223bd1faf7e56f" 
+    SHA256_NEXUS_R="8d5007ad783f1862693df58e38831e4ef962b00197a2df86fdd15f8a731270b0" \
+    SHA256_NEXUS_HELM="501fcde4953e6d87ea7bad89de31b75969882394edea26aab7f586059be04398"
 
 RUN set -x \
   # add nexus user and group
@@ -59,12 +59,12 @@ RUN set -x \
   && echo "${SHA256_NEXUS_CARP} *nexus-carp.tar.gz" | sha256sum -c - \
   && tar -xf nexus-carp.tar.gz -C /usr/bin \
   && rm nexus-carp.tar.gz \
-  && curl --fail --silent --location --retry 3 -o ${NEXUS_WORKDIR}/deploy/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}-bundle.kar \
-  https://repo1.maven.org/maven2/org/sonatype/nexus/plugins/nexus-repository-r/${NEXUS_REPOSITORY_R_PLUGIN_VERSION}/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}-bundle.kar \
-  && echo "${SHA256_NEXUS_R} *${NEXUS_WORKDIR}/deploy/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}-bundle.kar" |sha256sum -c - \
-  && curl --fail --silent --location --retry 3 -o ${NEXUS_WORKDIR}/deploy/nexus-repository-helm-${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}-bundle.kar \
-  https://repo1.maven.org/maven2/org/sonatype/nexus/plugins/nexus-repository-helm/${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}/nexus-repository-helm-${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}-bundle.kar \
-  && echo "${SHA256_NEXUS_HELM} *${NEXUS_WORKDIR}/deploy/nexus-repository-helm-${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}-bundle.kar" |sha256sum -c - \
+  && curl --fail --silent --location --retry 3 -o ${NEXUS_WORKDIR}/deploy/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}.jar \
+  https://repo1.maven.org/maven2/org/sonatype/nexus/plugins/nexus-repository-r/${NEXUS_REPOSITORY_R_PLUGIN_VERSION}/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}.jar \
+  && echo "${SHA256_NEXUS_R} *${NEXUS_WORKDIR}/deploy/nexus-repository-r-${NEXUS_REPOSITORY_R_PLUGIN_VERSION}.jar" |sha256sum -c - \
+  && curl --fail --silent --location --retry 3 -o ${NEXUS_WORKDIR}/deploy/nexus-repository-helm-${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}.jar \
+  https://repo1.maven.org/maven2/org/sonatype/nexus/plugins/nexus-repository-helm/${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}/nexus-repository-helm-${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}.jar \
+  && echo "${SHA256_NEXUS_HELM} *${NEXUS_WORKDIR}/deploy/nexus-repository-helm-${NEXUS_REPOSITORY_HELM_PLUGIN_VERSION}.jar" |sha256sum -c - \
   && chown -R nexus:nexus ${NEXUS_WORKDIR} \
   && chmod -R 770 ${NEXUS_WORKDIR}
 
