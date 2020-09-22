@@ -60,6 +60,7 @@ role = new org.sonatype.nexus.security.role.Role(
                 "nx-healthcheck-summary-read",
                 "nx-repository-view-*-*-browse",
                 "nx-repository-view-*-*-add",
+                "nx-repository-view-*-*-read",
                 "nx-search-read",
                 "nx-userschangepw",
                 "nx-apikey-all"],
