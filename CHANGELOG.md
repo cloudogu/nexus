@@ -5,11 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Upgrade Nexus to 3.28.1; #57
 
 ## [v3.27.0-2] - 2020-09-22
 ### Added
 - Added Permission `nx-repository-view---read` to cesUser #55. This will not affect existing nexus installations.
-
 
 ## [v3.27.0-1] - 2020-09-14
 ### Changed
