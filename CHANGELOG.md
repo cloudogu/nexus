@@ -6,10 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.28.1-1] - 2020-11-16
+### Changed
+- Upgrade Nexus to 3.28.1; #57
+- Upgrade to java base image 8u252-1
+
 ## [v3.27.0-2] - 2020-09-22
 ### Added
 - Added Permission `nx-repository-view---read` to cesUser #55. This will not affect existing nexus installations.
-
 
 ## [v3.27.0-1] - 2020-09-14
 ### Changed
