@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.28.1-2] - 2020-11-27
+
+### Fixed
+- Remove nexus admin password from environment variable. Now, the password is passed via enviroment variable passing only to the respective tools (#59)
+
 ## [v3.28.1-1] - 2020-11-16
 ### Changed
 - Upgrade Nexus to 3.28.1; #57
