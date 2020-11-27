@@ -290,15 +290,17 @@ fi
 echo "writing admin_group_last to etcd"
 doguctl config admin_group_last "${CES_ADMIN_GROUP}"
 
+nexusPassword=$(doguctl config -e "admin_password")
+
 echo "importing HTTP/S proxy settings from registry"
-NEXUS_PASSWORD=$(doguctl config -e "admin_password") \
+NEXUS_PASSWORD="${nexusPassword}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"
 
 echo "starting carp in background"
-NEXUS_PASSWORD="$(doguctl config -e "admin_password")" \
+NEXUS_PASSWORD="${nexusPassword}" \
   nexus-carp -logtostderr "${NEXUS_DATA_DIR}/carp.yml" &
 NEXUS_CARP_PID=$!
 
