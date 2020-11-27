@@ -116,13 +116,17 @@ function configureNexusAtFirstStart() {
 
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
+    echo "Getting current admin password"
+    local nexusPassword
+    nexusPassword=$(doguctl config -e "admin_password")
+
     echo "Rendering nexusConfParameters template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
-    # uses NEXUS_PASSWORD set by exportNexusPasswordFromEtcd
     echo "Executing nexusConfigurationSubsequentStart script"
-    nexus-scripting execute \
+    NEXUS_PASSWORD="${nexusPassword}" \
+      nexus-scripting execute \
       --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
       "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
   else
@@ -182,12 +186,6 @@ function waitForHealthEndpointAtSubsequentStart() {
   waitForHealthEndpoint "$1" "$(doguctl config -e admin_password)"
 }
 
-function exportNexusPasswordFromEtcd() {
-  echo "Getting current admin password"
-  NEXUS_PASSWORD=$(doguctl config -e admin_password)
-  export NEXUS_PASSWORD=${NEXUS_PASSWORD}
-}
-
 function terminateNexusAndNexusCarp() {
   echo "kill nexus"
   kill -TERM "$NEXUS_PID" || true
@@ -202,7 +200,15 @@ function terminateNexusAndNexusCarp() {
 function installDefaultDockerRegistry() {
   echo "Installing default docker registry"
   export NEXUS_SERVER="http://localhost:8081/nexus"
-  nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | nexus-claim apply -i "-"
+
+  echo "Getting current admin password"
+  local nexusPassword
+  nexusPassword=$(doguctl config -e "admin_password")
+
+  NEXUS_PASSWORD="${nexusPassword}" \
+    nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | \
+  NEXUS_PASSWORD="${nexusPassword}" \
+    nexus-claim apply -i "-"
 }
 
 function renderLoggingConfig() {
@@ -261,9 +267,6 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
 
-  echo "Exporting nexus password..."
-  exportNexusPasswordFromEtcd
-
   # Install default docker registry if not prohibited by etcd key
   if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
     installDefaultDockerRegistry
@@ -272,11 +275,6 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl config successfulInitialConfiguration true
 
 else
-
-  # needs to be called before configureNexusAtSubsequentStart because it sets
-  # NEXUS_PASSWORD env var
-  echo "Exporting nexus password..."
-  exportNexusPasswordFromEtcd
 
   echo "Starting Nexus..."
   startNexus
@@ -292,14 +290,18 @@ fi
 echo "writing admin_group_last to etcd"
 doguctl config admin_group_last "${CES_ADMIN_GROUP}"
 
+nexusPassword=$(doguctl config -e "admin_password")
+
 echo "importing HTTP/S proxy settings from registry"
-nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
+NEXUS_PASSWORD="${nexusPassword}" \
+  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"
 
 echo "starting carp in background"
-nexus-carp -logtostderr "${NEXUS_DATA_DIR}/carp.yml" &
+NEXUS_PASSWORD="${nexusPassword}" \
+  nexus-carp -logtostderr "${NEXUS_DATA_DIR}/carp.yml" &
 NEXUS_CARP_PID=$!
 
 echo "starting claim tool"
