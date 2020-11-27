@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.28.1-1",
+  "Version": "3.28.1-2",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -77,7 +77,7 @@
     },
     {
       "Name": "container_config/memory_limit",
-      "Description":"Limits the container's memory usage. Use a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte).",
+      "Description": "Limits the container's memory usage. Use a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte).",
       "Optional": true,
       "Validation": {
         "Type": "BINARY_MEASUREMENT"
@@ -85,7 +85,7 @@
     },
     {
       "Name": "container_config/swap_limit",
-      "Description":"Limits the container's swap memory usage. Use zero or a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte). 0 will disable swapping.",
+      "Description": "Limits the container's swap memory usage. Use zero or a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte). 0 will disable swapping.",
       "Optional": true,
       "Validation": {
         "Type": "BINARY_MEASUREMENT"
