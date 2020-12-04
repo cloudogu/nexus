@@ -44,27 +44,41 @@ fi
 
 ### declaration of functions
 function setNexusVmoptionsAndProperties() {
-  cat <<EOF >"${NEXUS_WORKDIR}/bin/nexus.vmoptions"
-  -Xms1200M
-  -Xmx1200M
-  -XX:MaxDirectMemorySize=2G
-  -XX:+UnlockDiagnosticVMOptions
-  -XX:+UnsyncloadClass
-  -XX:+LogVMOutput
-  -XX:LogFile=${NEXUS_DATA_DIR}/log/jvm.log
-  -XX:-OmitStackTraceInFastThrow
-  -Djava.net.preferIPv4Stack=true
-  -Dkaraf.home=.
-  -Dkaraf.base=.
-  -Dkaraf.etc=etc/karaf
-  -Djava.util.logging.config.file=etc/karaf/java.util.logging.properties
-  -Dkaraf.data=${NEXUS_DATA_DIR}
-  -Djava.io.tmpdir=${NEXUS_DATA_DIR}/tmp
-  -Dkaraf.startLocalConsole=false
-  -Djavax.net.ssl.trustStore=${TRUSTSTORE}
-  -Djavax.net.ssl.trustStorePassword=changeit
-  -Djava.net.preferIPv4Stack=true
-  -Djava.endorsed.dirs=lib/endorsed
+  local VM_OPTIONS_FILE
+  VM_OPTIONS_FILE="${NEXUS_WORKDIR}/bin/nexus.vmoptions"
+
+  echo "Setting memory limits..."
+  if [[ "$(doguctl config "container_config/memory_limit" -d "empty")" != "empty" ]];  then
+    cat <<EOF >"$VM_OPTIONS_FILE"
+      -XX:MaxRAMPercentage=80.0
+      -XX:MinRAMPercentage=50.0
+EOF
+  else
+    cat <<EOF >"$VM_OPTIONS_FILE"
+      -Xms1200M
+      -Xmx1200M
+EOF
+  fi
+
+  cat <<EOF >>"$VM_OPTIONS_FILE"
+      -XX:MaxDirectMemorySize=2G
+      -XX:+UnlockDiagnosticVMOptions
+      -XX:+UnsyncloadClass
+      -XX:+LogVMOutput
+      -XX:LogFile=${NEXUS_DATA_DIR}/log/jvm.log
+      -XX:-OmitStackTraceInFastThrow
+      -Djava.net.preferIPv4Stack=true
+      -Dkaraf.home=.
+      -Dkaraf.base=.
+      -Dkaraf.etc=etc/karaf
+      -Djava.util.logging.config.file=etc/karaf/java.util.logging.properties
+      -Dkaraf.data=${NEXUS_DATA_DIR}
+      -Djava.io.tmpdir=${NEXUS_DATA_DIR}/tmp
+      -Dkaraf.startLocalConsole=false
+      -Djavax.net.ssl.trustStore=${TRUSTSTORE}
+      -Djavax.net.ssl.trustStorePassword=changeit
+      -Djava.net.preferIPv4Stack=true
+      -Djava.endorsed.dirs=lib/endorsed
 EOF
 }
 

@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Optimized max heap size in limited dockerized environments (#61)
+
 ## [v3.28.1-2] - 2020-11-27
 
 ### Fixed
