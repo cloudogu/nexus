@@ -47,20 +47,7 @@ function setNexusVmoptionsAndProperties() {
   local VM_OPTIONS_FILE
   VM_OPTIONS_FILE="${NEXUS_WORKDIR}/bin/nexus.vmoptions"
 
-  echo "Setting memory limits..."
-  if [[ "$(doguctl config "container_config/memory_limit" -d "empty")" != "empty" ]];  then
-    cat <<EOF >"$VM_OPTIONS_FILE"
-      -XX:MaxRAMPercentage=80.0
-      -XX:MinRAMPercentage=50.0
-EOF
-  else
-    cat <<EOF >"$VM_OPTIONS_FILE"
-      -Xms1200M
-      -Xmx1200M
-EOF
-  fi
-
-  cat <<EOF >>"$VM_OPTIONS_FILE"
+  cat <<EOF >"$VM_OPTIONS_FILE"
       -XX:MaxDirectMemorySize=2G
       -XX:+UnlockDiagnosticVMOptions
       -XX:+UnsyncloadClass
@@ -80,6 +67,22 @@ EOF
       -Djava.net.preferIPv4Stack=true
       -Djava.endorsed.dirs=lib/endorsed
 EOF
+
+  echo "Setting memory limits..."
+  if [[ "$(doguctl config "container_config/memory_limit" -d "empty")" != "empty" ]];  then
+    # Retrieve configurable java limits from etcd, valid default values exist
+    MEMORY_LIMIT_MAX_PERCENTAGE=$(doguctl config "container_config/java_max_ram_percentage")
+    MEMORY_LIMIT_MIN_PERCENTAGE=$(doguctl config "container_config/java_min_ram_percentage")
+
+    echo "Setting memory limits..."
+    echo "-XX:MaxRAMPercentage=${MEMORY_LIMIT_MAX_PERCENTAGE}" >> "${VM_OPTIONS_FILE}"
+    echo "-XX:MinRAMPercentage=${MEMORY_LIMIT_MIN_PERCENTAGE}" >> "${VM_OPTIONS_FILE}"
+  else
+    echo "-Xms1200M" >> "${VM_OPTIONS_FILE}"
+    echo "-Xmx1200M" >> "${VM_OPTIONS_FILE}"
+  fi
+
+  cat "${VM_OPTIONS_FILE}"
 }
 
 function setNexusProperties() {

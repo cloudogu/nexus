@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Optimized max heap size in limited dockerized environments (#61)
+- Ability to configure the `MaxRamPercentage` and `MinRamPercentage` for the PlantUML process inside the container via `cesapp edit-conf`  (#61)
 
 ## [v3.28.1-2] - 2020-11-27
 
