@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.28.1-2",
+  "Version": "3.28.1-3",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -93,7 +93,7 @@
     },
     {
       "Name": "container_config/java_max_ram_percentage",
-      "Description":"Limits the heap stack size of the Nexus process to the configured percentage of the available physical memory when the container has more than approx. 250 MB of memory available. Is only considered when a memory_limit is set. Use a valid float value with decimals between 0 and 100 (f. ex. 55.0 for 55%). Default value for Nexus: 25%",
+      "Description": "Limits the heap stack size of the Nexus process to the configured percentage of the available physical memory when the container has more than approx. 250 MB of memory available. Is only considered when a memory_limit is set. Use a valid float value with decimals between 0 and 100 (f. ex. 55.0 for 55%). Default value for Nexus: 25%",
       "Optional": true,
       "Default": "25.0",
       "Validation": {
@@ -102,7 +102,7 @@
     },
     {
       "Name": "container_config/java_min_ram_percentage",
-      "Description":"Limits the heap stack size of the Nexus process to the configured percentage of the available physical memory when the container has less than approx. 250 MB of memory available. Is only considered when a memory_limit is set. Use a valid float value with decimals between 0 and 100 (f. ex. 55.0 for 55%). Default value for Nexus: 50%",
+      "Description": "Limits the heap stack size of the Nexus process to the configured percentage of the available physical memory when the container has less than approx. 250 MB of memory available. Is only considered when a memory_limit is set. Use a valid float value with decimals between 0 and 100 (f. ex. 55.0 for 55%). Default value for Nexus: 50%",
       "Optional": true,
       "Default": "50.0",
       "Validation": {
