@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.28.1-3] - 2020-12-14
+
 ### Added
 
 - Ability to configure the `MaxRamPercentage` and `MinRamPercentage` for the Nexus process inside the container via `cesapp edit-conf`  (#61)
