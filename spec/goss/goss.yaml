@@ -37,7 +37,6 @@ file:
   /opt/sonatype/nexus/bin/nexus.vmoptions:
     exists: true
     mode: "0770"
-    size: 644
     owner: nexus
     group: nexus
     filetype: file

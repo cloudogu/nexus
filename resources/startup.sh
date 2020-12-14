@@ -44,28 +44,45 @@ fi
 
 ### declaration of functions
 function setNexusVmoptionsAndProperties() {
-  cat <<EOF >"${NEXUS_WORKDIR}/bin/nexus.vmoptions"
-  -Xms1200M
-  -Xmx1200M
-  -XX:MaxDirectMemorySize=2G
-  -XX:+UnlockDiagnosticVMOptions
-  -XX:+UnsyncloadClass
-  -XX:+LogVMOutput
-  -XX:LogFile=${NEXUS_DATA_DIR}/log/jvm.log
-  -XX:-OmitStackTraceInFastThrow
-  -Djava.net.preferIPv4Stack=true
-  -Dkaraf.home=.
-  -Dkaraf.base=.
-  -Dkaraf.etc=etc/karaf
-  -Djava.util.logging.config.file=etc/karaf/java.util.logging.properties
-  -Dkaraf.data=${NEXUS_DATA_DIR}
-  -Djava.io.tmpdir=${NEXUS_DATA_DIR}/tmp
-  -Dkaraf.startLocalConsole=false
-  -Djavax.net.ssl.trustStore=${TRUSTSTORE}
-  -Djavax.net.ssl.trustStorePassword=changeit
-  -Djava.net.preferIPv4Stack=true
-  -Djava.endorsed.dirs=lib/endorsed
+  local VM_OPTIONS_FILE
+  VM_OPTIONS_FILE="${NEXUS_WORKDIR}/bin/nexus.vmoptions"
+
+  cat <<EOF >"$VM_OPTIONS_FILE"
+      -XX:MaxDirectMemorySize=2G
+      -XX:+UnlockDiagnosticVMOptions
+      -XX:+UnsyncloadClass
+      -XX:+LogVMOutput
+      -XX:LogFile=${NEXUS_DATA_DIR}/log/jvm.log
+      -XX:-OmitStackTraceInFastThrow
+      -Djava.net.preferIPv4Stack=true
+      -Dkaraf.home=.
+      -Dkaraf.base=.
+      -Dkaraf.etc=etc/karaf
+      -Djava.util.logging.config.file=etc/karaf/java.util.logging.properties
+      -Dkaraf.data=${NEXUS_DATA_DIR}
+      -Djava.io.tmpdir=${NEXUS_DATA_DIR}/tmp
+      -Dkaraf.startLocalConsole=false
+      -Djavax.net.ssl.trustStore=${TRUSTSTORE}
+      -Djavax.net.ssl.trustStorePassword=changeit
+      -Djava.net.preferIPv4Stack=true
+      -Djava.endorsed.dirs=lib/endorsed
 EOF
+
+  echo "Setting memory limits..."
+  if [[ "$(doguctl config "container_config/memory_limit" -d "empty")" != "empty" ]];  then
+    # Retrieve configurable java limits from etcd, valid default values exist
+    MEMORY_LIMIT_MAX_PERCENTAGE=$(doguctl config "container_config/java_max_ram_percentage")
+    MEMORY_LIMIT_MIN_PERCENTAGE=$(doguctl config "container_config/java_min_ram_percentage")
+
+    echo "Setting memory limits..."
+    echo "-XX:MaxRAMPercentage=${MEMORY_LIMIT_MAX_PERCENTAGE}" >> "${VM_OPTIONS_FILE}"
+    echo "-XX:MinRAMPercentage=${MEMORY_LIMIT_MIN_PERCENTAGE}" >> "${VM_OPTIONS_FILE}"
+  else
+    echo "-Xms1200M" >> "${VM_OPTIONS_FILE}"
+    echo "-Xmx1200M" >> "${VM_OPTIONS_FILE}"
+  fi
+
+  cat "${VM_OPTIONS_FILE}"
 }
 
 function setNexusProperties() {
