@@ -22,6 +22,7 @@ chromeCapabilities.set('name', 'Nexus ITs');
 
 // set filename pattern for zalenium videos
 chromeCapabilities.set("testFileNameTemplate", "{testName}_{testStatus}");
+chromeCapabilities.set("acceptInsecureCerts", true);
 
 let driver = null;
 
@@ -46,7 +47,6 @@ const zaleniumReporter = {
 jasmine.getEnv().addReporter(zaleniumReporter);
 
 exports.createDriver = function(){
-    chromeCapabilities. setAcceptInsecureCerts(true);
     if (config.webdriverType === 'local') {
         driver = createLocalDriver();
     } else {
