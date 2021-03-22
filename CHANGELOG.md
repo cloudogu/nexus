@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.28.1-4] - 2021-03-22
+### Changed
+- Update dogu-build-lib to `v1.1.1`
+- Update zalenium-build-lib to `v2.1.1`
+- toggle video recording with build parameter (#63)
+
+### Removed
+- installation of R and Helm plugins. These plugins are a built-in feature now. (#66)
+
 ## [v3.28.1-3] - 2020-12-14
 
 ### Added
