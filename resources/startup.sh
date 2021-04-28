@@ -107,6 +107,9 @@ EOF
 
 function configureNexusAtFirstStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
+    ADMINUSER="admin"
+    NEXUS_USER="${ADMINUSER}"
+
     local nexusPassword
     nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
 
@@ -284,10 +287,6 @@ validateDoguLogLevel
 echo "Rendering logging configuration..."
 renderLoggingConfig
 
-# Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
-removeLastTemporaryAdminUser
-createTemporaryAdminUser
-
 echo "Setting nexus.vmoptions..."
 setNexusVmoptionsAndProperties
 
@@ -323,6 +322,9 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl config successfulInitialConfiguration true
 
 else
+  # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
+  removeLastTemporaryAdminUser
+  createTemporaryAdminUser
 
   echo "Starting Nexus..."
   startNexus
