@@ -8,7 +8,8 @@ if [[ $(nproc) -lt 4 ]]; then
 fi
 
 # variables
-ADMINUSER="admin"
+ADMINUSER="$(doguctl random)"
+ADMINPW="$(doguctl random)"
 NEXUS_DATA_DIR=/var/lib/nexus
 
 LOGBACK_CONF_DIR="${NEXUS_WORKDIR}/etc/logback"
@@ -109,12 +110,9 @@ function configureNexusAtFirstStart() {
     local nexusPassword
     nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
 
-    local newAdminPassword
-    newAdminPassword="$(doguctl random)"
-
     echo "Rendering nexusConfParameters template"
     ADMINDEFAULTPASSWORD="${nexusPassword}" \
-      NEWADMINPASSWORD="${newAdminPassword}" \
+      NEWADMINPASSWORD="${ADMINPW}" \
       doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
@@ -124,7 +122,6 @@ function configureNexusAtFirstStart() {
       nexus-scripting execute \
       --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
       "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
-    doguctl config -e "admin_password" "${newAdminPassword}"
   else
     echo "Configuration files do not exist"
     exit 1
@@ -134,15 +131,13 @@ function configureNexusAtFirstStart() {
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
     echo "Getting current admin password"
-    local nexusPassword
-    nexusPassword=$(doguctl config -e "admin_password")
 
     echo "Rendering nexusConfParameters template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
     echo "Executing nexusConfigurationSubsequentStart script"
-    NEXUS_PASSWORD="${nexusPassword}" \
+    NEXUS_PASSWORD="${ADMINPW}" \
       nexus-scripting execute \
       --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
       "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
@@ -150,6 +145,41 @@ function configureNexusAtSubsequentStart() {
     echo "Configuration files do not exist"
     exit 1
   fi
+}
+
+function sql(){
+  SQL="${1}"
+  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \ "CONNECT plocal:/var/lib/nexus/db/security admin admin; ${SQL}"
+}
+
+function createPasswordHash(){
+  local PW="${1}"
+  java -jar "/shiro-tools-hasher.jar" -a SHA-512 -i 1024 -f shiro1 "${PW}"
+}
+
+function createTemporaryAdminUser(){
+  local hashed
+  hashed="$(createPasswordHash "${ADMINPW}")"
+  echo "Creating admin user '${ADMINUSER}'"
+  sql "INSERT INTO user (status, id, firstName, lastName, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'tempadmin@cloudogu.com', '${hashed}')"
+  sql "INSERT INTO user_role_mapping (userId, source, roles) VALUES ('${ADMINUSER}', 'default', 'nx-admin')"
+  doguctl config last_tmp_admin "${ADMINUSER}"
+  doguctl config last_tmp_admin_pw "${ADMINPW}"
+}
+
+function removeLastTemporaryAdminUser(){
+  local none='<none>'
+  local userid
+  userid="$(doguctl config --default "${none}" last_tmp_admin)"
+  if [ "${userid}" = "${none}" ]; then
+    return
+  fi
+
+  echo "Removing last tmp admin user '${userid}'"
+  sql "DELETE FROM user_role_mapping WHERE userId='${userid}'"
+  sql "DELETE FROM user WHERE id='${userid}'"
+  doguctl config --rm last_tmp_admin
+  doguctl config --rm last_tmp_admin_pw
 }
 
 function waitForFile() {
@@ -200,7 +230,7 @@ function waitForHealthEndpointAtFirstStart() {
 }
 
 function waitForHealthEndpointAtSubsequentStart() {
-  waitForHealthEndpoint "$1" "$(doguctl config -e admin_password)"
+  waitForHealthEndpoint "$1" "${ADMINPW}"
 }
 
 function terminateNexusAndNexusCarp() {
@@ -218,13 +248,9 @@ function installDefaultDockerRegistry() {
   echo "Installing default docker registry"
   export NEXUS_SERVER="http://localhost:8081/nexus"
 
-  echo "Getting current admin password"
-  local nexusPassword
-  nexusPassword=$(doguctl config -e "admin_password")
-
-  NEXUS_PASSWORD="${nexusPassword}" \
+  NEXUS_PASSWORD="${ADMINPW}" \
     nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | \
-  NEXUS_PASSWORD="${nexusPassword}" \
+  NEXUS_PASSWORD="${ADMINPW}" \
     nexus-claim apply -i "-"
 }
 
@@ -253,9 +279,14 @@ function validateDoguLogLevel() {
 }
 
 ### beginning of startup
+
 validateDoguLogLevel
 echo "Rendering logging configuration..."
 renderLoggingConfig
+
+# Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
+removeLastTemporaryAdminUser
+createTemporaryAdminUser
 
 echo "Setting nexus.vmoptions..."
 setNexusVmoptionsAndProperties
@@ -307,22 +338,22 @@ fi
 echo "writing admin_group_last to etcd"
 doguctl config admin_group_last "${CES_ADMIN_GROUP}"
 
-nexusPassword=$(doguctl config -e "admin_password")
-
 echo "importing HTTP/S proxy settings from registry"
-NEXUS_PASSWORD="${nexusPassword}" \
+NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"
 
 echo "starting carp in background"
-NEXUS_PASSWORD="${nexusPassword}" \
+NEXUS_PASSWORD="${ADMINPW}" \
   nexus-carp -logtostderr "${NEXUS_DATA_DIR}/carp.yml" &
 NEXUS_CARP_PID=$!
 
 echo "starting claim tool"
-/claim.sh
+/claim.sh "${ADMINPW}"
+
+removeLastTemporaryAdminUser
 
 doguctl state ready
 
