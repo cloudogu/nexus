@@ -355,8 +355,6 @@ NEXUS_CARP_PID=$!
 echo "starting claim tool"
 /claim.sh "${ADMINPW}"
 
-removeLastTemporaryAdminUser
-
 doguctl state ready
 
 trap terminateNexusAndNexusCarp SIGTERM
