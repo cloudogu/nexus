@@ -3,6 +3,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# shellcheck disable=SC1091
 source /util.sh
 
 if [[ $(nproc) -lt 4 ]]; then
@@ -13,15 +14,6 @@ fi
 ADMINUSER="dogu-tool-admin-$(doguctl random)"
 ADMINPW="$(doguctl random)"
 NEXUS_DATA_DIR=/var/lib/nexus
-
-LOGBACK_CONF_DIR="${NEXUS_WORKDIR}/etc/logback"
-LOGBACK_FILE="${LOGBACK_CONF_DIR}/logback.xml"
-LOGBACK_TEMPLATE_FILE=/logback.xml.tpl
-LOGBACK_OVERRIDE_DIR="${NEXUS_DATA_DIR}/etc/logback"
-LOGBACK_OVERRIDE_FILE="${LOGBACK_OVERRIDE_DIR}/logback-overrides.xml"
-LOGBACK_OVERRIDE_TEMPLATE_FILE=/logback-overrides.xml.tpl
-DEFAULT_LOGGING_KEY="logging/root"
-SCRIPT_LOG_PREFIX="Log level mapping:"
 
 # credentials for nexus-scripting tool
 # NEXUS_PASSWORD cannot be set here because it needs to be fetched from
@@ -112,6 +104,7 @@ doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"
 echo "starting carp in background"
 NEXUS_PASSWORD="${ADMINPW}" \
   nexus-carp -logtostderr "${NEXUS_DATA_DIR}/carp.yml" &
+# shellcheck disable=SC2034
 NEXUS_CARP_PID=$!
 
 echo "starting claim tool"

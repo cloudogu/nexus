@@ -3,6 +3,15 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+LOGBACK_CONF_DIR="${NEXUS_WORKDIR}/etc/logback"
+LOGBACK_FILE="${LOGBACK_CONF_DIR}/logback.xml"
+LOGBACK_TEMPLATE_FILE=/logback.xml.tpl
+LOGBACK_OVERRIDE_DIR="${NEXUS_DATA_DIR}/etc/logback"
+LOGBACK_OVERRIDE_FILE="${LOGBACK_OVERRIDE_DIR}/logback-overrides.xml"
+LOGBACK_OVERRIDE_TEMPLATE_FILE=/logback-overrides.xml.tpl
+DEFAULT_LOGGING_KEY="logging/root"
+SCRIPT_LOG_PREFIX="Log level mapping:"
+
 function setNexusVmoptionsAndProperties() {
   local VM_OPTIONS_FILE
   VM_OPTIONS_FILE="${NEXUS_WORKDIR}/bin/nexus.vmoptions"
