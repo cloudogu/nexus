@@ -3,6 +3,10 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# variables
+ADMINUSER="dogu-tool-admin-$(doguctl random)"
+ADMINPW="$(doguctl random)"
+NEXUS_DATA_DIR=/var/lib/nexus
 LOGBACK_CONF_DIR="${NEXUS_WORKDIR}/etc/logback"
 LOGBACK_FILE="${LOGBACK_CONF_DIR}/logback.xml"
 LOGBACK_TEMPLATE_FILE=/logback.xml.tpl
