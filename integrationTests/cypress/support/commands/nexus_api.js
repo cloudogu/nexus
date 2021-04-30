@@ -1,25 +1,19 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+/**
+ * Accesses the scripting api of nexus with get
+ * @param {String} username - Username for login
+ * @param {String} password - Password for login
+ * @param {boolean} exitOnFail - Determines whether the test should fail when the request did not succeed. Default: false
+ */
+const nexusRequestScriptingApi = (username, password, exitOnFail = false) => {
+    return cy.request({
+        method: "GET",
+        url: Cypress.config().baseUrl + "/nexus/service/rest/v1/script",
+        auth: {
+            'user': username,
+            'pass': password
+        },
+        failOnStatusCode: exitOnFail
+    })
+}
+
+Cypress.Commands.add("nexusRequestScriptingApi", nexusRequestScriptingApi)
