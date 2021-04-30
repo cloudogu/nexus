@@ -14,6 +14,8 @@
 
 **Website:** https://www.sonatype.com/nexus-repository-oss
 
+**Docs:** https://help.sonatype.com/repomanager3
+
 **Dependencies:** cas, nginx, postfix
 
 ## Installation Ecosystem
