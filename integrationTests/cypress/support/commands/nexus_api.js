@@ -1,3 +1,5 @@
+const env = require('@cloudogu/dogu-integration-test-library/lib/environment_variables');
+
 /**
  * Accesses the scripting api of nexus with get
  * @param {String} username - Username for login
@@ -16,4 +18,17 @@ const nexusRequestScriptingApi = (username, password, exitOnFail = false) => {
     })
 }
 
+const nexusDeleteUserViaApi = (username, exitOnFail = false) => {
+    return cy.request({
+        method: "GET",
+        url: Cypress.config().baseUrl + `/nexus/service/rest/v1/users/${username}`,
+        auth: {
+            'user': env.GetAdminUsername(),
+            'pass': env.GetAdminPassword()
+        },
+        failOnStatusCode: exitOnFail
+    })
+}
+
 Cypress.Commands.add("nexusRequestScriptingApi", nexusRequestScriptingApi)
+Cypress.Commands.add("nexusDeleteUserViaApi", nexusDeleteUserViaApi)
