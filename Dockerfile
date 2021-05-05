@@ -2,7 +2,7 @@
 FROM registry.cloudogu.com/official/java:8u252-1
 LABEL maintainer="robert.auer@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.30.0-1"
+    VERSION="3.30.0-2"
 
 # The version of nexus to install
 ENV NEXUS_VERSION=3.30.0-01 \
@@ -10,6 +10,7 @@ ENV NEXUS_VERSION=3.30.0-01 \
     NEXUS_CLAIM_VERSION=1.0.0 \
     NEXUS_CARP_VERSION=1.2.0 \
     NEXUS_SCRIPTING_VERSION=0.2.0 \
+    SHIRO_VERSION=1.3.2 \
     SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
@@ -56,7 +57,12 @@ RUN set -x \
   && tar -xf nexus-carp.tar.gz -C /usr/bin \
   && rm nexus-carp.tar.gz \
   && chown -R nexus:nexus ${NEXUS_WORKDIR} \
-  && chmod -R 770 ${NEXUS_WORKDIR}
+  && chmod -R 770 ${NEXUS_WORKDIR} \
+  && apk add maven \
+  && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
+  && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/1.3.2/shiro-tools-hasher-1.3.2-cli.jar /shiro-tools-hasher.jar \
+  && chown nexus:nexus /shiro-tools-hasher.jar \
+  && apk del maven
 
 COPY resources /
 

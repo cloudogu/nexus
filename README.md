@@ -14,6 +14,8 @@
 
 **Website:** https://www.sonatype.com/nexus-repository-oss
 
+**Docs:** https://help.sonatype.com/repomanager3
+
 **Dependencies:** cas, nginx, postfix
 
 ## Installation Ecosystem
@@ -45,6 +47,12 @@ Or we could apply our model on every start of nexus:
 ```bash
 cat mymodel.hcl | etcdctl set /config/nexus/claim/always
 ```
+
+## Nexus-Scripting
+[Nexus-Scripting](https://github.com/cloudogu/nexus-scripting) provides an go api and a command line interface for the scripting api Sonatype Nexus 3.
+
+## Nexus-Carp
+[Nexus-Carp](https://github.com/cloudogu/nexus-carp) is the CAS Authentication Reverse Proxy for Sonatype Nexus.
 
 ---
 ### What is the Cloudogu EcoSystem?

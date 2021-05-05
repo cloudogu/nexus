@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.30.0-2] - 2021-05-05
+### Changed
+- Create temporary admin at each start (#71)
+
 ## [v3.30.0-1] - 2021-04-01
 ### Changed
 - Upgrade to Sonatype Nexus 3.30.0; #68
