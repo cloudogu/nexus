@@ -65,7 +65,6 @@ Given(/^the user has an internal default nexus account$/, function () {
 
 When(/^the user clicks the logout button$/, function () {
     cy.get('#nx-header-signout-1144-btnEl').click();
-    cy.redmineDeleteUser();
 });
 
 When(/^the user logs into the dogu$/, function () {

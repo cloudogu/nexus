@@ -3,5 +3,4 @@ const doguTestLibrary = require('@cloudogu/dogu-integration-test-library')
 doguTestLibrary.registerCommands()
 
 // local commands
-import './commands/nexus_gui'
 import './commands/nexus_api'
