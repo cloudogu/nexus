@@ -3,6 +3,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+ADMINPW="${1}"
+
 if ! doguctl wait --port 8081 --timeout 120; then 
   echo "Nexus seems not to be started. Exiting."
   exit 1
@@ -18,14 +20,10 @@ function claim() {
   LOCK="${2}"
   PLAN=$(mktemp)
   if doguctl config claim/"${CLAIM}" > "${PLAN}"; then
-    echo "Getting current admin password"
-    local nexusPassword
-    nexusPassword=$(doguctl config -e "admin_password")
-
     echo "exec claim ${CLAIM}"
-    NEXUS_PASSWORD="${nexusPassword}" \
+    NEXUS_PASSWORD="${ADMINPW}" \
       nexus-claim plan -i "${PLAN}" -o "-" | \
-    NEXUS_PASSWORD="${nexusPassword}" \
+    NEXUS_PASSWORD="${ADMINPW}" \
       nexus-claim apply -i "-"
 
     if [[ "${LOCK}" != "" ]]; then
