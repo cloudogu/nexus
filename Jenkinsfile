@@ -22,8 +22,9 @@ node('vagrant') {
                 parameters([
                     booleanParam(defaultValue: false, description: 'Test dogu upgrade from latest release or optionally from defined version below', name: 'TestDoguUpgrade'),
                     string(defaultValue: '', description: 'Old Dogu version for the upgrade test (optional; e.g. 3.23.0-1)', name: 'OldDoguVersionForUpgradeTest'),
-                    booleanParam(defaultValue: false, description: 'Enables the video recording during the test execution', name: 'EnableVideoRecording'),
-            ])
+                    booleanParam(defaultValue: true, description: 'Enables cypress to record video of the integration tests.', name: 'EnableVideoRecording'),
+                    booleanParam(defaultValue: true, description: 'Enables cypress to take screenshots of failing integration tests.', name: 'EnableScreenshotRecording')
+                ])
         ])
 
         EcoSystem ecoSystem = new EcoSystem(this, "gcloud-ces-operations-internal-packer", "jenkins-gcloud-ces-operations-internal")
@@ -68,7 +69,8 @@ node('vagrant') {
             }
 
             stage('Integration Tests') {
-                ecoSystem.runCypressIntegrationTests()
+                ecoSystem.runCypressIntegrationTests([enableVideo      : params.EnableVideoRecording,
+                                                      enableScreenshots: params.EnableScreenshotRecording])
             }
 
             if (params.TestDoguUpgrade != null && params.TestDoguUpgrade){
@@ -92,7 +94,8 @@ node('vagrant') {
                 }
 
                 stage('Integration Tests - After Upgrade') {
-                    ecoSystem.runCypressIntegrationTests()
+                    ecoSystem.runCypressIntegrationTests([enableVideo      : params.EnableVideoRecording,
+                                                          enableScreenshots: params.EnableScreenshotRecording])
                 }
             }
 
