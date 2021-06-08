@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.30.1-2] - 2021-06-08
+### Fixed
+- Fixed restart loop when `config/nexus/claim/always` key is set (#75)
+
 ## [v3.30.1-1] - 2021-05-26
 ### Changed
 - Upgrade to Sonatype Nexus 3.30.1; #73

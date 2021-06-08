@@ -3,7 +3,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-ADMINPW="${1}"
+ADMINUSER="${1}"
+ADMINPW="${2}"
 
 if ! doguctl wait --port 8081 --timeout 120; then 
   echo "Nexus seems not to be started. Exiting."
@@ -12,8 +13,9 @@ fi
 
 ONCE_LOCK="/var/lib/nexus/claim.once"
 
-export NEXUS_USER="admin"
+# NEXUS_URL is already set correctly
 # NEXUS_SERVER is already set in Dockerfile
+export NEXUS_USER="${ADMINUSER}"
 
 function claim() {
   CLAIM="${1}"
