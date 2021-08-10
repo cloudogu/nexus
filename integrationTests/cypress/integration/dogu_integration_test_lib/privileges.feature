@@ -19,7 +19,6 @@ Feature: Automatic grant of privileges when logging into a dogu
   Scenario: ces user without admin privileges has no admin privileges in the dogu
     Given the user is not member of the admin user group
     When the user logs into the CES
-    And login was successful and page is loaded
     Then the user has no administrator privileges in the dogu
 
   @requires_testuser
@@ -27,7 +26,6 @@ Feature: Automatic grant of privileges when logging into a dogu
     Given the user has an internal default dogu account
     And the user is not member of the admin user group
     When the user logs into the CES
-    And login was successful and page is loaded
     Then the user has no administrator privileges in the dogu
 
   @requires_testuser
@@ -35,5 +33,4 @@ Feature: Automatic grant of privileges when logging into a dogu
     Given the user has an internal default dogu account
     And the user is member of the admin user group
     When the user logs into the CES
-    And login was successful and page is loaded
     Then the user has administrator privileges in the dogu

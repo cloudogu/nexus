@@ -67,10 +67,6 @@ When(/^the user clicks the logout button$/, function () {
     cy.get('#nx-header-signout-1144-btnEl').click();
 });
 
-When(/^login was successful and page is loaded$/, function () {
-    cy.fullyLoadPageAndClosePopups()
-});
-
 //
 //
 // Then
