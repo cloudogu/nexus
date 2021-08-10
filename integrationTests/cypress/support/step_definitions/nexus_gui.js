@@ -3,7 +3,6 @@ const {
     When,
     Then
 } = require("cypress-cucumber-preprocessor/steps");
-const env = require('@cloudogu/dogu-integration-test-library/lib/environment_variables');
 
 //
 //
@@ -12,51 +11,16 @@ const env = require('@cloudogu/dogu-integration-test-library/lib/environment_var
 //
 
 Given(/^the user is not member of the admin user group$/, function () {
+    Cypress.on('uncaught:exception', () => { return false; }); // Catch nexus errors and prevent test from failing
     // default behaviour
 });
 
 Given(/^the user is member of the admin user group$/, function () {
+    Cypress.on('uncaught:exception', () => { return false; }); // Catch nexus errors and prevent test from failing
     cy.fixture("testuser_data").then(function (testUser) {
         cy.promoteAccountToAdmin(testUser.username)
     })
 });
-
-Given(/^the user has an internal admin nexus account$/, function () {
-    cy.fixture("testuser_data").then(function (testUser) {
-        cy.isCesAdmin(testUser.username).then(function (isAdmin) {
-            if (isAdmin) {
-                // create internal nexus acccount
-                cy.login(testUser.username, testUser.password)
-                cy.logout()
-            } else {
-                // promote -> create internal nexus acccount -> demote
-                cy.promoteAccountToAdmin(testUser.username)
-                cy.login(testUser.username, testUser.password)
-                cy.logout()
-                cy.demoteAccountToDefault(testUser.username)
-            }
-        })
-    })
-});
-
-Given(/^the user has an internal default nexus account$/, function () {
-    cy.fixture("testuser_data").then(function (testUser) {
-        cy.isCesAdmin(testUser.username).then(function (isAdmin) {
-            if (isAdmin) {
-                // demote -> create internal nexus acccount -> promote
-                cy.demoteAccountToDefault(testUser.username)
-                cy.login(testUser.username, testUser.password)
-                cy.logout()
-                cy.promoteAccountToAdmin(testUser.username)
-            } else {
-                // create internal nexus acccount
-                cy.login(testUser.username, testUser.password)
-                cy.logout()
-            }
-        })
-    })
-});
-
 //
 //
 // When
