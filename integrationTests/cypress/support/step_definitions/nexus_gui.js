@@ -67,10 +67,8 @@ When(/^the user clicks the logout button$/, function () {
     cy.get('#nx-header-signout-1144-btnEl').click();
 });
 
-When(/^the user logs into the dogu$/, function () {
-    cy.fixture("testuser_data").then(function (testUser) {
-        cy.login(testUser.username, testUser.password);
-    })
+When(/^login was successful and page is loaded$/, function () {
+    cy.fullyLoadPageAndClosePopups()
 });
 
 //
