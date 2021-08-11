@@ -14,6 +14,6 @@ Feature: Browser-based CAS login and logout functionality
 
   @requires_testuser
   Scenario: internal admin user user which is not in admin group can access scripting api
-    Given the user has an internal admin nexus account
+    Given the user has an internal admin dogu account
     When the user is not member of the admin user group
     Then the user can access scripts api
