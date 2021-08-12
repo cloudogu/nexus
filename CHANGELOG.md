@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v3.32.0-1] - 2021-06-08
+## [v3.32.0-1] - 2021-12-08
 ### Changed
 - Update nexus to version 3.32.0 (#77)
 
