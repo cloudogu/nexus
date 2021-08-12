@@ -2,7 +2,8 @@
  * Checks if the setup popup exists. If exists, finishes the setup process.
  */
 const fullyLoadPageAndClosePopups = () => {
-    cy.contains("User signed in", {timeout: 30000}).should("be.visible");
+    cy.reload(true)
+    cy.contains("User signed in", {timeout: 10000}).should("be.visible");
 
     cy.get("body").then(body => {
         if (body.children("div[role='presentation'].x-mask.x-border-box").length > 0){
