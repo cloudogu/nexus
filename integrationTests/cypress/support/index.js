@@ -4,3 +4,4 @@ doguTestLibrary.registerCommands()
 
 // local commands
 import './commands/nexus_api'
+import './commands/nexus_gui'

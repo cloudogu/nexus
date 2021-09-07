@@ -1,4 +1,4 @@
-# Changelog
+# Nexus Repository OSS Changelog
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - When a user logs in via OIDC, a separate, unique user ID is transmitted by the OIDC provider.
     This user ID is now used as username (and at the same time as a unique ID). This User ID is 
     displayed in Nexus in the 'Username' fields; #12
+
+## [v3.32.0-1] - 2021-08-12
+### Changed
+- Update nexus to version 3.32.0 (#77)
 
 ## [v3.30.1-2] - 2021-06-08
 ### Fixed
