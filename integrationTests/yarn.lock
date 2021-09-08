@@ -729,10 +729,10 @@
     "@babel/helper-validator-identifier" "^7.12.11"
     to-fast-properties "^2.0.0"
 
-"@cloudogu/dogu-integration-test-library@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@cloudogu/dogu-integration-test-library/-/dogu-integration-test-library-0.2.0.tgz#18d2c5d93db304c7a22978212dd96e73caede792"
-  integrity sha512-h+gmIJRu06CkttAbkW1wm990z+usKWuMGTq3X7iKzQ6N1f9ifjfjjQvt9Ft4gUl6Rrp5eGwRnWeyfJYuEG7nJA==
+"@cloudogu/dogu-integration-test-library@0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@cloudogu/dogu-integration-test-library/-/dogu-integration-test-library-0.2.2.tgz#12fa22e0682a13286a8df14b31607616b12d8ba3"
+  integrity sha512-LxxQ+3in53EeNo9ahPuG6o3RptymtNBMqRrK+YAyPBZgRelZ0/bPFd0lpSFvS4n8NO0y5TsCmbxgRik1GemEKQ==
 
 "@cypress/browserify-preprocessor@^3.0.1":
   version "3.0.1"
