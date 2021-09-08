@@ -6,10 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- Forwarding no longer worked successfully with CAS 6 in combination with OIDC. This is now fixed.
+- Login workflow with CAS 6 in combination with OIDC.
   - When a user logs in via OIDC, a separate, unique user ID is transmitted by the OIDC provider.
     This user ID is now used as username (and at the same time as a unique ID). This User ID is 
-    displayed in Nexus in the 'Username' fields; #12
+    displayed in Nexus in the 'Username' fields; #80
 
 ## [v3.32.0-1] - 2021-08-12
 ### Changed
