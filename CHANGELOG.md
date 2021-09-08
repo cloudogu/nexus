@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v3.32.0-2] - 2021-09-08
 ### Fixed
 - Login workflow with CAS 6 in combination with OIDC.
   - When a user logs in via OIDC, a separate, unique user ID is transmitted by the OIDC provider.
