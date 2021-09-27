@@ -66,7 +66,7 @@ RUN set -x \
 
 COPY resources /
 
-RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /*.tpl
+RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /*.tpl /create-sa.sh /remove-sa.sh
 
 VOLUME /var/lib/nexus
 
