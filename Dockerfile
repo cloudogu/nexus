@@ -1,11 +1,11 @@
 # registry.cloudogu.com/official/nexus
-FROM registry.cloudogu.com/official/java:8u252-1
-LABEL maintainer="robert.auer@cloudogu.com" \
+FROM registry.cloudogu.com/official/java:8u282-1
+LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.32.0-2"
 
 # The version of nexus to install
-ENV NEXUS_VERSION=3.32.0-03 \
+ENV NEXUS_VERSION=3.34.1-01 \
     TINI_VERSION=0.19.0 \
     NEXUS_CLAIM_VERSION=1.0.0 \
     NEXUS_CARP_VERSION=1.3.0 \
@@ -16,7 +16,7 @@ ENV NEXUS_VERSION=3.32.0-03 \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
     NEXUS_SERVER="http://localhost:8081/nexus" \
     SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
-    SHA256_NEXUS_TAR="f5b8021d26b4faa9b56fc79fc342656640dbdb60f80ac2c65d8fb418f65d8f9d" \
+    SHA256_NEXUS_TAR="58d69f6fc28a9ed1616ad99c3ef390c7484e88cf729efc450c6e21273e8571e3" \
     SHA256_NEXUS_CLAIM="a34608ac7b516d6bc91f8a157bea286919c14e5fb5ecc76fc15edccb35adec42" \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
     SHA256_NEXUS_CARP="67948805a0395e658d07aa7759653c6309d20f5f128015b9c0d2782b43cf7824"
