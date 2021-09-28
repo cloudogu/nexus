@@ -49,7 +49,7 @@ function createRoleForServiceViaAPI() {
   \"name\": \"service_account_role_${SERVICE}\",
   \"description\": \"This is a special role created for the ${SERVICE}-service-account. Do not manually change or delete this role.\",
   \"privileges\": [
-    \"nx-repository-admin-raw-${SERVICE}-*\"
+    \"nx-repository-view-raw-${SERVICE}-*\"
   ],
   \"roles\": [
   ]
@@ -62,7 +62,7 @@ function createRoleForServiceViaAPI() {
 # 2 = password of the user
 function createUserViaAPI() {
   local userID="${1}"
-  local hashedPassword="$(createPasswordHash "${2}")"
+  local password="${2}"
 
   curl --request POST \
   --url "${NEXUS_V1_URL}"/security/users \
@@ -73,7 +73,7 @@ function createUserViaAPI() {
   \"firstName\": \"${userID}\",
   \"lastName\": \"${userID}\",
   \"emailAddress\": \"${userID}@ces.ces\",
-  \"password\": \"${hashedPassword}\",
+  \"password\": \"${password}\",
   \"status\": \"active\",
   \"roles\": [
     \"service_account_role_${SERVICE}\"
