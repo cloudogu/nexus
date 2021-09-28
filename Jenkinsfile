@@ -2,7 +2,6 @@
 @Library(['github.com/cloudogu/ces-build-lib@v1.48.0', 'github.com/cloudogu/dogu-build-lib@v1.4.1'])
 import com.cloudogu.ces.cesbuildlib.*
 import com.cloudogu.ces.dogubuildlib.*
-import com.cloudogu.ces.zaleniumbuildlib.*
 
 node('vagrant') {
     String doguName = "nexus"
