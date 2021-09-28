@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.34.1-1] - 2021-09-28
+### Changed
+- Upgrade to Nexus 3.34.1; #83
+- Upgrade to java 8u282
+
 ## [v3.32.0-2] - 2021-09-08
 ### Fixed
 - Login workflow with CAS 6 in combination with OIDC.
