@@ -16,7 +16,7 @@ function deleteRoleForServiceViaAPI() {
 }
 
 # This function deletes an existing user via an API call against the nexus.
-# The method requires one parameters:
+# The method requires one parameter:
 # 1 = userID
 function deleteUserViaAPI() {
   local userID="${1}"
@@ -49,12 +49,7 @@ for i in "${!a[@]}"
 do
   USER="${a[i]}"
   echo "Delete user: ${USER}"
-
-  # remove service user
   deleteUserViaAPI ${USER}
 done
 
-# delete the role
 deleteRoleForServiceViaAPI
-
-# do not delete the repository as it contains data

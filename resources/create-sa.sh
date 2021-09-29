@@ -6,7 +6,7 @@ set -o pipefail
 NEXUS_V1_URL="http://localhost:8082/nexus/service/rest/v1"
 
 # This function creates a new repository via an API call against the nexus.
-# The method requires one parameters:
+# The method requires one parameter:
 # 1 = name of the repository
 function createRepositoryViaAPI() {
   local repositoryName="${1}"
@@ -105,13 +105,8 @@ function createUserViaAPI() {
   ADMIN_USER="$(doguctl config -e admin_user)"
   ADMIN_PASSWORD="$(doguctl config -e admin_pw)"
 
-  # create repository
   createRepositoryViaAPI "${SERVICE}"
-
-  # create role for service account
   createRoleForServiceViaAPI
-
-  # create user
   createUserViaAPI "${USER_NAME}" "${USER_PASSWORD}"
 } >/dev/null 2>&1
 
