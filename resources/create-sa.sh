@@ -3,98 +3,51 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-NEXUS_V1_URL="http://localhost:8082/nexus/service/rest/v1"
-
-# This function creates a new repository via an API call against the nexus.
-# The method requires one parameter:
-# 1 = name of the repository
-function createRepositoryViaAPI() {
-  local repositoryName="${1}"
-
-  curl --request POST \
-  -u "${ADMIN_USER}":"${ADMIN_PASSWORD}" \
-  --url "${NEXUS_V1_URL}"/repositories/"${REPOSITORY_TYPE}"/hosted \
-  --header 'Content-Type: application/json' \
-  --data "{
-  \"name\": \"${repositoryName}\",
-  \"online\": true,
-  \"storage\": {
-    \"blobStoreName\": \"default\",
-    \"strictContentTypeValidation\": true,
-    \"writePolicy\": \"allow_once\"
-  },
-  \"cleanup\": {
-    \"policyNames\": [
-      \"string\"
-    ]
-  },
-  \"component\": {
-    \"proprietaryComponents\": true
-  },
-  \"raw\": {
-    \"contentDisposition\": \"ATTACHMENT\"
-  }
-}" >/dev/null 2>&1
-}
-
-# This function creates a new role via an API call against the nexus.
-# The method requires no parameters.
-function createRoleForServiceViaAPI() {
-  curl --request POST \
-  -u "${ADMIN_USER}":"${ADMIN_PASSWORD}" \
-  --url "${NEXUS_V1_URL}"/security/roles \
-  --header 'Content-Type: application/json' \
-  --data "{
-  \"id\": \"service_account_role_${SERVICE}\",
-  \"name\": \"service_account_role_${SERVICE}\",
-  \"description\": \"This is a special role created for the ${SERVICE}-service-account. Do not manually change or delete this role.\",
-  \"privileges\": [
-    \"nx-repository-view-raw-${SERVICE}-*\"
-  ],
-  \"roles\": [
-  ]
-}" >/dev/null 2>&1
-}
-
-# This function creates a new user via an API call against the nexus.
-# The method requires two parameters:
-# 1 = userID
-# 2 = password of the user
-function createUserViaAPI() {
-  local userID="${1}"
-  local password="${2}"
-
-  curl --request POST \
-  --url "${NEXUS_V1_URL}"/security/users \
-  -u "${ADMIN_USER}":"${ADMIN_PASSWORD}" \
-  --header 'Content-Type: application/json' \
-  --data "{
-  \"userId\": \"${userID}\",
-  \"firstName\": \"${userID}\",
-  \"lastName\": \"${userID}\",
-  \"emailAddress\": \"${userID}@ces.ces\",
-  \"password\": \"${password}\",
-  \"status\": \"active\",
-  \"roles\": [
-    \"service_account_role_${SERVICE}\"
-  ]
-}" >/dev/null 2>&1
-}
-
 {
+  source nexus_api.sh
   source util.sh
 
-  REPOSITORY_TYPE="$1"
-  if [ X"${REPOSITORY_TYPE}" = X"" ]; then
-      echo "using a raw repository as default repository type"
-      REPOSITORY_TYPE="raw"
+  USE_FULL_REPO_NAME=""
+  USE_FULL_REPO_TYPE=""
+  USE_FULL_REPO_FORMAT=""
+  ADDITIONAL_PERMISSION=""
+  NUMBER_OF_PARAMS=$#
+
+  if [ "${NUMBER_OF_PARAMS}" -le 0 ]; then
+    echo "usage create-sa.sh [optional parameters] <service name>"
+    exit 1
   fi
 
-  SERVICE="$2"
-  if [ X"${SERVICE}" = X"" ]; then
-      echo "usage create-sa.sh servicename"
-      exit 1
+  # Get the latest parameter as service name
+  SERVICE="${!NUMBER_OF_PARAMS}"
+  echo "Create service account for service: ${SERVICE}"
+  let NUMBER_OF_PARAMS--
+
+  # Look for optional parameters
+  i="${NUMBER_OF_PARAMS}"
+  while [ $i -ge 1 ]; do
+    params="${!i}"
+
+    if [ "$(echo "${params}" | sed 's/=.*//g')" == "fullAccessRepository" ]; then
+      USE_FULL_REPO_NAME="$(echo "${params}" | sed 's/fullAccessRepository=//g')"
+      USE_FULL_REPO_TYPE="hosted"
+      USE_FULL_REPO_FORMAT="raw"
+      echo "Requesting full access repository to new repository [${USE_FULL_REPO_NAME}] of type [${USE_FULL_REPO_TYPE}] and format [${USE_FULL_REPO_FORMAT}]..."
+    fi
+
+    if [ "$(echo "${params}" | sed 's/=.*//g')" == "permissions" ]; then
+      ADDITIONAL_PERMISSION="$(echo "\"${params}\"" | sed 's/permissions=//g' | sed 's/,/","/g')"
+      echo "Requesting the following additional permissions [${ADDITIONAL_PERMISSION}]..."
+    fi
+
+    let i--
+  done
+
+  if [ ! -z "${USE_FULL_REPO_NAME}" ] && [ ! -z "${USE_FULL_REPO_TYPE}" ] && [ ! -z "${USE_FULL_REPO_FORMAT}" ]; then
+    ADDITIONAL_PERMISSION="${ADDITIONAL_PERMISSION},\"nx-repository-view-${USE_FULL_REPO_FORMAT}-${USE_FULL_REPO_NAME}-*\""
+    ADDITIONAL_PERMISSION="$(echo ${ADDITIONAL_PERMISSION} | sed "s/^,//g")"
   fi
+  echo "Granting the following permissions [${ADDITIONAL_PERMISSION}]..."
 
   # create random schema suffix and password
   USER_ID=$(doguctl random -l 6 | tr '[:upper:]' '[:lower:]')
@@ -105,11 +58,20 @@ function createUserViaAPI() {
   ADMIN_USER="$(doguctl config -e admin_user)"
   ADMIN_PASSWORD="$(doguctl config -e admin_pw)"
 
-  createRepositoryViaAPI "${SERVICE}"
-  createRoleForServiceViaAPI
-  createUserViaAPI "${USER_NAME}" "${USER_PASSWORD}"
+  if [ ! -z "${USE_FULL_REPO_NAME}" ] && [ ! -z "${USE_FULL_REPO_TYPE}" ] && [ ! -z "${USE_FULL_REPO_FORMAT}" ]; then
+    echo "Creating repository [${USE_FULL_REPO_NAME}] of type [${USE_FULL_REPO_TYPE}] and format [${USE_FULL_REPO_FORMAT}]..."
+    createRepositoryViaAPI "${ADMIN_USER}" "${ADMIN_PASSWORD}" "${USE_FULL_REPO_NAME}" "${USE_FULL_REPO_FORMAT}" "${USE_FULL_REPO_TYPE}"
+  fi
+
+  echo "Creating role [service_account_role_${SERVICE}]..."
+  createRoleForServiceViaAPI "${ADMIN_USER}" "${ADMIN_PASSWORD}" "service_account_role_${SERVICE}" "${SERVICE}" "${ADDITIONAL_PERMISSION}"
+
+  echo "Creating user [${USER_NAME}]..."
+  createUserViaAPI "${ADMIN_USER}" "${ADMIN_PASSWORD}" "${USER_NAME}" "${USER_PASSWORD}" "${SERVICE}" "service_account_role_${SERVICE}"
 } >/dev/null 2>&1
 
-echo "repository: ${SERVICE}"
+if [ ! -z "${USE_FULL_REPO_NAME}" ] && [ ! -z "${USE_FULL_REPO_TYPE}" ] && [ ! -z "${USE_FULL_REPO_FORMAT}" ]; then
+  echo "repository: ${USE_FULL_REPO_NAME}"
+fi
 echo "username: ${USER_NAME}"
 echo "password: ${USER_PASSWORD}"
