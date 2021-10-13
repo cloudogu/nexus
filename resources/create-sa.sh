@@ -4,8 +4,10 @@ set -o nounset
 set -o pipefail
 
 {
-  source nexus_api.sh
-  source util.sh
+  # shellcheck disable=SC1091
+  source /nexus_api.sh
+  # shellcheck disable=SC1091
+  source /util.sh
 
   USE_FULL_REPO_NAME=""
   USE_FULL_REPO_TYPE=""
@@ -21,31 +23,32 @@ set -o pipefail
   # Get the latest parameter as service name
   SERVICE="${!NUMBER_OF_PARAMS}"
   echo "Create service account for service: ${SERVICE}"
-  let NUMBER_OF_PARAMS--
+  ((NUMBER_OF_PARAMS--))
 
   # Look for optional parameters
   i="${NUMBER_OF_PARAMS}"
   while [ $i -ge 1 ]; do
     params="${!i}"
 
-    if [ "$(echo "${params}" | sed 's/=.*//g')" == "fullAccessRepository" ]; then
-      USE_FULL_REPO_NAME="$(echo "${params}" | sed 's/fullAccessRepository=//g')"
+    if [ "${params//=*/}" == "fullAccessRepository" ]; then
+      USE_FULL_REPO_NAME="${params//fullAccessRepository=/}"
       USE_FULL_REPO_TYPE="hosted"
       USE_FULL_REPO_FORMAT="raw"
       echo "Requesting full access repository to new repository [${USE_FULL_REPO_NAME}] of type [${USE_FULL_REPO_TYPE}] and format [${USE_FULL_REPO_FORMAT}]..."
     fi
 
-    if [ "$(echo "${params}" | sed 's/=.*//g')" == "permissions" ]; then
+    if [ "${params//=*/}" == "permissions" ]; then
       ADDITIONAL_PERMISSION="$(echo "\"${params}\"" | sed 's/permissions=//g' | sed 's/,/","/g')"
       echo "Requesting the following additional permissions [${ADDITIONAL_PERMISSION}]..."
     fi
 
-    let i--
+    ((i--))
   done
 
-  if [ ! -z "${USE_FULL_REPO_NAME}" ] && [ ! -z "${USE_FULL_REPO_TYPE}" ] && [ ! -z "${USE_FULL_REPO_FORMAT}" ]; then
+  if [ -n "${USE_FULL_REPO_NAME}" ] && [ -n "${USE_FULL_REPO_TYPE}" ] && [ -n "${USE_FULL_REPO_FORMAT}" ]; then
     ADDITIONAL_PERMISSION="${ADDITIONAL_PERMISSION},\"nx-repository-view-${USE_FULL_REPO_FORMAT}-${USE_FULL_REPO_NAME}-*\""
-    ADDITIONAL_PERMISSION="$(echo ${ADDITIONAL_PERMISSION} | sed "s/^,//g")"
+    # shellcheck disable=SC2001
+    ADDITIONAL_PERMISSION="$(echo "${ADDITIONAL_PERMISSION}" | sed "s/^,//g")"
   fi
   echo "Granting the following permissions [${ADDITIONAL_PERMISSION}]..."
 
@@ -58,7 +61,7 @@ set -o pipefail
   ADMIN_USER="$(doguctl config -e admin_user)"
   ADMIN_PASSWORD="$(doguctl config -e admin_pw)"
 
-  if [ ! -z "${USE_FULL_REPO_NAME}" ] && [ ! -z "${USE_FULL_REPO_TYPE}" ] && [ ! -z "${USE_FULL_REPO_FORMAT}" ]; then
+  if [ -n "${USE_FULL_REPO_NAME}" ] && [ -n "${USE_FULL_REPO_TYPE}" ] && [ -n "${USE_FULL_REPO_FORMAT}" ]; then
     echo "Creating repository [${USE_FULL_REPO_NAME}] of type [${USE_FULL_REPO_TYPE}] and format [${USE_FULL_REPO_FORMAT}]..."
     createRepositoryViaAPI "${ADMIN_USER}" "${ADMIN_PASSWORD}" "${USE_FULL_REPO_NAME}" "${USE_FULL_REPO_FORMAT}" "${USE_FULL_REPO_TYPE}"
   fi
@@ -68,9 +71,10 @@ set -o pipefail
 
   echo "Creating user [${USER_NAME}]..."
   createUserViaAPI "${ADMIN_USER}" "${ADMIN_PASSWORD}" "${USER_NAME}" "${USER_PASSWORD}" "${SERVICE}" "service_account_role_${SERVICE}"
+  doguctl config service_accounts/"${SERVICE}" "${USER_NAME}"
 } >/dev/null 2>&1
 
-if [ ! -z "${USE_FULL_REPO_NAME}" ] && [ ! -z "${USE_FULL_REPO_TYPE}" ] && [ ! -z "${USE_FULL_REPO_FORMAT}" ]; then
+if [ -n "${USE_FULL_REPO_NAME}" ] && [ -n "${USE_FULL_REPO_TYPE}" ] && [ -n "${USE_FULL_REPO_FORMAT}" ]; then
   echo "repository: ${USE_FULL_REPO_NAME}"
 fi
 echo "username: ${USER_NAME}"
