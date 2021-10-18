@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.34.1-2] - 2021-10-18
+### Added
+- Support for service accounts. For more information see [docs](docs/operations/Configure_Service_Accounts_en.md)
+
 ## [v3.34.1-1] - 2021-09-28
 ### Changed
 - Upgrade to Nexus 3.34.1; #83

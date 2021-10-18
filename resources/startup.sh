@@ -81,7 +81,6 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   fi
 
   doguctl config successfulInitialConfiguration true
-
 else
   # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
   removeLastTemporaryAdminUser
@@ -113,6 +112,9 @@ NEXUS_PASSWORD="${ADMINPW}" \
   nexus-carp -logtostderr "${NEXUS_DATA_DIR}/carp.yml" &
 # shellcheck disable=SC2034
 NEXUS_CARP_PID=$!
+
+doguctl config -e admin_user "${ADMINUSER}"
+doguctl config -e admin_pw "${ADMINPW}"
 
 echo "starting claim tool"
 /claim.sh "${ADMINUSER}" "${ADMINPW}"

@@ -2,7 +2,7 @@
 FROM registry.cloudogu.com/official/java:8u282-1
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.34.1-1"
+    VERSION="3.34.1-2"
 
 # The version of nexus to install
 ENV NEXUS_VERSION=3.34.1-01 \
@@ -66,7 +66,7 @@ RUN set -x \
 
 COPY resources /
 
-RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /*.tpl
+RUN chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /*.tpl /create-sa.sh /util.sh /nexus_api.sh /remove-sa.sh
 
 VOLUME /var/lib/nexus
 
