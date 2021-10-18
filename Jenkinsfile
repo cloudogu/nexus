@@ -38,13 +38,13 @@ node('vagrant') {
 
         stage('Shellcheck'){
             // TODO: Change this to shellCheck("./resources") as soon as https://github.com/cloudogu/dogu-build-lib/issues/8 is solved
-            shellCheck("./resources/pre-upgrade.sh ./resources/pre-startup.sh ./resources/startup.sh ./resources/upgrade-notification.sh ./resources/claim.sh")
+            shellCheck("./resources/pre-upgrade.sh ./resources/pre-startup.sh ./resources/startup.sh ./resources/upgrade-notification.sh ./resources/claim.sh ./resources/util.sh ./resources/create-sa.sh ./resources/remove-sa.sh ./resources/nexus_api.sh")
         }
 
         try {
 
             stage('Provision') {
-                ecoSystem.provision("/dogu");
+                ecoSystem.provision("/dogu")
             }
 
             stage('Setup') {
@@ -99,7 +99,7 @@ node('vagrant') {
             }
 
             if (gitflow.isReleaseBranch()) {
-                String releaseVersion = git.getSimpleBranchName();
+                String releaseVersion = git.getSimpleBranchName()
 
                 stage('Finish Release') {
                     gitflow.finishRelease(releaseVersion)

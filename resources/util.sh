@@ -80,7 +80,7 @@ EOF
 function configureNexusAtFirstStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
     ADMINUSER="admin"
-    NEXUS_USER="${ADMINUSER}"
+    export NEXUS_USER="${ADMINUSER}"
 
     local nexusPassword
     nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
