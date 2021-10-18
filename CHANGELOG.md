@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for service accounts. For more information see [docs](docs/operations/Configure_Service_Accounts_en.md)
 
+## [v3.34.1-1] - 2021-09-28
+### Changed
+- Upgrade to Nexus 3.34.1; #83
+- Upgrade to java 8u282
+
+## [v3.32.0-2] - 2021-09-08
 ### Fixed
 - Login workflow with CAS 6 in combination with OIDC.
   - When a user logs in via OIDC, a separate, unique user ID is transmitted by the OIDC provider.

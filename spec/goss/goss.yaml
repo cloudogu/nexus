@@ -62,3 +62,6 @@ process:
 port:
   tcp:8081:
     listening: true
+package:
+  maven:
+    installed: false
