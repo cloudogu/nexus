@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for service accounts. For more information see [docs](docs/operations/Configure_Service_Accounts_en.md)
+
 ### Fixed
 - Login workflow with CAS 6 in combination with OIDC.
   - When a user logs in via OIDC, a separate, unique user ID is transmitted by the OIDC provider.
