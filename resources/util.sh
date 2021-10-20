@@ -220,7 +220,7 @@ function validateDoguLogLevel() {
 
 function sql(){
   SQL="${1}"
-  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \ "CONNECT plocal:/var/lib/nexus/db/security admin admin; ${SQL}"
+  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \ "CONNECT plocal:/var/lib/nexus/db/security admin admin; ${SQL}" > /dev/null
 }
 
 function createPasswordHash(){
