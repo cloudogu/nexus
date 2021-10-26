@@ -21,7 +21,7 @@ Feature: Browser-based CAS login and logout functionality
     When the user opens the dogu start page
     And the user types in wrong login credentials
     And the user clicks the login button
-    Then the login page informs the user about not recognizing the given user account
+    Then the login page informs the user about invalid credentials
 
   @requires_testuser
   Scenario: logged in user can log out via logout button (front-channel)

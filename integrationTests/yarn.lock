@@ -729,10 +729,12 @@
     "@babel/helper-validator-identifier" "^7.12.11"
     to-fast-properties "^2.0.0"
 
-"@cloudogu/dogu-integration-test-library@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@cloudogu/dogu-integration-test-library/-/dogu-integration-test-library-0.3.0.tgz#f946f2f2ca955611b274f7d65dd309c302ae3a12"
-  integrity sha512-u8iYHy79BL+jp2DnimePc2eB7GOkXyAMRcq05e3qA0bPthhss431WwEq/DG/8tekICy1mn2rNBrXiqJo+WR68A==
+"@cloudogu/dogu-integration-test-library@0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@cloudogu/dogu-integration-test-library/-/dogu-integration-test-library-0.5.0.tgz#6ced81f11181548a9782c65cc33c219fac716c86"
+  integrity sha512-W1GDiDdRQ750JmmkmrTw97F9cER1awpZ8wa5VM7crXvJ01DncD9B8FSwg0ixv7JfgX9CyY2eYkKweUABAYByLw==
+  dependencies:
+    cypress-fill-command "^1.0.2"
 
 "@cypress/browserify-preprocessor@^3.0.1":
   version "3.0.1"
@@ -1878,6 +1880,11 @@ cypress-cucumber-preprocessor@4.1.0:
     js-string-escape "^1.0.1"
     minimist "^1.2.5"
     through "^2.3.8"
+
+cypress-fill-command@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/cypress-fill-command/-/cypress-fill-command-1.0.2.tgz#52dbd9a8714e0c5893e2721e413bdc0bed142521"
+  integrity sha512-lUkeP1vPfvRP0SnbfZBIv3oje4L0qenM/uwYrViXVtuqDADa6MI3ptvNrDWyDnPYcX3p2SyNGRhnRifoOhxlRg==
 
 cypress@7.1.0:
   version "7.1.0"

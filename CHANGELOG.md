@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Service accounts prevented had no support for redeployment of repositories. Now, every repository created with a service account allows redeploy.
 
 ## [v3.34.1-2] - 2021-10-18
 ### Added
