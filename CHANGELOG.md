@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- Service accounts prevented had no support for redeployment of repositories. Now, every repository created with a service account allows redeploy.
+- Service accounts had no support for redeployment of repositories. Now, every repository created with a service account allows redeploy.
 
 ## [v3.34.1-2] - 2021-10-18
 ### Added
