@@ -30,7 +30,7 @@ function createRepositoryViaAPI() {
   curl --request POST -v\
     --user "${user}":"${pass}" \
     --header 'Content-Type: application/json' \
-    --data "{\"name\":\"${name}\",\"online\":true,\"storage\":{\"blobStoreName\":\"default\",\"strictContentTypeValidation\":true,\"writePolicy\":\"allow_once\"},\"cleanup\":{\"policyNames\":[\"string\"]},\"component\":{\"proprietaryComponents\":true},\"raw\":{\"contentDisposition\":\"ATTACHMENT\"}}" \
+    --data "{\"name\":\"${name}\",\"online\":true,\"storage\":{\"blobStoreName\":\"default\",\"strictContentTypeValidation\":true,\"writePolicy\":\"allow\"},\"cleanup\":{\"policyNames\":[\"string\"]},\"component\":{\"proprietaryComponents\":true},\"raw\":{\"contentDisposition\":\"ATTACHMENT\"}}" \
     --url "${NEXUS_V1_URL}"/repositories/"${format}"/"${type}"
 }
 
