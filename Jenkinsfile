@@ -68,7 +68,8 @@ node('vagrant') {
             }
 
             stage('Integration Tests') {
-                ecoSystem.runCypressIntegrationTests([enableVideo      : params.EnableVideoRecording,
+                ecoSystem.runCypressIntegrationTests([cypressImage     : "cypress/included:8.6.0",
+                                                      enableVideo      : params.EnableVideoRecording,
                                                       enableScreenshots: params.EnableScreenshotRecording])
             }
 

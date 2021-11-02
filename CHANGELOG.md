@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.34.1-3] - 2021-11-02
+### Changed
+- Updated cypress to version 8.6.0
+- Updated dogu-integration-test-library to version 1.0.0
+
+### Fixed
+- Service accounts had no support for redeployment of repositories. Now, every repository created with a service account allows redeploy.
+
 ## [v3.34.1-2] - 2021-10-18
 ### Added
 - Support for service accounts. For more information see [docs](docs/operations/Configure_Service_Accounts_en.md)
