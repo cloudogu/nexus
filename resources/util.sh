@@ -27,6 +27,7 @@ function setNexusVmoptionsAndProperties() {
       -XX:+LogVMOutput
       -XX:LogFile=${NEXUS_DATA_DIR}/log/jvm.log
       -XX:-OmitStackTraceInFastThrow
+      -Dlog4j2.formatMsgNoLookups=true
       -Djava.net.preferIPv4Stack=true
       -Dkaraf.home=.
       -Dkaraf.base=.
