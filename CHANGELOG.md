@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- disable jndi lookup due to a vulnerability #90 (https://doc.nexusgroup.com/pages/viewpage.action?pageId=83133294)
+
 ## [v3.34.1-3] - 2021-11-02
 ### Changed
 - Updated cypress to version 8.6.0
