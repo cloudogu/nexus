@@ -12,7 +12,7 @@
     "artifact",
     "maven"
   ],
-  "Image": "registry.cloudogu.com/official/nexus",
+  "Image": "registry.cloudogu.com/materna/nexus",
   "Dependencies": [
     {
       "type": "dogu",
