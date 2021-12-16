@@ -1,5 +1,5 @@
 {
-  "Name": "official/nexus",
+  "Name": "materna/nexus",
   "Version": "3.34.1-4",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
@@ -14,9 +14,18 @@
   ],
   "Image": "registry.cloudogu.com/official/nexus",
   "Dependencies": [
-    "cas",
-    "nginx",
-    "postfix"
+    {
+      "type": "dogu",
+      "name": "cas"
+    },
+    {
+      "type": "dogu",
+      "name": "nginx"
+    },
+    {
+      "type": "dogu",
+      "name": "postfix"
+    }
   ],
   "Volumes": [
     {
