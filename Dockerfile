@@ -1,7 +1,7 @@
 # registry.cloudogu.com/official/nexus
 FROM registry.cloudogu.com/official/java:8u282-1
 LABEL maintainer="hello@cloudogu.com" \
-    NAME="official/nexus" \
+    NAME="materna/nexus" \
     VERSION="3.34.1-4"
 
 # The version of nexus to install
