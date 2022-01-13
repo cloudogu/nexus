@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [v3.34.1-4] - 2021-12-13
+## [v3.37.3-1] - 2022-01-13
+### Changed
+- Upgrade to Nexus 3.37.3; #92
 
+## [v3.34.1-4] - 2021-12-13
 ### Fixed
 - disable jndi lookup due to a vulnerability #90 (https://doc.nexusgroup.com/pages/viewpage.action?pageId=83133294)
 
