@@ -14,9 +14,18 @@
   ],
   "Image": "registry.cloudogu.com/official/nexus",
   "Dependencies": [
-    "cas",
-    "nginx",
-    "postfix"
+    {
+      "type": "dogu",
+      "name": "cas"
+    },
+    {
+      "type": "dogu",
+      "name": "nginx"
+    },
+    {
+      "type": "dogu",
+      "name": "postfix"
+    }
   ],
   "Volumes": [
     {
