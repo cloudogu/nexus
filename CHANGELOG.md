@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.37.3-2] - 2022-02-07
+### Changed
+- Upgrade to OpenJDK 8u302
+
 ## [v3.37.3-1] - 2022-01-13
 ### Changed
 - Upgrade to Nexus 3.37.3; #92
