@@ -5,9 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Upgrade to OpenJDK 8u302 #96
 
 ## [v3.34.1-4] - 2021-12-13
-
 ### Fixed
 - disable jndi lookup due to a vulnerability #90 (https://doc.nexusgroup.com/pages/viewpage.action?pageId=83133294)
 
