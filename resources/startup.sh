@@ -109,7 +109,7 @@ doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"
 
 echo "starting carp in background"
 NEXUS_PASSWORD="${ADMINPW}" \
-  nexus-carp -logtostderr "${NEXUS_DATA_DIR}/carp.yml" &
+  nexus-carp -logtostderr=true "${NEXUS_DATA_DIR}/carp.yml" &
 # shellcheck disable=SC2034
 NEXUS_CARP_PID=$!
 
