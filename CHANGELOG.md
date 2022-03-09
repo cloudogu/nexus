@@ -6,8 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
-- set value for logtostderr to true
-  - glog logger now logs to stderr
+- Logging: nexus-carp glog logger now logs to stderr; #97
 
 ## [v3.37.3-2] - 2022-02-07
 ### Changed
