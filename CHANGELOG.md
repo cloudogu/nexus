@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.37.3-3] - 2022-03-09
+### Fixed
+- Logging: nexus-carp glog logger now logs to stderr; #97
+
 ## [v3.37.3-2] - 2022-02-07
 ### Changed
 - Upgrade to OpenJDK 8u302
