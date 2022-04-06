@@ -21,7 +21,11 @@ ENV NEXUS_VERSION=3.37.3-02 \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
     SHA256_NEXUS_CARP="f9a9d9f9efcabd27fb4df2544142000d5607c8feb9772e77f23239d7a6647458"
 
-RUN set -x \
+RUN set -o errexit \
+  && set -o nounset \
+  && set -o pipefail \
+  && apk update \
+  && apk upgrade \
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
   && adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \
