@@ -2,7 +2,7 @@
 FROM registry.cloudogu.com/official/java:8u302-1
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.37.3-3"
+    VERSION="3.37.3-4"
 
 # The version of nexus to install
 ENV NEXUS_VERSION=3.37.3-02 \
@@ -12,7 +12,7 @@ ENV NEXUS_VERSION=3.37.3-02 \
     NEXUS_SCRIPTING_VERSION=0.2.0 \
     SHIRO_VERSION=1.3.2 \
     SERVICE_TAGS=webapp \
-    SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
+    SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
     NEXUS_SERVER="http://localhost:8081/nexus" \
     SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
@@ -21,7 +21,11 @@ ENV NEXUS_VERSION=3.37.3-02 \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
     SHA256_NEXUS_CARP="f9a9d9f9efcabd27fb4df2544142000d5607c8feb9772e77f23239d7a6647458"
 
-RUN set -x \
+RUN set -o errexit \
+  && set -o nounset \
+  && set -o pipefail \
+  && apk update \
+  && apk upgrade \
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
   && adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \

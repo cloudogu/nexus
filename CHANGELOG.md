@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.37.3-4] - 2022-04-06
+### Changed
+- Upgrade zlib package to fix CVE-2018-25032; #100
+
 ## [v3.37.3-3] - 2022-03-09
 ### Fixed
 - Logging: nexus-carp glog logger now logs to stderr; #97
