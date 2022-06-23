@@ -1,0 +1,14 @@
+{
+  "name":"maven-snapshot-cleanuppolicy",
+  "notes": "",
+  "mode": "deletion",
+  "format": "maven2",
+  "criteria": [
+    {
+      "regex": ".*SNAPSHOT"
+    },
+    {
+      "criteriaReleaseType": "PRERELEASES"
+    }
+  ]
+}
