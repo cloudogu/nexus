@@ -105,10 +105,13 @@ NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "create cleanup policies"
+ NEXUS_PASSWORD="${ADMINPW}" \
 nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
 
 echo "create cleanup blobstore task"
-nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
+ NEXUS_PASSWORD="${ADMINPW}" \
+ nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
+
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"

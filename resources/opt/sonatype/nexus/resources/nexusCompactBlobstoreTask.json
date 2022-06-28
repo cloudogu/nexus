@@ -1,6 +1,6 @@
 {
   "type": "blobstore.compact",
   "enabled": true,
-  "name": "compact blobstore",
+  "name": "Compact blobstore",
   "cron": "0 0 0 1,15 * ?"
 }
