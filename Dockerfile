@@ -1,5 +1,5 @@
 # registry.cloudogu.com/official/nexus
-FROM registry.cloudogu.com/official/java:8u302-1
+FROM registry.cloudogu.com/official/java:8u302-3
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.37.3-4"

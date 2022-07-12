@@ -5,10 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-## [3.40.1-01] - 2022-07-08
 ### Changed
-- Upgrade Sonatype Nexus to v3.40.1-01
+- Upgrade Sonatype Nexus to v3.40.1-01; #106
+- Upgrade Makefiles to 6.0.3
+- Upgrade Base Image to 8u302-3
 
 ## [v3.37.3-4] - 2022-04-06
 ### Changed
