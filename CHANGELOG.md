@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.40.1-1] - 2022-07-12
+### Changed
+- Upgrade Sonatype Nexus to v3.40.1-01; #106
+- Upgrade Makefiles to 6.0.3
+- Upgrade Base Image to 8u302-3
+
 ## [v3.37.3-4] - 2022-04-06
 ### Changed
 - Upgrade zlib package to fix CVE-2018-25032; #100
