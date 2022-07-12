@@ -1,4 +1,5 @@
 MAKEFILES_VERSION=6.0.3
+VERSION=3.40.1-1
 
 .DEFAULT_GOAL:=dogu-release
 
