@@ -43,17 +43,17 @@ function setNexusVmoptionsAndProperties() {
 EOF
 
   echo "Setting memory limits..."
-  if [[ "$(doguctl config "container_config/memory_limit" -d "empty")" != "empty" ]];  then
+  if [[ "$(doguctl config "container_config/memory_limit" -d "empty")" != "empty" ]]; then
     # Retrieve configurable java limits from etcd, valid default values exist
     MEMORY_LIMIT_MAX_PERCENTAGE=$(doguctl config "container_config/java_max_ram_percentage")
     MEMORY_LIMIT_MIN_PERCENTAGE=$(doguctl config "container_config/java_min_ram_percentage")
 
     echo "Setting memory limits..."
-    echo "-XX:MaxRAMPercentage=${MEMORY_LIMIT_MAX_PERCENTAGE}" >> "${VM_OPTIONS_FILE}"
-    echo "-XX:MinRAMPercentage=${MEMORY_LIMIT_MIN_PERCENTAGE}" >> "${VM_OPTIONS_FILE}"
+    echo "-XX:MaxRAMPercentage=${MEMORY_LIMIT_MAX_PERCENTAGE}" >>"${VM_OPTIONS_FILE}"
+    echo "-XX:MinRAMPercentage=${MEMORY_LIMIT_MIN_PERCENTAGE}" >>"${VM_OPTIONS_FILE}"
   else
-    echo "-Xms1200M" >> "${VM_OPTIONS_FILE}"
-    echo "-Xmx1200M" >> "${VM_OPTIONS_FILE}"
+    echo "-Xms1200M" >>"${VM_OPTIONS_FILE}"
+    echo "-Xmx1200M" >>"${VM_OPTIONS_FILE}"
   fi
 
   cat "${VM_OPTIONS_FILE}"
@@ -75,7 +75,7 @@ EOF
     echo "Not enabling repository sandboxing"
   fi
   echo "enabling groovy scripting"
-  echo "nexus.scripts.allowCreation=true" >> ${NEXUS_DATA_DIR}/etc/nexus.properties
+  echo "nexus.scripts.allowCreation=true" >>${NEXUS_DATA_DIR}/etc/nexus.properties
 }
 
 function configureNexusAtFirstStart() {
@@ -91,6 +91,18 @@ function configureNexusAtFirstStart() {
       NEWADMINPASSWORD="${ADMINPW}" \
       doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+
+    echo "Rendering cleanupPolicies template"
+    ADMINDEFAULTPASSWORD="${nexusPassword}" \
+      NEWADMINPASSWORD="${ADMINPW}" \
+      doguctl template "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json.tpl" \
+      "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json"
+
+    echo "Rendering compactBlobstore template"
+    ADMINDEFAULTPASSWORD="${nexusPassword}" \
+      NEWADMINPASSWORD="${ADMINPW}" \
+      doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
+      "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
 
     echo "Executing nexusConfigurationFirstStart script"
 
@@ -111,6 +123,14 @@ function configureNexusAtSubsequentStart() {
     echo "Rendering nexusConfParameters template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
+
+    echo "Rendering cleanupPolicies template"
+    doguctl template "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json.tpl" \
+      "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json"
+
+    echo "Rendering compactBlobstore template"
+    doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
+      "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
 
     echo "Executing nexusConfigurationSubsequentStart script"
     NEXUS_PASSWORD="${ADMINPW}" \
@@ -146,11 +166,11 @@ function waitForHealthEndpoint() {
   echo "Waiting until Nexus health endpoint is available (max. ${max_attempts} seconds)..."
 
   until curl --user "${username}":"${password}" --silent --output /dev/null http://localhost:8081/nexus/service/metrics/healthcheck; do
-    if [ ${attempt_counter} -eq ${max_attempts} ];then
+    if [ ${attempt_counter} -eq ${max_attempts} ]; then
       echo "Max attempts reached; exiting..."
       exit 1
     fi
-    attempt_counter=$((attempt_counter+1))
+    attempt_counter=$((attempt_counter + 1))
     sleep 1
   done
 
@@ -190,17 +210,17 @@ function installDefaultDockerRegistry() {
   export NEXUS_SERVER="http://localhost:8081/nexus"
 
   NEXUS_PASSWORD="${ADMINPW}" \
-    nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | \
-  NEXUS_PASSWORD="${ADMINPW}" \
-    nexus-claim apply -i "-"
+    nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" |
+    NEXUS_PASSWORD="${ADMINPW}" \
+      nexus-claim apply -i "-"
 }
 
 function renderLoggingConfig() {
-  [[ -d "${LOGBACK_CONF_DIR}" ]]  || mkdir -p "${LOGBACK_CONF_DIR}"
+  [[ -d "${LOGBACK_CONF_DIR}" ]] || mkdir -p "${LOGBACK_CONF_DIR}"
 
   doguctl template "${LOGBACK_TEMPLATE_FILE}" "${LOGBACK_FILE}"
 
-  [[ -d "${LOGBACK_OVERRIDE_DIR}" ]]  || mkdir -p "${LOGBACK_OVERRIDE_DIR}"
+  [[ -d "${LOGBACK_OVERRIDE_DIR}" ]] || mkdir -p "${LOGBACK_OVERRIDE_DIR}"
   doguctl template "${LOGBACK_OVERRIDE_TEMPLATE_FILE}" "${LOGBACK_OVERRIDE_FILE}"
 }
 
@@ -211,25 +231,25 @@ function validateDoguLogLevel() {
   doguctl validate "${DEFAULT_LOGGING_KEY}" || validateExitCode=$?
 
   if [[ ${validateExitCode} -ne 0 ]]; then
-      echo "${SCRIPT_LOG_PREFIX} WARNING: The loglevel configured in ${DEFAULT_LOGGING_KEY} is invalid."
-      echo "${SCRIPT_LOG_PREFIX} WARNING: Removing misconfigured value."
-      doguctl config --rm "${DEFAULT_LOGGING_KEY}"
+    echo "${SCRIPT_LOG_PREFIX} WARNING: The loglevel configured in ${DEFAULT_LOGGING_KEY} is invalid."
+    echo "${SCRIPT_LOG_PREFIX} WARNING: Removing misconfigured value."
+    doguctl config --rm "${DEFAULT_LOGGING_KEY}"
   fi
 
   return
 }
 
-function sql(){
+function sql() {
   SQL="${1}"
   java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \ "CONNECT plocal:/var/lib/nexus/db/security admin admin; ${SQL}"
 }
 
-function createPasswordHash(){
+function createPasswordHash() {
   local PW="${1}"
   java -jar "/shiro-tools-hasher.jar" -a SHA-512 -i 1024 -f shiro1 "${PW}"
 }
 
-function createTemporaryAdminUser(){
+function createTemporaryAdminUser() {
   local hashed
   hashed="$(createPasswordHash "${ADMINPW}")"
   echo "Creating admin user '${ADMINUSER}'"
@@ -239,7 +259,7 @@ function createTemporaryAdminUser(){
   doguctl config last_tmp_admin_pw "${ADMINPW}"
 }
 
-function removeLastTemporaryAdminUser(){
+function removeLastTemporaryAdminUser() {
   local none='<none>'
   local userid
   userid="$(doguctl config --default "${none}" last_tmp_admin)"
