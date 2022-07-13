@@ -16,12 +16,9 @@ def createCompactBlobstoreTask(configurationParameters) {
     }
 
     TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(configurationParameters.type)
-    config.enabled = configurationParameters.enabled
-    config.name = configurationParameters.name
-    def propertiesMap = [:]
-    propertiesMap.put("blobstoreName": configurationParameters.blobstore)
-    config.properties = propertiesMap
-
+    config.setEnabled(configurationParameters.enabled.toBoolean())
+    config.setName(configurationParameters.name)
+    config.setString("blobstoreName", configurationParameters.blobstore)
 
     Calendar today = Calendar.getInstance();
     today.clear(Calendar.HOUR); today.clear(Calendar.MINUTE); today.clear(Calendar.SECOND);
