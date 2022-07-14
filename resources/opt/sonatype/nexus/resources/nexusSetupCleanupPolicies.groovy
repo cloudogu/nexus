@@ -12,17 +12,11 @@ def createMavenSnapshotCleanupPolicy(configurationParameters) {
     try {
         def policyStorage = container.lookup(CleanupPolicyStorage.class.getName())
 
-
-        if (policyStorage.exists(configurationParameters.name)) {
-            return
-        }
-
         def cleanupPolicy = policyStorage.newCleanupPolicy()
         cleanupPolicy.setName(configurationParameters.name)
         cleanupPolicy.setNotes(configurationParameters.notes)
         cleanupPolicy.setMode(configurationParameters.mode)
         cleanupPolicy.setFormat(configurationParameters.format)
-
 
         def criteriaMap = [:]
         criteriaMap.put("regex", configurationParameters.criteria.regex)
@@ -30,10 +24,14 @@ def createMavenSnapshotCleanupPolicy(configurationParameters) {
         criteriaMap.put("criteriaLastBlobUpdated", configurationParameters.criteria.criteriaLastBlobUpdated)
         cleanupPolicy.setCriteria(criteriaMap)
 
-        policyStorage.add(cleanupPolicy)
-
+        if (policyStorage.exists(configurationParameters.name)) {
+            log.info("update cleanup policy")
+            policyStorage.update(cleanupPolicy)
+        } else {
+            policyStorage.add(cleanupPolicy)
+        }
     } catch (e) {
-        log.info("An error occurred while creating the cleanup policy " + configurationParameters.name + ". It might already exists, skipping...")
+        log.info("An error occurred while creating the cleanup policy " + configurationParameters.name + ". Skipping...")
         return e
     }
 }

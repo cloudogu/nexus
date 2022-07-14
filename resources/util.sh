@@ -210,7 +210,7 @@ function installDefaultDockerRegistry() {
   export NEXUS_SERVER="http://localhost:8081/nexus"
 
   NEXUS_PASSWORD="${ADMINPW}" \
-    nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" |
+    nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | \
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-claim apply -i "-"
 }
@@ -241,7 +241,7 @@ function validateDoguLogLevel() {
 
 function sql() {
   SQL="${1}"
-  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \ "CONNECT plocal:/var/lib/nexus/db/security admin admin; ${SQL}"
+  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \ "CONNECT plocal:/var/lib/nexus/db/security admin admin; ${SQL}" > /dev/null
 }
 
 function createPasswordHash() {

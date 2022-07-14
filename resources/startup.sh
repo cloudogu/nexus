@@ -104,11 +104,11 @@ echo "importing HTTP/S proxy settings from registry"
 NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
-echo "create cleanup policies"
+echo "apply cleanup policy"
  NEXUS_PASSWORD="${ADMINPW}" \
 nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
 
-echo "create cleanup blobstore task"
+echo "apply cleanup blobstore task"
  NEXUS_PASSWORD="${ADMINPW}" \
  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
 
