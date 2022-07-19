@@ -9,6 +9,8 @@ Dieser Task wird beim Start der Applikation von dem Skript `nexusSetupCompactBlo
 Der Task löscht hierbei Daten (täglich, wenn die standard Konfiguration verwendet wird) aus dem _default_ Blobstore. Falls ein anderer Blobstore konfiguriert werden soll, kann hierfür 
 der etcd-Schlüssel `config/nexus/compact_blobstore_task/blobstore` angepasst werden. 
 Dies geht am einfachsten über den cesapp Befehl  `cesapp edit-config nexus`.
+Mehr Informationen über Tasks sind in der [offiziellen Tasks-Dokumentation](https://help.sonatype.com/repomanager3/nexus-repository-administration/tasks) zu finden.
+
 
 ## Cleanup Policy
 Wie auch der oben genannte Task wird eine Policy (`ces-maven-snapshot-cleanuppolicy`) per Skript (`nexusSetupCleanupPolicies.groovy`)
@@ -30,5 +32,5 @@ repository "public" {
 ```
 
 Die Policy kann in per `cesapp edit-config nexus` konfiguriert werden. Das Standardintervall für die Policy beträgt 14 Tage.
-
+Mehr Informationen über Cleanup Policies können der [offiziellen Cleanup-Policy-Dokumentation](https://help.sonatype.com/repomanager3/nexus-repository-administration/repository-management/cleanup-policies) entnommen werden.
 
