@@ -196,7 +196,7 @@
     },
     {
       "Name": "compact_blobstore_task/blobstore",
-      "Description": "The specific blobstore instance to that the task should be applied. This is configuration should only be used if the task type is 'blobstore.compact' (or other tasks that need to choose a blobstore instance). Default: \"default\"",
+      "Description": "The specific blobstore instance to that the task should be applied. This configuration should only be used if the task type is 'blobstore.compact' (or other tasks that need to choose a blobstore instance). Default: \"default\"",
       "Optional": true,
       "Default": "default"
     },
