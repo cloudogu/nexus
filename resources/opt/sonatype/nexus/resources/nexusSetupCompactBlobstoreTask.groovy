@@ -9,12 +9,8 @@ def configurationParameters = new JsonSlurper().parseText(args)
 def createCompactBlobstoreTask(configurationParameters) {
     def taskScheduler = container.lookup(TaskScheduler.class.getName())
 
-    def alreadyExistingTask = taskScheduler.getTaskByTypeId(configurationParameters.type)
-    if (alreadyExistingTask) {
-        // cancel the existing task to make "space" for the newly configured task
-        def interruptIfRunning = true;
-        taskScheduler.cancel(alreadyExistingTask.getId(), interruptIfRunning);
-    }
+    def existingTasks = taskScheduler.listsTasks().findAll { it.getTypeId() == configurationParameters.type && it.getName() == configurationParameters.name }
+    existingTasks.collect { it.remove() }
 
     TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(configurationParameters.type)
     config.setEnabled(configurationParameters.enabled.toBoolean())

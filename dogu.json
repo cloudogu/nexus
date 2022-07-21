@@ -201,12 +201,6 @@
       "Default": "default"
     },
     {
-      "Name": "compact_blobstore_task/name",
-      "Description": "The name of the task that will be displayed in the task configuration of nexus. Default: \"Compact blobstore\"",
-      "Optional": true,
-      "Default": "Compact blobstore"
-    },
-    {
       "Name": "compact_blobstore_task/cron",
       "Description": "Cron string (in Quartz syntax) that sets the task's schedule. The default \"0 0 3 * * ?\" value will run the task daily at 3:00 AM.",
       "Optional": true,
