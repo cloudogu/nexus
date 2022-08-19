@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v3.40.1-2] - 2022-08-19
 ### Added
 - Preconfigured compact blobstore task which will run every 14 days. #108
 - Preconfigured cleanup policy which, wenn added to a matching maven-snapshot repository, will mark artifacts older than 14 days for deletion. #108
