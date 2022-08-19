@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Preconfigured compact blobstore task which will run every 14 days. #108
+- Preconfigured cleanup policy which, wenn added to a matching maven-snapshot repository, will mark artifacts older than 14 days for deletion. #108
+### Fixed
+- Remove orientDB credentials from log messages. #88
 
 ## [v3.40.1-1] - 2022-07-12
 ### Changed
@@ -30,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v3.34.1-4] - 2021-12-13
 ### Fixed
-- disable jndi lookup due to a vulnerability #90 (https://doc.nexusgroup.com/pages/viewpage.action?pageId=83133294)
+- Disable jndi lookup due to a vulnerability #90 (https://doc.nexusgroup.com/pages/viewpage.action?pageId=83133294)
 
 ## [v3.34.1-3] - 2021-11-02
 ### Changed
@@ -80,19 +85,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update dogu-build-lib to `v1.1.1`
 - Update zalenium-build-lib to `v2.1.1`
-- toggle video recording with build parameter (#63)
+- Toggle video recording with build parameter (#63)
 
 ### Removed
-- installation of R and Helm plugins. These plugins are a built-in feature now. (#66)
+- Installation of R and Helm plugins. These plugins are a built-in feature now. (#66)
 
 ## [v3.28.1-3] - 2020-12-14
-
 ### Added
-
 - Ability to configure the `MaxRamPercentage` and `MinRamPercentage` for the Nexus process inside the container via `cesapp edit-conf`  (#61)
 
 ## [v3.28.1-2] - 2020-11-27
-
 ### Fixed
 - Remove nexus admin password from environment variable. Now, the password is passed via enviroment variable passing only to the respective tools (#59)
 
@@ -129,54 +131,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v3.23.0-4] - 2020-09-04
 ### Changed
-- register missing appenders in logging configuration 
+- Register missing appenders in logging configuration 
 
 ## [v3.23.0-3] - 2020-07-24
 ### Changed
-- update dogu-build-lib
-- update ces-build-lib
-- update java image
-- use doguctl validation
+- Update dogu-build-lib
+- Update ces-build-lib
+- Update java image
+- Use doguctl validation
 
 ## [v3.23.0-2] - 2020-07-02
 ### Changed
-- update carp.yml.tpl to contain log-level and log-format
-- update nexus-carp to v1.0.0
+- Update carp.yml.tpl to contain log-level and log-format
+- Update nexus-carp to v1.0.0
 
 ## [v3.23.0-1] - 2020-06-18
 ### Changed
-- updated Nexus version to 3.23.0
-- enabled groovy scripting during startup in `nexus.properties`
-- update nexus-claim to v1.0.0
+- Updated Nexus version to 3.23.0
+- Enabled groovy scripting during startup in `nexus.properties`
+- Update nexus-claim to v1.0.0
 
 ## [3.19.1-2] - 2020-04-15
 ### Added
-
-A new CES registry key `logging/root` is evaluated to override the default root log level. One of these values can be set in order to increase the log verbosity: `ERROR`, `WARN`, `INFO`, `DEBUG`. These log levels are directly applied to Nexus's logback root appender configuration.
-
-Changing Nexus's log level with different settings at runtime is still supported. Please note that these settings are reset (to the root log level from above) during a restart of the Nexus dogu. (#37)
+- A new CES registry key `logging/root` is evaluated to override the default root log level. One of these values can be set in order to increase the log verbosity: `ERROR`, `WARN`, `INFO`, `DEBUG`. These log levels are directly applied to Nexus's logback root appender configuration.
+  Changing Nexus's log level with different settings at runtime is still supported. Please note that these settings are reset (to the root log level from above) during a restart of the Nexus dogu. (#37)
 
 ### Changed
-
-In order to cope with the amount of file system data the max history is set to 7 days worth of Nexus logging, capping the total log size to 10 MBytes. This is only important for Nexus's own Log viewer. Logs to the Cloudogu EcoSystem host are not subject to change though. (#37)
+- In order to cope with the amount of file system data the max history is set to 7 days worth of Nexus logging, capping the total log size to 10 MBytes. This is only important for Nexus's own Log viewer. Logs to the Cloudogu EcoSystem host are not subject to change though. (#37)
 
 ## Removed
-
-Remove unnecessary log appenders (#37).
+- Remove unnecessary log appenders (#37).
 
 ### Fixed
-
-Reduce the default root log level to WARN. Nexus's defaults to INFO which leads to an obscene amount of log entries from the underlying Felix framework. (#37)
+- Reduce the default root log level to WARN. Nexus's defaults to INFO which leads to an obscene amount of log entries from the underlying Felix framework. (#37)
 
 ## [3.19.1-1] - 2019-12-09
-
 ### Changed
-
 - Changed Nexus version from 3.18.1 to 3.19.1
 - Changed Java version in Dockerfile to 8u222-1
 
 ### Added
-
 - Added docker health check
 - Add a start-up check whether the minimum number of CPU cores is reached (#36)
    - Starting with [Nexus Repository Manager 3.17](https://issues.sonatype.org/secure/ReleaseNote.jspa?projectId=10001&version=17890) a minimum number of 4 CPU cores is enforced, otherwise the Repository Manager is no longer guaranteed to work.
