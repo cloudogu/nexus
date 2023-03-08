@@ -52,5 +52,5 @@ fi
 
 if [ -n "${REPO_TO_BE_DELETED}" ]; then
   echo "Deleting repository ${REPO_TO_BE_DELETED}..."
-  deleteRepositoryViaAPI "${ADMIN_USER}" "${ADMIN_PASSWORD}" ${REPO_TO_BE_DELETED} || true
+  deleteRepositoryViaAPI "${ADMIN_USER}" "${ADMIN_PASSWORD}" "${REPO_TO_BE_DELETED}" || true
 fi
