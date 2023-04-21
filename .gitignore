@@ -108,5 +108,6 @@ modules.xml
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,intellij+all
 
+build/tmp/
 
 */node_modules/*
