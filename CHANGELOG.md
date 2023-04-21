@@ -6,6 +6,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.52.0-1] - 2023-04-21
+### Changed
+- [#116] Upgrade Sonatype Nexus to 3.52.0-01
+- [#116] Upgrade Shiro to v1.11.0
+- [#116] Upgrade Base Image to 8u362-1
+
+### Security
+- [#116] Fixed
+  - CVE-2015-7501
+  - CVE-2020-11989
+  - CVE-2020-1957
+  - CVE-2021-41303
+  - CVE-2022-32532
+  - CVE-2022-32532
+  - CVE-2015-3253
+  - CVE-2017-1000487
+  - CVE-2022-32532
+  - CVE-2022-40664
+  - CVE-2022-40664
+  - CVE-2022-32221
+  - CVE-2022-42915
+  - CVE-2022-32221
+  - CVE-2022-42915
+  - CVE-2022-40664
+  - CVE-2021-46848
+  - CVE-2022-36437
+  - CVE-2023-23914
+  - CVE-2023-23914
+  - CVE-2023-27536
+  - CVE-2023-27536
+
 ## [v3.40.1-2] - 2022-08-19
 ### Added
 - Preconfigured compact blobstore task which will run every 14 days. #108
