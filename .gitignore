@@ -111,3 +111,6 @@ modules.xml
 build/tmp/
 
 */node_modules/*
+
+/target
+/.bin
