@@ -73,7 +73,7 @@ node('vagrant') {
             }
 
             stage('Integration Tests') {
-                ecoSystem.runCypressIntegrationTests([cypressImage     : "cypress/included:8.6.0",
+                ecoSystem.runCypressIntegrationTests([cypressImage     : "cypress/included:12.9.0",
                                                       enableVideo      : params.EnableVideoRecording,
                                                       enableScreenshots: params.EnableScreenshotRecording])
             }
@@ -101,7 +101,7 @@ node('vagrant') {
 
                 stage('Integration Tests - After Upgrade') {
                     ecoSystem.runCypressIntegrationTests([
-                        cypressImage     : "cypress/included:8.6.0",
+                        cypressImage     : "cypress/included:12.9.0",
                         enableVideo      : params.EnableVideoRecording,
                         enableScreenshots: params.EnableScreenshotRecording
                     ])
