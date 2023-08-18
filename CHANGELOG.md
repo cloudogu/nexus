@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - [#120] Fix integration tests after CAS-Upgrade
+- [#122] Upgrade Sonatype Nexus to 3.59.0-01
 
 ## [v3.52.0-2] - 2023-06-27
 ### Added
