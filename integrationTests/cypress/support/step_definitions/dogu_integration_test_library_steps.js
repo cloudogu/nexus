@@ -1,6 +1,11 @@
+const {
+    When,
+    Then
+} = require("@badeball/cypress-cucumber-preprocessor");
+
 // Loads all steps from the dogu integration library into this project
-const doguTestLibrary = require('@cloudogu/dogu-integration-test-library')
-doguTestLibrary.registerSteps()
+const doguTestLibrary = require('@cloudogu/dogu-integration-test-library');
+doguTestLibrary.registerSteps();
 
 When(/^the user clicks the dogu logout button$/, function () {
     Cypress.on('uncaught:exception', () => { return false; }); // Catch nexus errors and prevent test from failing

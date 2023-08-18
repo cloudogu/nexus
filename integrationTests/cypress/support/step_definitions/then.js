@@ -1,15 +1,15 @@
 const {
-    Given,
-    When,
     Then
-} = require("cypress-cucumber-preprocessor/steps");
-const env = require('@cloudogu/dogu-integration-test-library/lib/environment_variables');
+} = require("@badeball/cypress-cucumber-preprocessor");
 
-//
-//
-// Then
-//
-//
+
+Then(/^the user can see administration icon$/, function () {
+    cy.get('#button-1125-btnIconEl').should('be.visible')
+});
+
+Then(/^the user cannot see administration icon$/, function () {
+    cy.get('#button-1125-btnIconEl').should('not.be.visible')
+});
 
 Then(/^the user can access scripts api$/, function () {
     cy.fixture("testuser_data").then(function (testUser) {
