@@ -22,7 +22,7 @@
 ```
 cesapp install official/nexus
 
-cesapp start nexus
+cesapp start nexus 
 ```
 
 ## Where do I find more information about the Nexus dogu?
