@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.59.0-2] - 2023-10-23
+### Fixed
+- [#124] Fixed CVE-2023-38039 CVE-2023-38545 CVE-2023-44487
+
 ## [v3.59.0-1] - 2023-08-18
 ### Changed
 - [#120] Fix integration tests after CAS-Upgrade
