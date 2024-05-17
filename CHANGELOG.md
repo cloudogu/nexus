@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.68.1-1] - 2024-05-17
+### Changed
+- [#128] Upgrade nexus to 3.68.1 to fix CVE-2024-4956
+
+### Fixed
+- [#126] Align Cypress versions of Jenkinsfile and package.json to avoid failing integration tests
+
 ## [v3.59.0-2] - 2023-10-23
 ### Fixed
 - [#124] Fixed CVE-2023-38039 CVE-2023-38545 CVE-2023-44487
