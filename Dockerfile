@@ -1,5 +1,5 @@
 # registry.cloudogu.com/official/nexus
-FROM registry.cloudogu.com/official/java:8u362-1 as builder
+FROM registry.cloudogu.com/official/java:11.0.20-1 as builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.59.0-2"
@@ -16,7 +16,7 @@ ENV NEXUS_VERSION=3.68.1-02 \
     NEXUS_BUILD_DIR=/build/opt/sonatype/nexus \
     BUILD_BIN_DIR=/build/usr/bin \
     SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
-    SHA256_NEXUS_TAR="5474b8283160537763b5e0f30c07b8dd3648c111bff1b6fbbb7baca0e0894b93" \
+    SHA256_NEXUS_TAR="6a04eb770e0c4415d3033de757b07ddfdfd15beadbf839d4b33438246e4325a7" \
     SHA256_NEXUS_CLAIM="a34608ac7b516d6bc91f8a157bea286919c14e5fb5ecc76fc15edccb35adec42" \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
     SHA256_NEXUS_CARP="f9a9d9f9efcabd27fb4df2544142000d5607c8feb9772e77f23239d7a6647458"
@@ -36,7 +36,7 @@ RUN set -o errexit \
   # install nexus
   && mkdir -p ${NEXUS_BUILD_DIR} \
   && curl --fail --silent --location --retry 3 -o nexus.tar.gz \
-    https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-unix.tar.gz \
+    https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-java11-unix.tar.gz \
   && echo "${SHA256_NEXUS_TAR} *nexus.tar.gz" |sha256sum -c - \
   && tar -xf nexus.tar.gz -C /tmp nexus-${NEXUS_VERSION} \
   && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_BUILD_DIR}/ \
@@ -59,7 +59,7 @@ RUN set -o errexit \
   && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
 
 
-FROM registry.cloudogu.com/official/java:8u362-1
+FROM registry.cloudogu.com/official/java:11.0.20-1
 
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
