@@ -23,7 +23,6 @@ function setNexusVmoptionsAndProperties() {
   cat <<EOF >"$VM_OPTIONS_FILE"
       -XX:MaxDirectMemorySize=2G
       -XX:+UnlockDiagnosticVMOptions
-      -XX:+UnsyncloadClass
       -XX:+LogVMOutput
       -XX:LogFile=${NEXUS_DATA_DIR}/log/jvm.log
       -XX:-OmitStackTraceInFastThrow
@@ -39,6 +38,22 @@ function setNexusVmoptionsAndProperties() {
       -Djavax.net.ssl.trustStore=${TRUSTSTORE}
       -Djavax.net.ssl.trustStorePassword=changeit
       -Djava.net.preferIPv4Stack=true
+      --add-reads=java.xml=java.logging
+      --add-exports=java.base/org.apache.karaf.specs.locator=java.xml,ALL-UNNAMED
+      --patch-module=java.base=./lib/endorsed/org.apache.karaf.specs.locator-4.3.9.jar
+      --patch-module=java.xml=./lib/endorsed/org.apache.karaf.specs.java.xml-4.3.9.jar
+      --add-opens=java.base/java.security=ALL-UNNAMED
+      --add-opens=java.base/java.net=ALL-UNNAMED
+      --add-opens=java.base/java.lang=ALL-UNNAMED
+      --add-opens=java.base/java.util=ALL-UNNAMED
+      --add-opens=java.naming/javax.naming.spi=ALL-UNNAMED
+      --add-opens=java.rmi/sun.rmi.transport.tcp=ALL-UNNAMED
+      --add-exports=java.base/sun.net.www.protocol.http=ALL-UNNAMED
+      --add-exports=java.base/sun.net.www.protocol.https=ALL-UNNAMED
+      --add-exports=java.base/sun.net.www.protocol.jar=ALL-UNNAMED
+      --add-exports=jdk.xml.dom/org.w3c.dom.html=ALL-UNNAMED
+      --add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED
+      --add-exports=java.security.sasl/com.sun.security.sasl=ALL-UNNAMED
 EOF
 
   echo "Setting memory limits..."
