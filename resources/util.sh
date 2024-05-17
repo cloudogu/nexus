@@ -39,7 +39,6 @@ function setNexusVmoptionsAndProperties() {
       -Djavax.net.ssl.trustStore=${TRUSTSTORE}
       -Djavax.net.ssl.trustStorePassword=changeit
       -Djava.net.preferIPv4Stack=true
-      -Djava.endorsed.dirs=lib/endorsed
 EOF
 
   echo "Setting memory limits..."
