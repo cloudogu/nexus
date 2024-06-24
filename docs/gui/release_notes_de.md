@@ -2,7 +2,7 @@
 
 Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu. 
 
-Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://github.com/cloudogu/nexus/releases).
+Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## Release 3.68.1-1
 
