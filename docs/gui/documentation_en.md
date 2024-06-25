@@ -77,7 +77,7 @@ This step can be skipped if the user to be authorized has already logged in.
 Click on the cogwheel to get to the administrators area. There click on "Users
 and then on "Create local User".
 
-![Nexus: New user](figures/administration/nexus_usersOverview.png)
+![Nexus: New user](figures/nexus_usersOverview.png)
 
 In the now visible form enter the data of the user. It is important that the value in the field "ID" is exactly
 corresponds to the user name of the user to be authorized.
