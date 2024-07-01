@@ -50,9 +50,9 @@ User Management has been removed.
 
 ### Further information
 Official documentation can be found here:
-* Privileges: https://help.sonatype.com/repomanager3/system-configuration/access-control/privileges
-* Roles: https://help.sonatype.com/repomanager3/system-configuration/access-control/roles
-* User: https://help.sonatype.com/repomanager3/system-configuration/access-control/users
+* Privileges: https://help.sonatype.com/en/privileges.html
+* Roles: https://help.sonatype.com/en/roles.html
+* User: https://help.sonatype.com/en/users.html
 
 ### Example: Permissions
 For this example, the user "newuser6" with the group "user6role" was created in User Management in advance.
