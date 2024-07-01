@@ -114,3 +114,6 @@ build/tmp/
 
 /target
 /.bin
+
+
+.env
