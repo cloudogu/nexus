@@ -1,5 +1,5 @@
 # registry.cloudogu.com/official/nexus
-FROM registry.cloudogu.com/official/java:11.0.20-1 as builder
+FROM registry.cloudogu.com/official/java:11.0.23-3 as builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.68.1-1"
@@ -59,7 +59,7 @@ RUN set -o errexit \
   && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
 
 
-FROM registry.cloudogu.com/official/java:11.0.20-1
+FROM registry.cloudogu.com/official/java:11.0.23-3
 
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
