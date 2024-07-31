@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.68.1-2",
+  "Version": "3.68.1-3",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -38,6 +38,13 @@
     {
       "Name": "migration",
       "Path": "/var/lib/migration",
+      "Owner": "1000",
+      "Group": "1000",
+      "NeedsBackup": true
+    },
+    {
+      "Name": "localConfig",
+      "Path": "/var/ces/config",
       "Owner": "1000",
       "Group": "1000",
       "NeedsBackup": true
