@@ -14,6 +14,6 @@ We have only made technical changes. You can find more details in the changelogs
 
 ## Release 3.68.1-1
 
-> The release fixes critical security vulnerabilities ([CVE-2024-4956](https://github.com/advisories/GHSA-6cgv-69mq-8w7x)). An update is therefore recommended.
+**The release fixes critical security vulnerabilities ([CVE-2024-4956](https://github.com/advisories/GHSA-6cgv-69mq-8w7x)). An update is therefore recommended.**
 
 * The Dogu now offers the Sonatype Nexus version 3.68.1. The release notes of Sonatype Nexus can be found [here](https://help.sonatype.com/en/sonatype-nexus-repository-3-68-0-release-notes.html).
