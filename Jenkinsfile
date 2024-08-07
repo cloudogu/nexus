@@ -37,7 +37,7 @@ node('vagrant') {
         }
 
         stage('Check Markdown Links') {
-            Markdown markdown = new Markdown(this, "3.11.0")
+            Markdown markdown = new Markdown(this, "3.12.2")
             markdown.check()
         }
 
