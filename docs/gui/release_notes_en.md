@@ -4,6 +4,9 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
+## Release 3.68.1-4
+* Fix of critical CVE-2024-41110 in library dependencies. This vulnerability could not be actively exploited, though.
+
 ## Release 3.68.1-3
 
 We have only made technical changes. You can find more details in the changelogs.
