@@ -6,8 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.68.1-4] - 2024-08-07
+### Changed
+- [#135] update base image to OpenJDK 11.0.24-1
+- update Alpine to 3.20.2-1
+
+### Security
+- [#135] close CVE-2024-41110
+
 ## [v3.68.1-3] - 2024-07-31
-### Changes
+### Changed
 - [#133] Create volume for local config
 
 ## [v3.68.1-2] - 2024-07-01
