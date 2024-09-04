@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- [#137] update nexus-carp version to v1.4.0
+    - This adds the ability to bypass CAS-authentication for direct service-account-requests to nexus. Which prevents request-throttling in CAS for requests that only have dogu-internal authentication.
 
 ## [v3.68.1-4] - 2024-08-07
 ### Changed

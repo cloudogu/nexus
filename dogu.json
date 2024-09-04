@@ -214,6 +214,24 @@
       "Default": "0 0 3 * * ?"
     },
     {
+      "Name": "carp-limiter/token-rate",
+      "Description": "The token-rate of the carp-limiter in which tokens are added to the bucket in tokens/second. Default is 50",
+      "Optional": true,
+      "Default": "50"
+    },
+    {
+      "Name": "carp-limiter/burst-size",
+      "Description": "The size of the bucket for the carp-limiter. It sets the amount of tokens the bucket can hold. Defaults to 150",
+      "Optional": true,
+      "Default": "150"
+    },
+    {
+      "Name": "carp-limiter/clean-interval",
+      "Description": "The clean interval in seconds for the carp-limiter, in which old limits from the limiter are cleaned. Defaults to 300 seconds (5 minutes)",
+      "Optional": true,
+      "Default": "30"
+    },
+    {
       "Name": "container_config/memory_limit",
       "Description": "Limits the container's memory usage. Use a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte).",
       "Optional": true,
