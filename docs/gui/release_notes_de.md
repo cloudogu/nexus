@@ -4,6 +4,9 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
+## Release 3.68.1-5
+* Behebung des Problems das BasicAuth-Requests zu Sperren im CAS geführt haben.
+
 ## Release 3.68.1-4
 * Behebung von kritischem CVE-2024-41110 in Bibliotheksabhängigkeiten. Diese Schwachstelle konnte jedoch nicht aktiv ausgenutzt werden.
 
