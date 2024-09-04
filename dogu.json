@@ -227,7 +227,7 @@
     },
     {
       "Name": "carp-limiter/clean-interval",
-      "Description": "The clean interval in seconds the carp-limiter, which cleans old limits from teh limiter. Defaults to 300 seconds (5 minutes)",
+      "Description": "The clean interval in seconds for the carp-limiter, in which old limits from the limiter are cleaned. Defaults to 300 seconds (5 minutes)",
       "Optional": true,
       "Default": "30"
     },
