@@ -5,7 +5,7 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## Release 3.68.1-6
-* Passwörter werden sicher mit `java.security.SecureRandom` generiert.
+* Die interne Passwortgenerierung wurde durch eine neue CARP-Version abgesichert.
 
 ## Release 3.68.1-5
 * Behebung des Problems das BasicAuth-Requests zu Sperren im CAS geführt haben.
