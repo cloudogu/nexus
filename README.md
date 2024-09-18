@@ -1,6 +1,3 @@
-[![GitHub license](https://img.shields.io/github/license/cloudogu/nexus.svg)](https://github.com/cloudogu/nexus/blob/master/LICENSE)
-[![GitHub release](https://img.shields.io/github/release/cloudogu/nexus.svg)](https://github.com/cloudogu/nexus/releases)
-
 # Nexus Repository OSS Dogu
 
 ## About this Dogu
