@@ -2,7 +2,7 @@
 FROM registry.cloudogu.com/official/java:11.0.24-1 as builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.68.1-5"
+    VERSION="3.68.1-6"
 
 WORKDIR /build
 
@@ -10,7 +10,7 @@ WORKDIR /build
 ENV NEXUS_VERSION=3.68.1-02 \
     TINI_VERSION=0.19.0 \
     NEXUS_CLAIM_VERSION=1.0.0 \
-    NEXUS_CARP_VERSION=1.4.0 \
+    NEXUS_CARP_VERSION=1.4.1 \
     NEXUS_SCRIPTING_VERSION=0.2.0 \
     SHIRO_VERSION=1.11.0 \
     NEXUS_BUILD_DIR=/build/opt/sonatype/nexus \
@@ -19,7 +19,7 @@ ENV NEXUS_VERSION=3.68.1-02 \
     SHA256_NEXUS_TAR="6a04eb770e0c4415d3033de757b07ddfdfd15beadbf839d4b33438246e4325a7" \
     SHA256_NEXUS_CLAIM="a34608ac7b516d6bc91f8a157bea286919c14e5fb5ecc76fc15edccb35adec42" \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
-    SHA256_NEXUS_CARP="f0899c297fc4f826d33bb7a923356e659ba89e66a3896cad28953c2002bcf8a4"
+    SHA256_NEXUS_CARP="db742df8f4c672d1aaa049efa097756d1f9b86e050331a01406cb97e11c41485"
 
 RUN set -o errexit \
   && set -o nounset \
