@@ -6,6 +6,7 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## Release 3.68.1-6
 * Die interne Passwortgenerierung wurde durch eine neue CARP-Version abgesichert.
+* Die Cloudogu-eigenen Quellen werden von der MIT-Lizenz auf die AGPL-3.0-only relizensiert.
 
 ## Release 3.68.1-5
 * Behebung des Problems das BasicAuth-Requests zu Sperren im CAS geführt haben.

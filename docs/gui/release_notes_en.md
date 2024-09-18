@@ -6,6 +6,7 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## Release 3.68.1-6
 * The internal password generation has been secured by a new CARP version.
+* Relicense own code to AGPL-3.0-only
 
 ## Release 3.68.1-5
 * Fixes the problem that BasicAuth requests led to locks in the CAS.
