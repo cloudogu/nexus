@@ -224,9 +224,9 @@ function installDefaultDockerRegistry() {
   export NEXUS_SERVER="http://localhost:8081/nexus"
 
   NEXUS_PASSWORD="${ADMINPW}" \
-    usr/bin/nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | \
+    nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | \
     NEXUS_PASSWORD="${ADMINPW}" \
-      usr/bin/nexus-claim apply -i "-"
+      nexus-claim apply -i "-"
 }
 
 function renderLoggingConfig() {
