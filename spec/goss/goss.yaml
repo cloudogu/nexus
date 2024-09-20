@@ -60,10 +60,8 @@ process:
   tini:
     running: true
 port:
-  tcp6:8081:
+  tcp:8081:
     listening: true
-    ip:
-      - '::'
 package:
   maven:
     installed: false
