@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.68.1-6] - 2024-09-18
+### Changed
+- [#139] Update nexus carp to v1.4.1
+  - This adds safe password generation with `java.security.SecureRandom`
+- Relicense to AGPL-3.0-only
+
 ## [v3.68.1-5] - 2024-09-04
 ### Changed
 - [#137] update nexus-carp version to v1.4.0
