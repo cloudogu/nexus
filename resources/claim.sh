@@ -11,7 +11,7 @@ if ! doguctl wait --port 8081 --timeout 120; then
   exit 1
 fi
 
-ONCE_LOCK="/var/lib/nexus/claim.once"
+ONCE_LOCK="claim/once.lock"
 
 # NEXUS_URL is already set correctly
 # NEXUS_SERVER is already set in Dockerfile
@@ -19,7 +19,6 @@ export NEXUS_USER="${ADMINUSER}"
 
 function claim() {
   CLAIM="${1}"
-  LOCK="${2}"
   PLAN=$(mktemp)
   if doguctl config claim/"${CLAIM}" > "${PLAN}"; then
     echo "exec claim ${CLAIM}"
@@ -27,24 +26,26 @@ function claim() {
       nexus-claim plan -i "${PLAN}" -o "-" | \
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-claim apply -i "-"
-
-    if [[ "${LOCK}" != "" ]]; then
-      echo 1 > "${ONCE_LOCK}"
+    if [[ "${CLAIM}" == "once" ]]; then
+      doguctl config claim/"${CLAIM}" "true"
     fi
   fi
   rm -f "${PLAN}"
 }
 
 function claim_once() {
-  claim "once" "${ONCE_LOCK}"
+  claim "once"
 }
 
 function claim_always() {
-  claim "always" ""
+  claim "always"
 }
 
-if [[ ! -f "${ONCE_LOCK}" ]]; then
+if [[ "$(doguctl config --default "false" "${ONCE_LOCK}")" == "false" ]]; then
+  echo "Executing claim once..."
   claim_once
+else
+  echo "Claim once was already executed. Skipping..."
 fi
 
 claim_always

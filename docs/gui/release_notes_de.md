@@ -4,6 +4,10 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
+## Release 3.70.2-1
+* Update der Nexus Version auf 3.70.2-01
+* Claim-Once kann nach Upgrade mittels Blueprint neu gesetzt werden
+
 ## Release 3.68.1-6
 * Die interne Passwortgenerierung wurde durch eine neue CARP-Version abgesichert.
 * Die Cloudogu-eigenen Quellen werden von der MIT-Lizenz auf die AGPL-3.0-only relizensiert.

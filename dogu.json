@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.68.1-6",
+  "Version": "3.70.2-1",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -71,6 +71,21 @@
     }
   ],
   "Configuration": [
+    {
+      "Name": "claim/once",
+      "Description": "A claim script definition which is only executed once. After that, it will set the claim/once.lock key which prevents further execution.",
+      "Optional": true
+    },
+    {
+      "Name": "claim/once.lock",
+      "Description": "If this key is set to true it will prevent the claim/once script from being executed.",
+      "Optional": true
+    },
+    {
+      "Name": "claim/always",
+      "Description": "A claim script definition which will always be executed at startup.",
+      "Optional": true
+    },
     {
       "Name": "nexus.repository.sandbox.enable",
       "Description": "Enable repository sandboxing",
