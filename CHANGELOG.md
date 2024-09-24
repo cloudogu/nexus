@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.70.2-1] - 2024-09-24
+## Changed 
+- Upgrade Nexus to version 3.70.2-01
+
+### Fixed
+- [#142] Reuse of claim once after upgrade via blueprint
+
 ## [v3.68.1-6] - 2024-09-18
 ### Changed
 - [#139] Update nexus carp to v1.4.1
