@@ -1,4 +1,4 @@
-FROM registry.cloudogu.com/official/java:11.0.24-1 as builder
+FROM registry.cloudogu.com/official/java:11.0.24-3 as builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.68.1-5"
@@ -8,7 +8,7 @@ WORKDIR /build
 # The version of nexus to install
 ENV NEXUS_VERSION=3.70.2-01 \
     TINI_VERSION=0.19.0 \
-    NEXUS_CLAIM_VERSION=1.0.0 \
+    NEXUS_CLAIM_VERSION=1.1.1 \
     NEXUS_CARP_VERSION=1.4.0 \
     NEXUS_SCRIPTING_VERSION=0.2.0 \
     SHIRO_VERSION=1.11.0 \
@@ -16,7 +16,7 @@ ENV NEXUS_VERSION=3.70.2-01 \
     BUILD_BIN_DIR=/build/usr/bin \
     SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
     SHA256_NEXUS_TAR="c4c4e144bea61a7b7dddafca5d9c5d69da2731ee4b6fd59cd49a0976b9bd4b57" \
-    SHA256_NEXUS_CLAIM="a34608ac7b516d6bc91f8a157bea286919c14e5fb5ecc76fc15edccb35adec42" \
+    SHA256_NEXUS_CLAIM="74b0f9d752855a14533e829e658cb619fc2832d845860af2e0ddbf0cdd47a785" \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
     SHA256_NEXUS_CARP="f0899c297fc4f826d33bb7a923356e659ba89e66a3896cad28953c2002bcf8a4"
 
@@ -57,7 +57,7 @@ RUN set -o errexit \
   && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
   && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
 
-FROM registry.cloudogu.com/official/java:11.0.24-1
+FROM registry.cloudogu.com/official/java:11.0.24-3
 
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
