@@ -26,13 +26,15 @@ function claim() {
       nexus-claim plan -i "${PLAN}" -o "-" | \
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-claim apply -i "-"
+    if [[ "${CLAIM}" == "once" ]]; then
+      doguctl config claim/"${CLAIM}" "true"
+    fi
   fi
   rm -f "${PLAN}"
 }
 
 function claim_once() {
   claim "once"
-  doguctl config "${ONCE_LOCK}" "true"
 }
 
 function claim_always() {
