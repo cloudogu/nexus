@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.70.2-1",
+  "Version": "3.70.2-2",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -16,7 +16,8 @@
   "Dependencies": [
     {
       "type": "dogu",
-      "name": "cas"
+      "name": "cas",
+      "Version": ">=7.0.5.1-6"
     },
     {
       "type": "dogu",
@@ -25,6 +26,14 @@
     {
       "type": "dogu",
       "name": "postfix"
+    }
+  ],
+  "ServiceAccounts": [
+    {
+      "Type": "cas",
+      "Params": [
+        "cas"
+      ]
     }
   ],
   "Volumes": [

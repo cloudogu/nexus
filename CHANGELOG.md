@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.70.2-2] - 2024-09-25
+### Changed
+- Switch to new CAS service account structure in dogu.json
+
 ## [v3.70.2-1] - 2024-09-24
 ## Changed 
 - Upgrade Nexus to version 3.70.2-01
