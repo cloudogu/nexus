@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- Local config was created by root with doguctl-call during pre-startup in multinode.
+  - This caused the nexus user to be unable to write to the file later on.
 
 ## [v3.70.2-2] - 2024-09-25
 ### Changed

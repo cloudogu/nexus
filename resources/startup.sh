@@ -75,7 +75,7 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
 
-  # Install default docker registry if not prohibited by etcd key
+  # Install default docker registry if not prohibited by config key
   if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
     installDefaultDockerRegistry
   fi
@@ -97,7 +97,7 @@ else
 
 fi
 
-echo "writing admin_group_last to etcd"
+echo "writing admin_group_last to local config"
 doguctl config admin_group_last "${CES_ADMIN_GROUP}"
 
 echo "importing HTTP/S proxy settings from registry"
