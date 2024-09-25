@@ -16,7 +16,8 @@
   "Dependencies": [
     {
       "type": "dogu",
-      "name": "cas"
+      "name": "cas",
+      "Version": ">=7.0.5.1-6"
     },
     {
       "type": "dogu",
@@ -25,6 +26,12 @@
     {
       "type": "dogu",
       "name": "postfix"
+    }
+  ],
+  "ServiceAccounts": [
+    {
+      "Type": "cas",
+      "Params": ["cas"]
     }
   ],
   "Volumes": [
