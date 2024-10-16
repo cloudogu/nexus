@@ -59,19 +59,25 @@ setNexusProperties
 # database migration from OrientDB to H2
 if [ -e "${MIGRATION_FILE}" ]; then
   echo "Performing database migration from OrientDB to H2"
+  # nexus cannot be running when database migration takes place
+  terminateNexusAndNexusCarp
+
+  # download migration helper
   if [ ! -d "${NEXUS_DATA_DIR}/h2migration" ]; then
     mkdir "${NEXUS_DATA_DIR}/h2migration"
   fi
-  # download migration helper
   curl -v --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
     "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-$(printenv "NEXUS_DB_MIGRATOR_VERSION").jar"
+
   # run migration
   java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
     -jar "${MIGRATION_HELPER_JAR}"
     --migration_type=h2 -y
+
   # move migration artifact to final location
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
   echo "nexus.datastore.enabled=true" >>${NEXUS_DATA_DIR}/etc/nexus.properties
+
   # finally remove migration file from volume
   rm "${MIGRATION_FILE}"
   rmdir "${NEXUS_DATA_DIR}/h2migration"
