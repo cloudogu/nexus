@@ -6,7 +6,7 @@ set -o nounset
 set -o pipefail
 
 NEXUS_DATA_DIR=/var/lib/nexus
-MIGRATION_FILE="${NEXUS_DATA_DIR}/db/orient_backup.zip"
+MIGRATION_FILE_NAME="${NEXUS_DATA_DIR}/db/orient_backup.zip"
 
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
@@ -117,5 +117,6 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   fi
 
   # backup orient db
-  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${NEXUS_DATA_DIR}/db/${MIGRATION_FILE_NAME}"
+  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \
+    "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${MIGRATION_FILE_NAME}"
 fi
