@@ -63,7 +63,7 @@ ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
     NEXUS_SERVER="http://localhost:8081/nexus" \
-    NEXUS_VERSION=3.73.0-12
+    NEXUS_DB_MIGRATOR_VERSION=3.73.0-3
 
 COPY --from=builder /build /
 COPY resources /
