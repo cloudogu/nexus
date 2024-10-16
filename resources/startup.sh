@@ -64,7 +64,6 @@ if [ -e "${MIGRATION_FILE}" ]; then
   curl --fail --silent --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
     "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-${$(printenv "NEXUS_VERSION")}.jar"
   # run migration
-  sleep 10000
   java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
     -jar "${MIGRATION_HELPER_JAR}" \
     --migration_type=h2 -y
