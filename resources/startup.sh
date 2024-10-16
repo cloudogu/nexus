@@ -63,7 +63,7 @@ if [ -e "${MIGRATION_FILE}" ]; then
     mkdir "${NEXUS_DATA_DIR}/h2migration"
   fi
   # download migration helper
-  curl --fail --silent --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
+  curl -v --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
     "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-$(printenv "NEXUS_VERSION").jar"
   # run migration
   java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
