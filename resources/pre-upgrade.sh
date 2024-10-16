@@ -113,6 +113,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
     exit 2
   fi
 
+  sleep 10000
   # backup orient db
   java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${NEXUS_DATA_DIR}/db/${MIGRATION_FILE_NAME}"
 fi
