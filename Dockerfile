@@ -1,12 +1,12 @@
-FROM registry.cloudogu.com/official/java:11.0.24-3 as builder
+FROM registry.cloudogu.com/official/java:17.0.12-3 as builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.70.2-3"
+    VERSION="3.73.0-12"
 
 WORKDIR /build
 
 # The version of nexus to install
-ENV NEXUS_VERSION=3.70.2-01 \
+ENV NEXUS_VERSION=3.73.0-12 \
     TINI_VERSION=0.19.0 \
     NEXUS_CLAIM_VERSION=1.1.1 \
     NEXUS_CARP_VERSION=1.4.1 \
@@ -15,7 +15,7 @@ ENV NEXUS_VERSION=3.70.2-01 \
     NEXUS_BUILD_DIR=/build/opt/sonatype/nexus \
     BUILD_BIN_DIR=/build/usr/bin \
     SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
-    SHA256_NEXUS_TAR="c4c4e144bea61a7b7dddafca5d9c5d69da2731ee4b6fd59cd49a0976b9bd4b57" \
+    SHA256_NEXUS_TAR="36230d287c08c27215e27d8658d1ebcd827780e7725f65223a5c06cb71b1b05f" \
     SHA256_NEXUS_CLAIM="74b0f9d752855a14533e829e658cb619fc2832d845860af2e0ddbf0cdd47a785" \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
     SHA256_NEXUS_CARP="db742df8f4c672d1aaa049efa097756d1f9b86e050331a01406cb97e11c41485"
@@ -35,7 +35,7 @@ RUN set -o errexit \
   # install nexus
   && mkdir -p ${NEXUS_BUILD_DIR} \
   && curl --fail --silent --location --retry 3 -o nexus.tar.gz \
-    https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-java11-unix.tar.gz \
+    https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-unix.tar.gz \
   && echo "${SHA256_NEXUS_TAR} *nexus.tar.gz" |sha256sum -c - \
   && tar -xf nexus.tar.gz -C /tmp nexus-${NEXUS_VERSION} \
   && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_BUILD_DIR}/ \
@@ -57,12 +57,13 @@ RUN set -o errexit \
   && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
   && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
 
-FROM registry.cloudogu.com/official/java:11.0.24-3
+FROM registry.cloudogu.com/official/java:17.0.12-3
 
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
-    NEXUS_SERVER="http://localhost:8081/nexus"
+    NEXUS_SERVER="http://localhost:8081/nexus" \
+    NEXUS_VERSION=3.73.0-12
 
 COPY --from=builder /build /
 COPY resources /

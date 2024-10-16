@@ -32,6 +32,8 @@ export NEXUS_USER=${ADMINUSER}
 CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
+MIGRATION_FILE="${NEXUS_DATA_DIR}/db/orient_backup.zip"
+MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/migration/migration_helper.jar"
 
 ### backup
 if [ -e "${NEXUS_DATA_DIR}"/migration ]; then
@@ -53,6 +55,26 @@ setNexusVmoptionsAndProperties
 
 echo "Setting nexus.properties..."
 setNexusProperties
+
+# database migration from OrientDB to H2
+if [ -e "${MIGRATION_FILE}" ]; then
+  echo "Performing database migration from OrientDB to H2"
+  # download migration helper
+  mkdir "${NEXUS_DATA_DIR}/migration"
+  curl --fail --silent --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
+    "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-${$(printenv "NEXUS_VERSION")}.jar"
+  # run migration
+  sleep 10000
+  java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
+    -jar "${MIGRATION_HELPER_JAR}" \
+    --migration_type=h2 -y
+  # move migration artifact to final location
+  mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
+  echo "nexus.datastore.enabled=true" >>${NEXUS_DATA_DIR}/etc/nexus.properties
+  # finally remove migration file from volume
+  rm "${MIGRATION_FILE}"
+  rm -F "${NEXUS_DATA_DIR}/migration"
+fi
 
 if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl state installing
