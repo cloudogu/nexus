@@ -59,8 +59,10 @@ setNexusProperties
 # database migration from OrientDB to H2
 if [ -e "${MIGRATION_FILE}" ]; then
   echo "Performing database migration from OrientDB to H2"
+  if [ -e "${NEXUS_DATA_DIR}/h2migration" ]; then
+    mkdir "${NEXUS_DATA_DIR}/h2migration"
+  fi
   # download migration helper
-  mkdir "${NEXUS_DATA_DIR}/h2migration"
   curl --fail --silent --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
     "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-$(printenv "NEXUS_VERSION").jar"
   # run migration
