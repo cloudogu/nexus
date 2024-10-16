@@ -59,7 +59,7 @@ setNexusProperties
 # database migration from OrientDB to H2
 if [ -e "${MIGRATION_FILE}" ]; then
   echo "Performing database migration from OrientDB to H2"
-  if [ -e "${NEXUS_DATA_DIR}/h2migration" ]; then
+  if [ ! -d "${NEXUS_DATA_DIR}/h2migration" ]; then
     mkdir "${NEXUS_DATA_DIR}/h2migration"
   fi
   # download migration helper
