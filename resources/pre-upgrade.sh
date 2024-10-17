@@ -125,17 +125,17 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   echo "killing nexus"
   kill -TERM ${NEXUS_PID} || true
   echo "waiting for kill"
-  wait "${NEXUS_PID}" || true
+  waitForProcessKill "${NEXUS_PID}"
   echo "done waiting for kill"
   NEXUS_CARP_PID=$(ps | grep 'nexus-carp'| grep -v "grep" | awk '{print $1}')
   kill -TERM ${NEXUS_CARP_PID} || true
-  wait "${NEXUS_CARP_PID}" || true
+  waitForProcessKill "${NEXUS_CARP_PID}"
 
   # download migration helper
   if [ ! -d "${NEXUS_DATA_DIR}/h2migration" ]; then
     mkdir "${NEXUS_DATA_DIR}/h2migration"
   fi
-  curl -v --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
+  curl --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
     "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.2-01.jar"
 
   # run migration
@@ -150,3 +150,11 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   rm "${MIGRATION_FILE}"
   rmdir "${NEXUS_DATA_DIR}/h2migration"
 fi
+
+waitForProcessKill() {
+  local PID=$1
+  while [ -e "/proc/${PID}" ]
+  do
+      sleep .6
+  done
+}
