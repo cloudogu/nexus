@@ -6,8 +6,8 @@ set -o nounset
 set -o pipefail
 
 NEXUS_DATA_DIR=/var/lib/nexus
-MIGRATION_FILE_NAME="${NEXUS_DATA_DIR}/db/orient_backup.zip"
-MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/h2migration/migration_helper.jar"
+MIGRATION_FILE_NAME="${NEXUS_DATA_DIR}/orient_backup.zip"
+MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/migration_helper.jar"
 
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
@@ -124,14 +124,11 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   # backup orient db
   java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \
     "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${MIGRATION_FILE_NAME}"
-
+  sleep 1000
   # nexus cannot be running when database migration takes place
   "${NEXUS_WORKDIR}/bin/nexus" stop
 
   # download migration helper
-  if [ ! -d "${NEXUS_DATA_DIR}/h2migration" ]; then
-    mkdir "${NEXUS_DATA_DIR}/h2migration"
-  fi
   curl --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
     "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.2-01.jar"
 
