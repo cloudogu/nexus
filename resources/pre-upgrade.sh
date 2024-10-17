@@ -126,20 +126,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
     "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${MIGRATION_FILE_NAME}"
 
   # nexus cannot be running when database migration takes place
-  # nexus process is not named nexus, but is the only running java process
-  echo "getting nexus pid"
-  NEXUS_PID=$(ps | grep 'java'| grep -v "grep" | awk '{print $1}')
-  echo "${NEXUS_PID}"
-  echo "killing nexus"
-  kill -9 ${NEXUS_PID} || true
-  echo "waiting for kill"
-  # waitForProcessKill "${NEXUS_PID}"
-  sleep 30
-  echo "done waiting for kill"
-  NEXUS_CARP_PID=$(ps | grep 'nexus-carp'| grep -v "grep" | awk '{print $1}')
-  kill -9 ${NEXUS_CARP_PID} || true
-  # waitForProcessKill "${NEXUS_CARP_PID}"
-  sleep 30
+  "${NEXUS_WORKDIR}/bin/nexus" stop
 
   # download migration helper
   if [ ! -d "${NEXUS_DATA_DIR}/h2migration" ]; then
