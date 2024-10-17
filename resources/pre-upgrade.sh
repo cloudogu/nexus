@@ -104,9 +104,6 @@ is_valid_version() {
   fi
 }
 
-
-echo "I am a sanity check"
-echo "${FROM_VERSION}" "${TO_VERSION}"
 if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqualThanY "${TO_VERSION}" "3.70.2-3"; then
   echo "Upgrading to ${TO_VERSION} requires a database migration. Starting migration to H2 database now"
   # check ram size, upgrade needs at least 16GB
@@ -119,4 +116,38 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   # backup orient db
   java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \
     "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${MIGRATION_FILE_NAME}"
+
+  # nexus cannot be running when database migration takes place
+  nexus process is not named nexus, but is the only running java process
+  echo "getting nexus pid"
+  sleep 1000
+  NEXUS_PID=$(ps | grep 'java'| grep -v "grep" | awk '{print $1}')
+  echo "${NEXUS_PID}"
+  echo "killing nexus"
+  kill -TERM ${NEXUS_PID} || true
+  echo "waiting for kill"
+  wait "${NEXUS_PID}" || true
+  echo "done waiting for kill"
+  NEXUS_CARP_PID=$(ps | grep 'nexus-carp'| grep -v "grep" | awk '{print $1}')
+  kill -TERM ${NEXUS_CARP_PID} || true
+  wait "${NEXUS_CARP_PID}" || true
+
+  # download migration helper
+  if [ ! -d "${NEXUS_DATA_DIR}/h2migration" ]; then
+    mkdir "${NEXUS_DATA_DIR}/h2migration"
+  fi
+  curl -v --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
+    "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.2-01.jar"
+
+  # run migration
+  java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
+    -jar "${MIGRATION_HELPER_JAR}" --yes --migration_type=h2
+
+  # move migration artifact to final location
+  mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
+  echo "nexus.datastore.enabled=true" >>${NEXUS_DATA_DIR}/etc/nexus.properties
+
+  # finally remove migration file from volume
+  rm "${MIGRATION_FILE}"
+  rmdir "${NEXUS_DATA_DIR}/h2migration"
 fi
