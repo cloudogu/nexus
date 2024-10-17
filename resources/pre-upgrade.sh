@@ -6,7 +6,7 @@ set -o nounset
 set -o pipefail
 
 NEXUS_DATA_DIR=/var/lib/nexus
-MIGRATION_FILE_NAME="${NEXUS_DATA_DIR}/orient_backup.zip"
+MIGRATION_FILE_NAME="opt/sonatype/nexus/orient_backup.bak"
 MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/migration_helper.jar"
 
 FROM_VERSION="${1}"
