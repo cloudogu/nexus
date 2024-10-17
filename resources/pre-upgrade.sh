@@ -133,11 +133,13 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   echo "killing nexus"
   kill -TERM ${NEXUS_PID} || true
   echo "waiting for kill"
-  waitForProcessKill "${NEXUS_PID}"
+  # waitForProcessKill "${NEXUS_PID}"
+  sleep 30
   echo "done waiting for kill"
   NEXUS_CARP_PID=$(ps | grep 'nexus-carp'| grep -v "grep" | awk '{print $1}')
   kill -TERM ${NEXUS_CARP_PID} || true
-  waitForProcessKill "${NEXUS_CARP_PID}"
+  # waitForProcessKill "${NEXUS_CARP_PID}"
+  sleep 30
 
   # download migration helper
   if [ ! -d "${NEXUS_DATA_DIR}/h2migration" ]; then
