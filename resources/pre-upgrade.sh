@@ -120,7 +120,6 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   # nexus cannot be running when database migration takes place
   # nexus process is not named nexus, but is the only running java process
   echo "getting nexus pid"
-  sleep 1000
   NEXUS_PID=$(ps | grep 'java'| grep -v "grep" | awk '{print $1}')
   echo "${NEXUS_PID}"
   echo "killing nexus"
