@@ -62,9 +62,13 @@ if [ -e "${MIGRATION_FILE}" ]; then
 
   # nexus cannot be running when database migration takes place
   # nexus process is not named nexus, but is the only running java process
+  echo "getting nexus pid"
   NEXUS_PID=$(ps | grep 'java'| grep -v "grep" | awk '{print $1}')
+  echo "killing nexus"
   kill -TERM ${NEXUS_PID} || true
+  echo "waiting for kill"
   wait "${NEXUS_PID}" || true
+  echo "done waiting for kill"
   NEXUS_CARP_PID=$(ps | grep 'nexus-carp'| grep -v "grep" | awk '{print $1}')
   kill -TERM ${NEXUS_CARP_PID} || true
   wait "${NEXUS_CARP_PID}" || true
