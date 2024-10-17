@@ -118,7 +118,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
     "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${MIGRATION_FILE_NAME}"
 
   # nexus cannot be running when database migration takes place
-  nexus process is not named nexus, but is the only running java process
+  # nexus process is not named nexus, but is the only running java process
   echo "getting nexus pid"
   sleep 1000
   NEXUS_PID=$(ps | grep 'java'| grep -v "grep" | awk '{print $1}')
