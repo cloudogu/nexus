@@ -104,6 +104,14 @@ is_valid_version() {
   fi
 }
 
+waitForProcessKill() {
+  local PID=$1
+  while [ -e "/proc/${PID}" ]
+  do
+      sleep .6
+  done
+}
+
 if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqualThanY "${TO_VERSION}" "3.70.2-3"; then
   echo "Upgrading to ${TO_VERSION} requires a database migration. Starting migration to H2 database now"
   # check ram size, upgrade needs at least 16GB
@@ -150,11 +158,3 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   rm "${MIGRATION_FILE}"
   rmdir "${NEXUS_DATA_DIR}/h2migration"
 fi
-
-waitForProcessKill() {
-  local PID=$1
-  while [ -e "/proc/${PID}" ]
-  do
-      sleep .6
-  done
-}
