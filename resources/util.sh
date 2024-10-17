@@ -210,10 +210,10 @@ function waitForHealthEndpointAtSubsequentStart() {
 
 function terminateNexusAndNexusCarp() {
   echo "kill nexus"
-  kill -9 "$NEXUS_PID" || true
+  kill -TERM "$NEXUS_PID" || true
   wait "$NEXUS_PID" || true
   echo "kill nexus-carp"
-  kill -9 "$NEXUS_CARP_PID" || true
+  kill -TERM "$NEXUS_CARP_PID" || true
   wait "$NEXUS_CARP_PID" || true
   echo "Nexus shut down gracefully"
   exit 1

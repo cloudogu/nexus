@@ -131,13 +131,13 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   NEXUS_PID=$(ps | grep 'java'| grep -v "grep" | awk '{print $1}')
   echo "${NEXUS_PID}"
   echo "killing nexus"
-  kill -TERM ${NEXUS_PID} || true
+  kill -9 ${NEXUS_PID} || true
   echo "waiting for kill"
   # waitForProcessKill "${NEXUS_PID}"
   sleep 30
   echo "done waiting for kill"
   NEXUS_CARP_PID=$(ps | grep 'nexus-carp'| grep -v "grep" | awk '{print $1}')
-  kill -TERM ${NEXUS_CARP_PID} || true
+  kill -9 ${NEXUS_CARP_PID} || true
   # waitForProcessKill "${NEXUS_CARP_PID}"
   sleep 30
 
