@@ -60,11 +60,10 @@ setNexusProperties
 if [ -e "${MIGRATION_FILE}" ]; then
   echo "Performing database migration from OrientDB to H2"
   # nexus cannot be running when database migration takes place
-
-  # kill -TERM $(ps -ef | grep 'ABCD' | grep -v 'grep' | awk '{ printf $2 }') || true
-  # wait "$NEXUS_PID" || true
-  # kill -TERM $(ps -ef | grep 'ABCD' | grep -v 'grep' | awk '{ printf $2 }') || true
-  # wait "$NEXUS_CARP_PID" || true
+  NEXUS_PID=$(ls /tmp/hsperfdata_nexus)
+  echo ${NEXUS_PID}
+  kill -TERM $(ps -ef | grep "${NEXUS_PID}" | grep -v 'grep' | awk '{ printf $2 }') || true
+  wait "${NEXUS_PID}" || true
 
   # download migration helper
   if [ ! -d "${NEXUS_DATA_DIR}/h2migration" ]; then
