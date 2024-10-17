@@ -7,11 +7,11 @@ set -o pipefail
 
 NEXUS_DATA_DIR=/var/lib/nexus
 MIGRATION_FILE_NAME="${NEXUS_DATA_DIR}/db/orient_backup.zip"
+MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/h2migration/migration_helper.jar"
 
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
 echo "Executing pre upgrade"
-echo "${FROM_VERSION} to ${TO_VERSION}"
 
 if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
     touch "${NEXUS_DATA_DIR}"/migration

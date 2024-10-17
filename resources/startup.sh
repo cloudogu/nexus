@@ -33,7 +33,6 @@ CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 MIGRATION_FILE="${NEXUS_DATA_DIR}/db/orient_backup.zip"
-MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/h2migration/migration_helper.jar"
 
 ### backup
 if [ -e "${NEXUS_DATA_DIR}"/migration ]; then
