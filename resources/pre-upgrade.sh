@@ -5,6 +5,9 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# shellcheck disable=SC1091
+source /util.sh
+
 NEXUS_DATA_DIR=/var/lib/nexus
 MIGRATION_FILE_NAME="opt/sonatype/nexus/orient_backup.bak"
 MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/migration_helper.jar"
@@ -126,14 +129,14 @@ backupDatabase() {
              config.setEnabled(true)
              config.setName(\"DatabaseBackup\")
              config.setString(\"location\", \"var/lib/nexus\")
-
+             config.setString(\"url\", \"var/lib/nexus\")
              TaskSupport task = new TaskSupport(true)
              task.configure(config)
              task.call()
          }
 
          createBackupOrientDBTask()"
-  echo ${skript} > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+  echo ${skript} >> "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
 }
 
 if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqualThanY "${TO_VERSION}" "3.70.2-3"; then
@@ -147,7 +150,10 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
 
   backupDatabase
   nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
+  NEXUS_URL="http://localhost:8081/nexus"
+  NEXUS_USER="${ADMINUSER}"
   echo ${nexusPassword}
+  echo "${NEXUS_USER}"
   NEXUS_PASSWORD="${nexusPassword}" \
     nexus-scripting execute \
     "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
