@@ -116,27 +116,25 @@ waitForProcessKill() {
 }
 
 backupDatabase() {
-  skript="import org.sonatype.nexus.scheduling.TaskConfiguration
-         import org.sonatype.nexus.scheduling.TaskSupport
+  echo '"import org.sonatype.nexus.scheduling.TaskConfiguration
+import org.sonatype.nexus.scheduling.TaskSupport
 
-         def createBackupOrientDBTask() {
-             def taskScheduler = container.lookup(TaskScheduler.class.getName())
+def createBackupOrientDBTask() {
+    def taskScheduler = container.lookup(TaskScheduler.class.getName())
 
-             def existingTasks = taskScheduler.listsTasks().findAll { it.getTypeId() == configurationParameters.type && it.getName() == configurationParameters.name }
-             existingTasks.collect { it.remove() }
+    def existingTasks = taskScheduler.listsTasks().findAll { it.getTypeId() == configurationParameters.type && it.getName() == configurationParameters.name }
+    existingTasks.collect { it.remove() }
 
-             TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(\"db.backup\")
-             config.setEnabled(true)
-             config.setName(\"DatabaseBackup\")
-             config.setString(\"location\", \"var/lib/nexus\")
-             config.setString(\"url\", \"var/lib/nexus\")
-             TaskSupport task = new TaskSupport(true)
-             task.configure(config)
-             task.call()
-         }
+    TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(\"db.backup\")
+    config.setEnabled(true)
+    config.setName(\"DatabaseBackup\")
+    config.setString(\"location\", \"var/lib/nexus\")
+    TaskSupport task = new TaskSupport(true)
+    task.configure(config)
+    task.call()
+}
 
-         createBackupOrientDBTask()"
-  echo ${skript} >> "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+createBackupOrientDBTask()"' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
 }
 
 if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqualThanY "${TO_VERSION}" "3.70.2-3"; then
@@ -149,13 +147,15 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   fi
 
   backupDatabase
-  nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
-  NEXUS_URL="http://localhost:8081/nexus"
-  NEXUS_USER="${ADMINUSER}"
-  echo ${nexusPassword}
-  echo "${NEXUS_USER}"
-  NEXUS_PASSWORD="${nexusPassword}" \
-    nexus-scripting execute \
+  cat "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+
+  # export so that nexus-scripting has access to url and user
+  export NEXUS_URL="http://localhost:8081/nexus"
+  export NEXUS_USER="$(doguctl config -e admin_user)"
+  export NEXUS_PASSWORD="$(doguctl config -e admin_pw)"
+
+  nexus-scripting execute \
+    --payload={} \
     "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   while [ ! -e "${NEXUS_WORKDIR}/**/*.bak" ]
   do

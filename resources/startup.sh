@@ -167,7 +167,10 @@ doguctl config -e admin_user "${ADMINUSER}"
 doguctl config -e admin_pw "${ADMINPW}"
 
 echo "starting claim tool"
+echo "${ADMINUSER}" "${ADMINPW}"
 /claim.sh "${ADMINUSER}" "${ADMINPW}"
+echo "${ADMINUSER}" "${ADMINPW}"
+
 
 doguctl state ready
 
