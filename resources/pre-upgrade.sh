@@ -122,9 +122,15 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   fi
 
   # backup orient db
-  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \
-    "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${MIGRATION_FILE_NAME}"
-  sleep 1000
+  # java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \
+  #   "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${MIGRATION_FILE_NAME}"
+  # sleep 1000
+  local nexusPassword
+  nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
+  NEXUS_PASSWORD="${nexusPassword}" \
+    nexus-scripting execute \
+    --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
+    "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
   # nexus cannot be running when database migration takes place
   "${NEXUS_WORKDIR}/bin/nexus" stop
 
