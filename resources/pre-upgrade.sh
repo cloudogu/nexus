@@ -112,6 +112,30 @@ waitForProcessKill() {
   done
 }
 
+backupDatabase() {
+  skript="import org.sonatype.nexus.scheduling.TaskConfiguration
+         import org.sonatype.nexus.scheduling.TaskSupport
+
+         def createBackupOrientDBTask() {
+             def taskScheduler = container.lookup(TaskScheduler.class.getName())
+
+             def existingTasks = taskScheduler.listsTasks().findAll { it.getTypeId() == configurationParameters.type && it.getName() == configurationParameters.name }
+             existingTasks.collect { it.remove() }
+
+             TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(\"db.backup\")
+             config.setEnabled(true)
+             config.setName(\"DatabaseBackup\")
+             config.setString(\"location\", \"var/lib/nexus\")
+
+             TaskSupport task = new TaskSupport(true)
+             task.configure(config)
+             task.call()
+         }
+
+         createBackupOrientDBTask()"
+  echo ${skript} > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+}
+
 if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqualThanY "${TO_VERSION}" "3.70.2-3"; then
   echo "Upgrading to ${TO_VERSION} requires a database migration. Starting migration to H2 database now"
   # check ram size, upgrade needs at least 16GB
@@ -121,16 +145,11 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
     exit 2
   fi
 
-  # backup orient db
-  # java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \
-  #   "connect plocal:${NEXUS_DATA_DIR}/db/component admin admin; BACKUP DATABASE ${MIGRATION_FILE_NAME}"
-  echo "startNexus"
-  sleep 1000
+  backupDatabase
   nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
   echo ${nexusPassword}
   NEXUS_PASSWORD="${nexusPassword}" \
     nexus-scripting execute \
-    --file-payload "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBParameters.json" \
     "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   while [ ! -e "${NEXUS_WORKDIR}/**/*.bak" ]
   do
