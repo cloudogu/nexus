@@ -1,7 +1,7 @@
 {
   "name": "backup-orient-db-for-migration",
   "notes": "Backs up the existing OrientDB to perform migration to H2",
-  "location": "var/lib/nexus",
+  "location": "",
   "enabled": "true",
   "type": "db.backup"
 }

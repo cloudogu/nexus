@@ -116,8 +116,11 @@ waitForProcessKill() {
 }
 
 backupDatabase() {
-  echo '"import org.sonatype.nexus.scheduling.TaskConfiguration
+  echo 'import groovy.json.JsonSlurper
+import org.sonatype.nexus.scheduling.TaskConfiguration
 import org.sonatype.nexus.scheduling.TaskSupport
+
+def configurationParameters = new JsonSlurper().parseText(args)
 
 def createBackupOrientDBTask() {
     def taskScheduler = container.lookup(TaskScheduler.class.getName())
@@ -125,16 +128,50 @@ def createBackupOrientDBTask() {
     def existingTasks = taskScheduler.listsTasks().findAll { it.getTypeId() == configurationParameters.type && it.getName() == configurationParameters.name }
     existingTasks.collect { it.remove() }
 
-    TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(\"db.backup\")
-    config.setEnabled(true)
-    config.setName(\"DatabaseBackup\")
-    config.setString(\"location\", \"var/lib/nexus\")
+    TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(configurationParameters.type)
+    config.setEnabled(configurationParameters.enabled)
+    config.setName(configurationParameters.name)
+    config.setString(\"location\", configurationParameters.location)
+
     TaskSupport task = new TaskSupport(true)
     task.configure(config)
     task.call()
 }
 
-createBackupOrientDBTask()"' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+createBackupOrientDBTask()' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+echo '{
+        "name": "backup-orient-db-for-migration2",
+        "notes": "Backs up the existing OrientDB to perform migration to H2",
+        "location": "",
+        "enabled": "true",
+        "type": "db.backup",
+        "content": "import groovy.json.JsonSlurper
+                    import org.sonatype.nexus.scheduling.TaskConfiguration
+                    import org.sonatype.nexus.scheduling.TaskSupport
+
+                    def configurationParameters = new JsonSlurper().parseText(args)
+
+                    def createBackupOrientDBTask() {
+                        def taskScheduler = container.lookup(TaskScheduler.class.getName())
+                        def existingTasks = taskScheduler.listsTasks().findAll { it.getTypeId() == configurationParameters.type && it.getName() == configurationParameters.name }
+                        existingTasks.collect { it.remove() }
+                        TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(configurationParameters.type)
+                        config.setEnabled(configurationParameters.enabled)
+                        config.setName(configurationParameters.name)
+                        config.setString(\"location\", configurationParameters.location)
+                        TaskSupport task = new TaskSupport(true)
+                        task.configure(config)
+                        task.call()
+                    }
+                    createBackupOrientDBTask()"
+      }' >  "${NEXUS_WORKDIR}/resources/completeBackupJSON.json"
+echo '{
+        "name": "backup-orient-db-for-migration",
+        "notes": "Backs up the existing OrientDB to perform migration to H2",
+        "location": "",
+        "enabled": "true",
+        "type": "db.backup"
+      }' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTaskParameters.json"
 }
 
 if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqualThanY "${TO_VERSION}" "3.70.2-3"; then
@@ -154,10 +191,14 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   export NEXUS_USER="$(doguctl config -e admin_user)"
   export NEXUS_PASSWORD="$(doguctl config -e admin_pw)"
 
-  nexus-scripting execute \
-    --payload={} \
-    "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
-  while [ ! -e "${NEXUS_WORKDIR}/**/*.bak" ]
+  curl -v -u "${NEXUS_USER}:${NEXUS_PASSWORD}" -X POST --header 'Content-Type: application/json' \
+   http://localhost:8081/nexus/service/rest/v1/script \
+   -d "@${NEXUS_WORKDIR}/resources/completeBackupJSON.json"
+
+  # nexus-scripting execute \
+  #   --file-payload="${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTaskParameters.json" \
+  #   "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+  while [ ! -e "/*.bak" ]
   do
       sleep .6
   done
