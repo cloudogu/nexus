@@ -116,61 +116,20 @@ waitForProcessKill() {
 }
 
 backupDatabase() {
-  echo 'import groovy.json.JsonSlurper
-import org.sonatype.nexus.scheduling.TaskConfiguration
-import org.sonatype.nexus.scheduling.TaskSupport
-
-def configurationParameters = new JsonSlurper().parseText(args)
-
-def createBackupOrientDBTask() {
-    def taskScheduler = container.lookup(TaskScheduler.class.getName())
-
-    def existingTasks = taskScheduler.listsTasks().findAll { it.getTypeId() == configurationParameters.type && it.getName() == configurationParameters.name }
-    existingTasks.collect { it.remove() }
-
-    TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(configurationParameters.type)
-    config.setEnabled(configurationParameters.enabled)
-    config.setName(configurationParameters.name)
-    config.setString(\"location\", configurationParameters.location)
-
-    TaskSupport task = new TaskSupport(true)
-    task.configure(config)
-    task.call()
-}
-
-createBackupOrientDBTask()' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+  echo "import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskSupport; def taskScheduler = container.lookup(TaskScheduler.class.getName()); def youSaid = args; return 'Hello. You said: ' + youSaid;" > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
 echo '{
-        "name": "backup-orient-db-for-migration14",
+        "name": "backup-orient-db-for-migration24",
         "notes": "Backs up the existing OrientDB to perform migration to H2",
         "location": "",
         "enabled": "true",
-        "type": "blobstore.compact",
-        "content": "import groovy.json.JsonSlurper
-                    import org.sonatype.nexus.scheduling.TaskConfiguration
-                    import org.sonatype.nexus.scheduling.TaskSupport
-
-                    def configurationParameters = new JsonSlurper().parseText(args)
-
-                    def createBackupOrientDBTask() {
-                        def taskScheduler = container.lookup(TaskScheduler.class.getName())
-                        def existingTasks = taskScheduler.listsTasks().findAll { it.getTypeId() == configurationParameters.type && it.getName() == configurationParameters.name }
-                        existingTasks.collect { it.remove() }
-                        TaskConfiguration config = taskScheduler.createTaskConfigurationInstance(configurationParameters.type)
-                        config.setEnabled(configurationParameters.enabled)
-                        config.setName(configurationParameters.name)
-                        config.setString(\"location\", configurationParameters.location)
-                        TaskSupport task = new TaskSupport(true)
-                        task.configure(config)
-                        task.call()
-                    }
-                    createBackupOrientDBTask()"
+        "type": "groovy",
+        "content": "log.info(\"Hello, World!\")"
       }' >  "${NEXUS_WORKDIR}/resources/completeBackupJSON.json"
 echo '{
         "name": "backup-orient-db-for-migration3",
         "notes": "Backs up the existing OrientDB to perform migration to H2",
-        "location": "",
         "enabled": "true",
-        "type": "db.backup"
+        "type": "groovy"
       }' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTaskParameters.json"
 }
 
@@ -192,14 +151,15 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   export NEXUS_USER="$(doguctl config -e admin_user)"
   export NEXUS_PASSWORD="$(doguctl config -e admin_pw)"
 
+
   waitForHealthEndpoint "${NEXUS_USER}" "${NEXUS_PASSWORD}"
 
-  curl -v -u "${NEXUS_USER}:${NEXUS_PASSWORD}" -X POST --header 'Content-Type: application/json' \
-  http://localhost:8081/nexus/service/rest/v1/script \
-  -d "@${NEXUS_WORKDIR}/resources/completeBackupJSON.json"
+  # curl -v -u "${NEXUS_USER}:${NEXUS_PASSWORD}" -X POST --header 'Content-Type: application/json' \
+  # http://localhost:8081/nexus/service/rest/v1/script \
+  # -d "@${NEXUS_WORKDIR}/resources/completeBackupJSON.json"
 
-  curl -v -u "${NEXUS_USER}:${NEXUS_PASSWORD}" -X POST --header 'Content-Type: text/plain' \
-   "http://localhost:8081/nexus/service/rest/v1/script/backup-orient-db-for-migration14/run"
+  # curl -v -u "${NEXUS_USER}:${NEXUS_PASSWORD}" -X POST --header 'Content-Type: text/plain' \
+  #  "http://localhost:8081/nexus/service/rest/v1/script/backup-orient-db-for-migration24/run"
 
   # NEXUS_PASSWORD="${NEXUS_PASSWORD}" \
   #   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
@@ -208,14 +168,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   # doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
   #   "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
-  # echo "Executing nexusConfigurationSubsequentStart script"
-  # NEXUS_PASSWORD="${NEXUS_PASSWORD}" \
-  #   nexus-scripting execute \
-  #   --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
-  #   "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
-
-  # NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute \
-  #   --file-payload "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTaskParameters.json" "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+  NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTaskParameters.json" "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   while [ ! -e "/*.bak" ]
   do
       sleep .6
