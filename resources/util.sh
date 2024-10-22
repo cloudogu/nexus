@@ -152,7 +152,7 @@ function waitForFile() {
 }
 
 function startNexus() {
-  sudo "${NEXUS_WORKDIR}/bin/nexus" run &
+  "${NEXUS_WORKDIR}/bin/nexus" run &
   NEXUS_PID=$!
 }
 

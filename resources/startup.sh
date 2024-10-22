@@ -55,45 +55,6 @@ setNexusVmoptionsAndProperties
 echo "Setting nexus.properties..."
 setNexusProperties
 
-# database migration from OrientDB to H2
-# if [ -e "${MIGRATION_FILE}" ]; then
-#   echo "Performing database migration from OrientDB to H2"
-#
-#   # nexus cannot be running when database migration takes place
-#   # nexus process is not named nexus, but is the only running java process
-#   # echo "getting nexus pid"
-#   # sleep 1000
-#   # NEXUS_PID=$(ps | grep 'java'| grep -v "grep" | awk '{print $1}')
-#   # echo "${NEXUS_PID}"
-#   # echo "killing nexus"
-#   # kill -TERM ${NEXUS_PID} || true
-#   # echo "waiting for kill"
-#   # wait "${NEXUS_PID}" || true
-#   # echo "done waiting for kill"
-#   # NEXUS_CARP_PID=$(ps | grep 'nexus-carp'| grep -v "grep" | awk '{print $1}')
-#   # kill -TERM ${NEXUS_CARP_PID} || true
-#   # wait "${NEXUS_CARP_PID}" || true
-#
-#   # download migration helper
-#   if [ ! -d "${NEXUS_DATA_DIR}/h2migration" ]; then
-#     mkdir "${NEXUS_DATA_DIR}/h2migration"
-#   fi
-#   curl -v --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
-#     "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-$(printenv "NEXUS_DB_MIGRATOR_VERSION").jar"
-#
-#   # run migration
-#   java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
-#     -jar "${MIGRATION_HELPER_JAR}" --yes --migration_type=h2
-#
-#   # move migration artifact to final location
-#   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
-#   echo "nexus.datastore.enabled=true" >>${NEXUS_DATA_DIR}/etc/nexus.properties
-#
-#   # finally remove migration file from volume
-#   rm "${MIGRATION_FILE}"
-#   rmdir "${NEXUS_DATA_DIR}/h2migration"
-# fi
-
 if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl state installing
 
@@ -122,10 +83,9 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
 
   doguctl config successfulInitialConfiguration true
 else
-  echo "we are in else"
   # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
-  removeLastTemporaryAdminUser
-  createTemporaryAdminUser
+  # removeLastTemporaryAdminUser
+  # createTemporaryAdminUser
 
   echo "Starting Nexus..."
   startNexus
