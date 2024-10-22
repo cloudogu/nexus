@@ -116,8 +116,8 @@ waitForProcessKill() {
 }
 
 backupDatabase() {
-  echo "import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskSupport; def taskScheduler = container.lookup(TaskScheduler.class.getName()); def youSaid = args; return 'Hello. You said: ' + youSaid;" > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
-echo '{
+  echo 'import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskScheduler; def taskScheduler = container.lookup(TaskScheduler.class.getName()); TaskConfiguration config = taskScheduler.createTaskConfigurationInstance("db.backup"); config.setEnabled(true); config.setName("orientDatabaseBackup"); config.setString("location", "/var/lib/nexus"); taskScheduler.submit(config); def youSaid = args; return "Hello. You said: " + youSaid;' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+  echo '{
         "name": "backup-orient-db-for-migration24",
         "notes": "Backs up the existing OrientDB to perform migration to H2",
         "location": "",
@@ -125,7 +125,7 @@ echo '{
         "type": "groovy",
         "content": "log.info(\"Hello, World!\")"
       }' >  "${NEXUS_WORKDIR}/resources/completeBackupJSON.json"
-echo '{
+  echo '{
         "name": "backup-orient-db-for-migration3",
         "notes": "Backs up the existing OrientDB to perform migration to H2",
         "enabled": "true",
@@ -168,7 +168,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   # doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
   #   "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
-  NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTaskParameters.json" "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+  NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   while [ ! -e "/*.bak" ]
   do
       sleep .6
