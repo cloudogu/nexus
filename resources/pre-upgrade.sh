@@ -141,7 +141,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
 
   # run migration
   java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
-    -jar "${MIGRATION_HELPER_JAR}" --yes --migration_type=h2
+    -jar "${MIGRATION_HELPER_JAR}" --yes --content_migration=true --migration_type=h2
 
   # move migration artifact to final location
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
