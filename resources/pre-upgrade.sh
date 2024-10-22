@@ -124,7 +124,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
 
   NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="$(doguctl config -e admin_user)" NEXUS_PASSWORD="$(doguctl config -e admin_pw)" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   # wait for backup files to appear
-  while [ ! -f "${NEXUS_WORK_DIR}/analytics-*.bak" && ! -f "${NEXUS_WORK_DIR}/component-*.bak" && ! -f "${NEXUS_WORK_DIR}/config-*.bak" && ! -f "${NEXUS_WORK_DIR}/security-*.bak"]
+  while [ ! -f "${NEXUS_WORK_DIR}/analytics-*.bak" && ! -f "${NEXUS_WORK_DIR}/component-*.bak" && ! -f "${NEXUS_WORK_DIR}/config-*.bak" && ! -f "${NEXUS_WORK_DIR}/security-*.bak" ]
   do
       sleep .6
   done
