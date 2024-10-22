@@ -273,8 +273,8 @@ function createTemporaryAdminUser() {
   sql "INSERT INTO user_role_mapping (userId, source, roles) VALUES ('${ADMINUSER}', 'default', 'nx-admin')"
   doguctl config last_tmp_admin "${ADMINUSER}"
   doguctl config last_tmp_admin_pw "${ADMINPW}"
-  echo "${doguctl config -e last_tmp_admin_pw}"
-  echo "${doguctl config last_tmp_admin_pw}"
+  echo "$(doguctl config -e last_tmp_admin_pw)"
+  echo "$(doguctl config last_tmp_admin_pw)"
 }
 
 function removeLastTemporaryAdminUser() {
