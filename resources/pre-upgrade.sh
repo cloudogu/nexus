@@ -108,6 +108,7 @@ is_valid_version() {
 }
 
 writeDatabaseBackupScriptToFile() {
+  export BACKUP_TASK_NAME="orientDatabaseBackup"
   echo 'import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskScheduler; def taskScheduler = container.lookup(TaskScheduler.class.getName()); TaskConfiguration config = taskScheduler.createTaskConfigurationInstance("db.backup"); config.setEnabled(true); config.setName("orientDatabaseBackup"); config.setString("location", "/opt/sonatype/nexus"); taskScheduler.submit(config); def youSaid = args; return "Hello. You said: " + youSaid;' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
 }
 
@@ -119,16 +120,18 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
     echo "Not enough RAM for update. Exiting"
     exit 2
   fi
+  NEXUS_USER="$(doguctl config -e admin_user)"
+  NEXUS_PASSWORD="$(doguctl config -e admin_pw)"
 
   writeDatabaseBackupScriptToFile
 
-  NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="$(doguctl config -e admin_user)" NEXUS_PASSWORD="$(doguctl config -e admin_pw)" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+  NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER NEXUS_PASSWORD nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   # wait for backup files to appear
   while [ ! -f "${NEXUS_WORK_DIR}/analytics-*.bak" && ! -f "${NEXUS_WORK_DIR}/component-*.bak" && ! -f "${NEXUS_WORK_DIR}/config-*.bak" && ! -f "${NEXUS_WORK_DIR}/security-*.bak" ]
   do
       sleep .6
   done
-  echo "migration files created"
+
   # nexus cannot be running when database migration takes place
   "${NEXUS_WORKDIR}/bin/nexus" stop
 
@@ -142,9 +145,11 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
 
   # move migration artifact to final location
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
-  echo "nexus.datastore.enabled=true" >>${NEXUS_DATA_DIR}/etc/nexus.properties
+  echo "nexus.datastore.enabled=true" >> "${NEXUS_DATA_DIR}/etc/nexus.properties"
 
-  # finally remove migration file from volume
-  rm "${MIGRATION_FILE}"
-  rmdir "${NEXUS_DATA_DIR}/h2migration"
+  # remove backup task
+  curl -v -X DELETE -u "${NEXUS_USER}:${NEXUS_PASSWORD}"  "http://localhost:8081/nexus/service/rest/v1/script/${BACKUP_TASK_NAME}"
+
+  # finally remove backup files from volume
+  rm "${NEXUS_WORK_DIR}/*.bak"
 fi
