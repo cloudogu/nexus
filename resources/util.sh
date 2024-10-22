@@ -78,6 +78,7 @@ function setNexusProperties() {
   mkdir -p ${NEXUS_DATA_DIR}/etc
   cat <<EOF >${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
+  nexus.datastore.enabled=true
 EOF
 
   echo "Checking if repository sandboxing should be enabled..."
