@@ -9,6 +9,7 @@ set -o pipefail
 source /util.sh
 
 NEXUS_DATA_DIR=/var/lib/nexus
+NEXUS_WORK_DIR=/opt/sonatype/nexus
 MIGRATION_FILE_NAME="opt/sonatype/nexus/orient_backup.bak"
 MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/migration_helper.jar"
 
@@ -107,7 +108,7 @@ is_valid_version() {
 }
 
 writeDatabaseBackupScriptToFile() {
-  echo 'import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskScheduler; def taskScheduler = container.lookup(TaskScheduler.class.getName()); TaskConfiguration config = taskScheduler.createTaskConfigurationInstance("db.backup"); config.setEnabled(true); config.setName("orientDatabaseBackup"); config.setString("location", "/var/lib/nexus"); taskScheduler.submit(config); def youSaid = args; return "Hello. You said: " + youSaid;' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+  echo 'import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskScheduler; def taskScheduler = container.lookup(TaskScheduler.class.getName()); TaskConfiguration config = taskScheduler.createTaskConfigurationInstance("db.backup"); config.setEnabled(true); config.setName("orientDatabaseBackup"); config.setString("location", "/opt/sonatype/nexus"); taskScheduler.submit(config); def youSaid = args; return "Hello. You said: " + youSaid;' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
 }
 
 if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqualThanY "${TO_VERSION}" "3.70.2-3"; then
@@ -123,7 +124,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
 
   NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="$(doguctl config -e admin_user)" NEXUS_PASSWORD="$(doguctl config -e admin_pw)" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   # wait for backup files to appear
-  while [ ! -f "${NEXUS_DATA_DIR}/analytics-*.bak" && ! -f "${NEXUS_DATA_DIR}/component-*.bak" && ! -f "${NEXUS_DATA_DIR}/config-*.bak" && ! -f "${NEXUS_DATA_DIR}/security-*.bak"]
+  while [ ! -f "${NEXUS_WORK_DIR}/analytics-*.bak" && ! -f "${NEXUS_WORK_DIR}/component-*.bak" && ! -f "${NEXUS_WORK_DIR}/config-*.bak" && ! -f "${NEXUS_WORK_DIR}/security-*.bak"]
   do
       sleep .6
   done
