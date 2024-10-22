@@ -125,7 +125,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
 
   writeDatabaseBackupScriptToFile
 
-  NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER NEXUS_PASSWORD nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
+  NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="${NEXUS_USER}" NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   # wait for backup files to appear
   while [ ! -f "${NEXUS_WORK_DIR}/analytics-*.bak" && ! -f "${NEXUS_WORK_DIR}/component-*.bak" && ! -f "${NEXUS_WORK_DIR}/config-*.bak" && ! -f "${NEXUS_WORK_DIR}/security-*.bak" ]
   do
@@ -147,9 +147,5 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
   echo "nexus.datastore.enabled=true" >> "${NEXUS_DATA_DIR}/etc/nexus.properties"
 
-  # remove backup task
-  curl -v -X DELETE -u "${NEXUS_USER}:${NEXUS_PASSWORD}"  "http://localhost:8081/nexus/service/rest/v1/script/${BACKUP_TASK_NAME}"
-
-  # finally remove backup files from volume
-  rm "${NEXUS_WORK_DIR}/*.bak"
+  echo "Database migration completed. Nexus now runs on the H2 database"
 fi
