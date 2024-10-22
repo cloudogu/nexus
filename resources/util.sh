@@ -134,7 +134,24 @@ function configureNexusAtFirstStart() {
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
     echo "Getting current admin password"
+    echo "$ADMINPW"
+    echo "Rendering nexusConfParameters template"
+    doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
+      "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
 
+    echo "Rendering cleanupPolicies template"
+    doguctl template "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json.tpl" \
+      "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json"
+
+    echo "Rendering compactBlobstore template"
+    doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
+      "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
+
+    echo "Executing nexusConfigurationSubsequentStart script"
+    NEXUS_PASSWORD="${ADMINPW}" \
+      nexus-scripting execute \
+      --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
+      "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
 
   else
     echo "Configuration files do not exist"
@@ -256,6 +273,8 @@ function createTemporaryAdminUser() {
   sql "INSERT INTO user_role_mapping (userId, source, roles) VALUES ('${ADMINUSER}', 'default', 'nx-admin')"
   doguctl config last_tmp_admin "${ADMINUSER}"
   doguctl config last_tmp_admin_pw "${ADMINPW}"
+  echo "${doguctl config -e last_tmp_admin_pw}"
+  echo "${doguctl config last_tmp_admin_pw}"
 }
 
 function removeLastTemporaryAdminUser() {
