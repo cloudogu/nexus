@@ -137,7 +137,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
 
   # download migration helper
   curl --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
-    "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.2-01.jar"
+    "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.3-01.jar"
 
   # run migration
   java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
@@ -146,8 +146,6 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   # move migration artifact to final location
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
   echo "nexus.datastore.enabled=true" >> "${NEXUS_DATA_DIR}/etc/nexus.properties"
-
-  curl -v -u "${NEXUS_USER}:${NEXUS_PASSWORD}" -X POST http://localhost:8081/service/rest/v1/read-only/release
 
   echo "Database migration completed. Nexus now runs on the H2 database"
 fi
