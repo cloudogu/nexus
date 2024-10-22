@@ -147,5 +147,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
   echo "nexus.datastore.enabled=true" >> "${NEXUS_DATA_DIR}/etc/nexus.properties"
 
+  curl -v -u "${NEXUS_USER}:${NEXUS_PASSWORD}" -X POST http://localhost:8081/service/rest/v1/read-only/release
+
   echo "Database migration completed. Nexus now runs on the H2 database"
 fi
