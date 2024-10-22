@@ -145,6 +145,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
 
   # move migration artifact to final location
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
+  chown "nexus:nexus" "${NEXUS_DATA_DIR}/db/nexus.mv.db"
   echo "nexus.datastore.enabled=true" >> "${NEXUS_DATA_DIR}/etc/nexus.properties"
 
   echo "Database migration completed. Nexus now runs on the H2 database"

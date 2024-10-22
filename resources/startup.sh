@@ -84,8 +84,8 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl config successfulInitialConfiguration true
 else
   # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
-  # removeLastTemporaryAdminUser
-  # createTemporaryAdminUser
+  removeLastTemporaryAdminUser
+  createTemporaryAdminUser
 
   echo "Starting Nexus..."
   startNexus
