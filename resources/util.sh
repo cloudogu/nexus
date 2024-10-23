@@ -134,9 +134,10 @@ function configureNexusAtFirstStart() {
 }
 
 function setAdminPasswordAfterDatabaseMigration() {
-  ADMINPW="$(doguctl config -e last_tmp_admin_pw)"
+  ADMINPW="$(doguctl config -e admin_pw)"
   echo "${ADMINPW}"
-  ADMINUSER="admin"
+  ADMINUSER="$(doguctl config -e admin_user)"
+  echo "${ADMINUSER}"
 }
 
 function configureNexusAtSubsequentStart() {
