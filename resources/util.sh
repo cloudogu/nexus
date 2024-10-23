@@ -134,6 +134,7 @@ function configureNexusAtFirstStart() {
 }
 
 function setAdminPasswordAfterDatabaseMigration() {
+  echo "i am failing"
   ADMINPW="$(doguctl config -e migrationUser)"
   echo "${ADMINPW}"
   ADMINUSER="$(doguctl config -e migrationPassword)"
