@@ -92,7 +92,11 @@ else
     waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
 
     echo "Configuring Nexus for subsequent start..."
-    configureNexusAtSubsequentStart
+    configureNexusAfterDatabaseMigration
+
+    # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
+    removeLastTemporaryAdminUser
+    createTemporaryAdminUser
     doguctl config migratedDatabase "migrationFinished"
   else
     # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
