@@ -134,10 +134,9 @@ function configureNexusAtFirstStart() {
 }
 
 function setAdminPasswordAfterDatabaseMigration() {
-  echo "i am failing"
-  ADMINPW="$(doguctl config migrationUser)"
+  ADMINPW="$(doguctl config migrationPassword)"
   echo "${ADMINPW}"
-  ADMINUSER="$(doguctl config migrationPassword)"
+  ADMINUSER="$(doguctl config migrationUser)"
   echo "${ADMINUSER}"
 }
 
@@ -157,7 +156,7 @@ function configureNexusAtSubsequentStart() {
     doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
     echo "Executing nexusConfigurationSubsequentStart script"
-    NEXUS_PASSWORD="${ADMINPW}" \
+    NEXUS_PASSWORD="${ADMINPW}" NEXUS_USER="${ADMINUSER}" \
       nexus-scripting execute \
       --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
       "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
