@@ -94,8 +94,8 @@ else
     configureNexusAfterDatabaseMigration
 
     # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
-    removeLastTemporaryAdminUser
-    createTemporaryAdminUser
+    # removeLastTemporaryAdminUser
+    # createTemporaryAdminUser
     doguctl config migratedDatabase "migrationFinished"
   else
     # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.

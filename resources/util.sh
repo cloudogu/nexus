@@ -164,6 +164,7 @@ function configureNexusAfterDatabaseMigration() {
   ADMINPW="$(doguctl config migrationPassword)"
   echo "${ADMINPW}"
   ADMINUSER="$(doguctl config migrationUser)"
+  NEXUS_USER="${ADMINUSER}"
   echo "${ADMINUSER}"
 
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
