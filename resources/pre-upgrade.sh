@@ -149,6 +149,6 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   echo "nexus.datastore.enabled=true" >> "${NEXUS_DATA_DIR}/etc/nexus.properties"
 
   # set initial configuration to false, as nexus needs to be reconfigured after the update
-  doguctl config successfulInitialConfiguration false
+  doguctl config migratedDatabase true
   echo "Database migration completed. Nexus now runs on the H2 database"
 fi

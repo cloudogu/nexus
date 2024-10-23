@@ -83,19 +83,31 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
 
   doguctl config successfulInitialConfiguration true
 else
-  # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
-  removeLastTemporaryAdminUser
-  createTemporaryAdminUser
+  if [[ "$(doguctl config migratedDatabase)" = "true" ]]; then
+    setAdminPasswordAfterDatabaseMigration
+    echo "Starting Nexus..."
+    startNexus
 
-  echo "Starting Nexus..."
-  startNexus
+    echo "Waiting for health endpoint..."
+    waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
 
-  echo "Waiting for health endpoint..."
-  waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
+    echo "Configuring Nexus for subsequent start..."
+    configureNexusAtSubsequentStart
+    doguctl config migratedDatabase "migrationFinished"
+  else
+    # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
+    removeLastTemporaryAdminUser
+    createTemporaryAdminUser
 
-  echo "Configuring Nexus for subsequent start..."
-  configureNexusAtSubsequentStart
+    echo "Starting Nexus..."
+    startNexus
 
+    echo "Waiting for health endpoint..."
+    waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
+
+    echo "Configuring Nexus for subsequent start..."
+    configureNexusAtSubsequentStart
+  fi
 fi
 
 echo "writing admin_group_last to local config"

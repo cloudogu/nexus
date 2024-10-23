@@ -133,6 +133,12 @@ function configureNexusAtFirstStart() {
   fi
 }
 
+function setAdminPasswordAfterDatabaseMigration() {
+  ADMINPW="$(doguctl config -e last_tmp_admin_pw)"
+  echo "${ADMINPW}"
+  ADMINUSER="admin"
+}
+
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
     echo "Getting current admin password"
