@@ -122,6 +122,9 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   fi
   NEXUS_USER="$(doguctl config -e admin_user)"
   NEXUS_PASSWORD="$(doguctl config -e admin_pw)"
+  doguctl config migrationUser "${NEXUS_USER}"
+  doguctl config migrationPassword "${NEXUS_PASSWORD}"
+
   echo "${NEXUS_PASSWORD}" " nexus password before backup is written"
   writeDatabaseBackupScriptToFile
 
