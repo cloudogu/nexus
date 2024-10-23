@@ -133,10 +133,6 @@ function configureNexusAtFirstStart() {
   fi
 }
 
-function setAdminPasswordAfterDatabaseMigration() {
-
-}
-
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
     echo "Getting current admin password"

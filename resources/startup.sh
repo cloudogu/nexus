@@ -84,7 +84,6 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl config successfulInitialConfiguration true
 else
   if [[ "$(doguctl config migratedDatabase)" = "true" ]]; then
-    setAdminPasswordAfterDatabaseMigration
     echo "Starting Nexus..."
     startNexus
 
