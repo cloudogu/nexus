@@ -104,7 +104,8 @@ else
 
     echo "Waiting for health endpoint..."
     waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
-
+    echo "sleeping now"
+    sleep 10000
     echo "Configuring Nexus for subsequent start..."
     configureNexusAtSubsequentStart
   fi
