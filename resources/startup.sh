@@ -124,9 +124,9 @@ NEXUS_PASSWORD="${ADMINPW}" \
 #  NEXUS_PASSWORD="${ADMINPW}" \
 # nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
 
-# echo "apply cleanup blobstore task"
-#  NEXUS_PASSWORD="${ADMINPW}" \
-#  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
+echo "apply cleanup blobstore task"
+ NEXUS_PASSWORD="${ADMINPW}" \
+ nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
 
 
 echo "configuring carp server"
