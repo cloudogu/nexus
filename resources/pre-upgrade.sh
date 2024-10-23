@@ -122,7 +122,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   fi
   NEXUS_USER="$(doguctl config -e admin_user)"
   NEXUS_PASSWORD="$(doguctl config -e admin_pw)"
-
+  echo "${NEXUS_PASSWORD}" " nexus password before backup is written"
   writeDatabaseBackupScriptToFile
 
   NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="${NEXUS_USER}" NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"

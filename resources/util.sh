@@ -100,6 +100,8 @@ function configureNexusAtFirstStart() {
 
     local nexusPassword
     nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
+    echo "${nexusPassword}" "nexus password from file"
+    echo "${ADMINPW}" "new admin password"
 
     echo "Rendering nexusConfParameters template"
     ADMINDEFAULTPASSWORD="${nexusPassword}" \
@@ -147,8 +149,6 @@ function configureNexusAtSubsequentStart() {
     doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
     sleep 1000
-    # ausprobieren wie man an nexus kommt, eventuell mit altem passwort?
-    # eventuell wurde das Passwort in der Datenbank nicht richtig geupdated
     echo "Executing nexusConfigurationSubsequentStart script"
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-scripting execute \
