@@ -146,7 +146,9 @@ function configureNexusAtSubsequentStart() {
     echo "Rendering compactBlobstore template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
-
+    sleep 1000
+    # ausprobieren wie man an nexus kommt, eventuell mit altem passwort?
+    # eventuell wurde das Passwort in der Datenbank nicht richtig geupdated
     echo "Executing nexusConfigurationSubsequentStart script"
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-scripting execute \
