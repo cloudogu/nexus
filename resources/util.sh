@@ -79,8 +79,6 @@ function setNexusProperties() {
   cat <<EOF >${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
   nexus.datastore.enabled=true
-  nexus.h2.httpListenerEnabled=true
-  nexus.h2.httpListenerPort=1234
 EOF
 
   echo "Checking if repository sandboxing should be enabled..."
@@ -102,8 +100,6 @@ function configureNexusAtFirstStart() {
 
     local nexusPassword
     nexusPassword="$(<${NEXUS_DATA_DIR}/admin.password)"
-    echo "${nexusPassword}" "nexus password from file"
-    echo "${ADMINPW}" "new admin password"
 
     echo "Rendering nexusConfParameters template"
     ADMINDEFAULTPASSWORD="${nexusPassword}" \
@@ -137,8 +133,6 @@ function configureNexusAtFirstStart() {
 
 function configureNexusAtSubsequentStart() {
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
-    echo "Getting current admin password"
-    echo "$ADMINPW"
     echo "Rendering nexusConfParameters template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
@@ -160,39 +154,6 @@ function configureNexusAtSubsequentStart() {
     echo "Configuration files do not exist"
     exit 1
   fi
-}
-
-function configureNexusAfterDatabaseMigration() {
-  ADMINPW="$(doguctl config migrationPassword)"
-  echo "${ADMINPW}"
-  ADMINUSER="$(doguctl config migrationUser)"
-  NEXUS_USER="${ADMINUSER}"
-  echo "${ADMINUSER}"
-
-  if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
-      echo "Getting current admin password"
-      echo "$ADMINPW"
-      echo "Rendering nexusConfParameters template"
-      doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
-        "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
-
-      echo "Rendering cleanupPolicies template"
-      doguctl template "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json.tpl" \
-        "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json"
-
-      echo "Rendering compactBlobstore template"
-      doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
-        "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
-      echo "Executing nexusConfigurationSubsequentStart script"
-      NEXUS_PASSWORD="${ADMINPW}" NEXUS_USER="${ADMINUSER}" \
-        nexus-scripting execute \
-        --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
-        "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
-
-    else
-      echo "Configuration files do not exist"
-      exit 1
-    fi
 }
 
 function waitForFile() {
@@ -293,7 +254,7 @@ function validateDoguLogLevel() {
 
 function sql() {
   SQL="${1}"
-  java -cp /opt/sonatype/nexus/system/com/h2database/h2/*/h2*.jar org.h2.tools.Shell -url "jdbc:h2:file:/var/lib/nexus/db/nexus" -sql "${SQL}"
+  java -cp /opt/sonatype/nexus/system/com/h2database/h2/*/h2*.jar org.h2.tools.Shell -url "jdbc:h2:file:/var/lib/nexus/db/nexus" -sql "${SQL}" >> /dev/null
 }
 
 function createPasswordHash() {
@@ -304,9 +265,7 @@ function createPasswordHash() {
 function createTemporaryAdminUser() {
   local hashed
   hashed="$(createPasswordHash "${ADMINPW}")"
-  echo "${hashed}"
   echo "Creating admin user '${ADMINUSER}'"
-  USER_ROLES='["nx-admin"]'
   sql "INSERT INTO security_user (ID, FIRST_NAME, LAST_NAME, PASSWORD, STATUS, EMAIL, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', '${hashed}', 'active', 'dogu-tool-admin@cloudogu.com', 1)"
   sql "INSERT INTO user_role_mapping (USER_ID, USER_LO, SOURCE, ROLES, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', ARRAY['nx-admin'], 1)"
   doguctl config last_tmp_admin "${ADMINUSER}"

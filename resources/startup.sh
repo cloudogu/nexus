@@ -84,27 +84,8 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
 
   doguctl config successfulInitialConfiguration true
 else
-  #if [[ "$(doguctl config migratedDatabase)" = "true" ]]; then
-  #  removeLastTemporaryAdminUser
-  #  createTemporaryAdminUser
-  #  echo "Starting Nexus..."
-  #  startNexus
-#
-  #  echo "Waiting for health endpoint..."
-  #  waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
-#
-  #  echo "Configuring Nexus for subsequent start..."
-  #  configureNexusAfterDatabaseMigration
-#
-  #  # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
-  #  # removeLastTemporaryAdminUser
-  #  # createTemporaryAdminUser
-  #  doguctl config migratedDatabase "migrationFinished"
-  #else
-    # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
     removeLastTemporaryAdminUser
     createTemporaryAdminUser
-    sleep 1000
     echo "Starting Nexus..."
     startNexus
 
@@ -124,8 +105,9 @@ NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "apply cleanup policy"
- NEXUS_PASSWORD="${ADMINPW}" \
-nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
+# cleanup policy seems to be broken with h2 database, see https://github.com/ansible-ThoTeam/nexus3-oss/issues/408#issuecomment-2290776500
+#  NEXUS_PASSWORD="${ADMINPW}" \
+# nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
 
 echo "apply cleanup blobstore task"
  NEXUS_PASSWORD="${ADMINPW}" \
@@ -145,9 +127,7 @@ doguctl config -e admin_user "${ADMINUSER}"
 doguctl config -e admin_pw "${ADMINPW}"
 
 echo "starting claim tool"
-echo "${ADMINUSER}" "${ADMINPW}"
 /claim.sh "${ADMINUSER}" "${ADMINPW}"
-echo "${ADMINUSER}" "${ADMINPW}"
 
 
 doguctl state ready
