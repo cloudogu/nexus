@@ -304,13 +304,13 @@ function createPasswordHash() {
 function createTemporaryAdminUser() {
   local hashed
   hashed="$(createPasswordHash "${ADMINPW}")"
+  echo "${hashed}"
   echo "Creating admin user '${ADMINUSER}'"
-  sql "INSERT INTO user (status, id, firstName, lastName, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'dogu-tool-admin@cloudogu.com', '${hashed}')"
+  sql "INSERT INTO security_user (status, id, firstName, lastName, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'dogu-tool-admin@cloudogu.com', '${hashed}')"
   sql "INSERT INTO user_role_mapping (userId, source, roles) VALUES ('${ADMINUSER}', 'default', 'nx-admin')"
   doguctl config last_tmp_admin "${ADMINUSER}"
   doguctl config last_tmp_admin_pw "${ADMINPW}"
-  echo "$(doguctl config -e last_tmp_admin_pw)"
-  echo "$(doguctl config last_tmp_admin_pw)"
+  sleep 1000
 }
 
 function removeLastTemporaryAdminUser() {
@@ -323,7 +323,7 @@ function removeLastTemporaryAdminUser() {
 
   echo "Removing last tmp admin user '${userid}'"
   sql "DELETE FROM user_role_mapping WHERE userId='${userid}'"
-  sql "DELETE FROM user WHERE id='${userid}'"
+  sql "DELETE FROM security_user WHERE id='${userid}'"
   doguctl config --rm last_tmp_admin
   doguctl config --rm last_tmp_admin_pw
 }
