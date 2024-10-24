@@ -151,7 +151,7 @@ function configureNexusAtSubsequentStart() {
     doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
     echo "Executing nexusConfigurationSubsequentStart script"
-    NEXUS_PASSWORD="${ADMINPW}" NEXUS_USER="${ADMINUSER}" \
+    NEXUS_PASSWORD="${ADMINPW}" \
       nexus-scripting execute \
       --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
       "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
@@ -306,8 +306,8 @@ function createTemporaryAdminUser() {
   hashed="$(createPasswordHash "${ADMINPW}")"
   echo "${hashed}"
   echo "Creating admin user '${ADMINUSER}'"
-  sql "INSERT INTO security_user (status, id, firstName, lastName, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'dogu-tool-admin@cloudogu.com', '${hashed}')"
-  sql "INSERT INTO user_role_mapping (userId, source, roles) VALUES ('${ADMINUSER}', 'default', 'nx-admin')"
+  sql "INSERT INTO security_user (ID, FIRST_NAME, LAST_NAME, PASSWORD, STATUS, EMAIL, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', '${hashed}', 'active', 'dogu-tool-admin@cloudogu.com', 1)"
+  sql "INSERT INTO user_role_mapping (USER_ID, USER_LO, SOURCE, ROLES, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', '[nx-admin]', 1)"
   doguctl config last_tmp_admin "${ADMINUSER}"
   doguctl config last_tmp_admin_pw "${ADMINPW}"
 }
@@ -321,8 +321,8 @@ function removeLastTemporaryAdminUser() {
   fi
 
   echo "Removing last tmp admin user '${userid}'"
-  sql "DELETE FROM user_role_mapping WHERE userId='${userid}'"
-  sql "DELETE FROM security_user WHERE id='${userid}'"
+  sql "DELETE FROM user_role_mapping WHERE USER_ID='${userid}'"
+  sql "DELETE FROM security_user WHERE ID='${userid}'"
   doguctl config --rm last_tmp_admin
   doguctl config --rm last_tmp_admin_pw
 }

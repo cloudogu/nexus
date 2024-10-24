@@ -104,7 +104,7 @@ else
     # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
     removeLastTemporaryAdminUser
     createTemporaryAdminUser
-
+    sleep 1000
     echo "Starting Nexus..."
     startNexus
 
