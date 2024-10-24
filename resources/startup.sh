@@ -84,6 +84,9 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl config successfulInitialConfiguration true
 else
   if [[ "$(doguctl config migratedDatabase)" = "true" ]]; then
+    sleep 1000
+    removeLastTemporaryAdminUser
+    createTemporaryAdminUser
     echo "Starting Nexus..."
     startNexus
 

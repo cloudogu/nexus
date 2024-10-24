@@ -293,7 +293,7 @@ function validateDoguLogLevel() {
 
 function sql() {
   SQL="${1}"
-  java -cp /opt/sonatype/nexus/system/com/h2database/h2/*/h2*.jar org.h2.tools.Shell -url "jdbc:h2:file:/var/lib/nexus/db" -user "admin" -password "password" -sql "${SQL}" > /dev/null
+  java -cp /opt/sonatype/nexus/system/com/h2database/h2/*/h2*.jar org.h2.tools.Shell -url "jdbc:h2:file:/var/lib/nexus/db/nexus" -user "admin" -password "password" -sql "${SQL}" > /dev/null
 }
 
 function createPasswordHash() {
