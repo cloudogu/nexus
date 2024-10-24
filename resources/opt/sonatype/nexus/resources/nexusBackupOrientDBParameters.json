@@ -1,6 +1,0 @@
-{
-  "name": "backup-orient-db-for-migration25",
-  "notes": "Backs up the existing OrientDB to perform migration to H2",
-  "enabled": "true",
-  "type": "groovy"
-}

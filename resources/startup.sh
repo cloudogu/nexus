@@ -84,17 +84,16 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
 
   doguctl config successfulInitialConfiguration true
 else
-    removeLastTemporaryAdminUser
-    createTemporaryAdminUser
-    echo "Starting Nexus..."
-    startNexus
+  removeLastTemporaryAdminUser
+  createTemporaryAdminUser
+  echo "Starting Nexus..."
+  startNexus
 
-    echo "Waiting for health endpoint..."
-    waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
+  echo "Waiting for health endpoint..."
+  waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
 
-    echo "Configuring Nexus for subsequent start..."
-    configureNexusAtSubsequentStart
-  # fi
+  echo "Configuring Nexus for subsequent start..."
+  configureNexusAtSubsequentStart
 fi
 
 echo "writing admin_group_last to local config"

@@ -125,7 +125,6 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   doguctl config migrationUser "${NEXUS_USER}"
   doguctl config migrationPassword "${NEXUS_PASSWORD}"
 
-  echo "${NEXUS_PASSWORD}" " nexus password before backup is written"
   writeDatabaseBackupScriptToFile
 
   NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="${NEXUS_USER}" NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
@@ -148,6 +147,7 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
 
   # move migration artifact to final location
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
+  # give ownership to nexus user, otherwise db cannot be accessed by nexus process
   chown "nexus:nexus" "${NEXUS_DATA_DIR}/db/nexus.mv.db"
   echo "nexus.datastore.enabled=true" >> "${NEXUS_DATA_DIR}/etc/nexus.properties"
 
