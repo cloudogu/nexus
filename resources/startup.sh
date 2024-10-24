@@ -75,6 +75,7 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
 
   echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
+  echo "${ADMINUSER}" "${ADMINPW}"
 
   # Install default docker registry if not prohibited by config key
   if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
@@ -83,24 +84,23 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
 
   doguctl config successfulInitialConfiguration true
 else
-  if [[ "$(doguctl config migratedDatabase)" = "true" ]]; then
-    sleep 1000
-    removeLastTemporaryAdminUser
-    createTemporaryAdminUser
-    echo "Starting Nexus..."
-    startNexus
-
-    echo "Waiting for health endpoint..."
-    waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
-
-    echo "Configuring Nexus for subsequent start..."
-    configureNexusAfterDatabaseMigration
-
-    # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
-    # removeLastTemporaryAdminUser
-    # createTemporaryAdminUser
-    doguctl config migratedDatabase "migrationFinished"
-  else
+  #if [[ "$(doguctl config migratedDatabase)" = "true" ]]; then
+  #  removeLastTemporaryAdminUser
+  #  createTemporaryAdminUser
+  #  echo "Starting Nexus..."
+  #  startNexus
+#
+  #  echo "Waiting for health endpoint..."
+  #  waitForHealthEndpointAtSubsequentStart "${ADMINUSER}"
+#
+  #  echo "Configuring Nexus for subsequent start..."
+  #  configureNexusAfterDatabaseMigration
+#
+  #  # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
+  #  # removeLastTemporaryAdminUser
+  #  # createTemporaryAdminUser
+  #  doguctl config migratedDatabase "migrationFinished"
+  #else
     # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
     removeLastTemporaryAdminUser
     createTemporaryAdminUser
@@ -113,7 +113,7 @@ else
 
     echo "Configuring Nexus for subsequent start..."
     configureNexusAtSubsequentStart
-  fi
+  # fi
 fi
 
 echo "writing admin_group_last to local config"
@@ -123,9 +123,9 @@ echo "importing HTTP/S proxy settings from registry"
 NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
-# echo "apply cleanup policy"
-#  NEXUS_PASSWORD="${ADMINPW}" \
-# nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
+echo "apply cleanup policy"
+ NEXUS_PASSWORD="${ADMINPW}" \
+nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
 
 echo "apply cleanup blobstore task"
  NEXUS_PASSWORD="${ADMINPW}" \
