@@ -79,6 +79,8 @@ function setNexusProperties() {
   cat <<EOF >${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
   nexus.datastore.enabled=true
+  nexus.h2.httpListenerEnabled=true
+  nexus.h2.httpListenerPort=1234
 EOF
 
   echo "Checking if repository sandboxing should be enabled..."
