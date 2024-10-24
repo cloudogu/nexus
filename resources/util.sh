@@ -306,8 +306,9 @@ function createTemporaryAdminUser() {
   hashed="$(createPasswordHash "${ADMINPW}")"
   echo "${hashed}"
   echo "Creating admin user '${ADMINUSER}'"
+  USER_ROLES='["nx-admin"]'
   sql "INSERT INTO security_user (ID, FIRST_NAME, LAST_NAME, PASSWORD, STATUS, EMAIL, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', '${hashed}', 'active', 'dogu-tool-admin@cloudogu.com', 1)"
-  sql "INSERT INTO user_role_mapping (USER_ID, USER_LO, SOURCE, ROLES, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', '[\"nx-admin\"]'}, 1)"
+  sql "INSERT INTO user_role_mapping (USER_ID, USER_LO, SOURCE, ROLES, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', ARRAY['nx-admin'], 1)"
   doguctl config last_tmp_admin "${ADMINUSER}"
   doguctl config last_tmp_admin_pw "${ADMINPW}"
 }
