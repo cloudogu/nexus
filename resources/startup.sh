@@ -96,7 +96,7 @@ fi
 
 if [[ $(doguctl config --default "false" migratedDatabase) == "true" ]]; then
   # remove now unusable backup script
-  curl -u "${ADMINUSER}":"${ADMINPW}" -X DELETE -s http://localhost:8081/nexus/service/rest/v1/script/orientDatabaseBackup
+  curl -u "${ADMINUSER}":"${ADMINPW}" -X DELETE -s http://localhost:8081/nexus/service/rest/v1/script/nexusBackupOrientDBTask
   doguctl config --rm migratedDatabase
 fi
 
