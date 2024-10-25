@@ -9,7 +9,6 @@ set -o pipefail
 source /util.sh
 
 NEXUS_DATA_DIR=/var/lib/nexus
-NEXUS_WORK_DIR=/opt/sonatype/nexus
 MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/migration_helper.jar"
 
 FROM_VERSION="${1}"
@@ -40,7 +39,7 @@ if [[ $FROM_VERSION == "3.70.2-3" ]] && [[ $TO_VERSION == 3.73.0* ]]; then
 
   NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="${NEXUS_USER}" NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   # wait for backup files to appear
-  while [ ! -f "${NEXUS_WORK_DIR}/analytics-*.bak" && ! -f "${NEXUS_WORK_DIR}/component-*.bak" && ! -f "${NEXUS_WORK_DIR}/config-*.bak" && ! -f "${NEXUS_WORK_DIR}/security-*.bak" ]
+  while [! -f "${NEXUS_WORKDIR}/analytics-*.bak"] && [! -f "${NEXUS_WORKDIR}/component-*.bak"] && [! -f "${NEXUS_WORKDIR}/config-*.bak"] && [! -f "${NEXUS_WORKDIR}/security-*.bak"]
   do
       sleep .6
   done
