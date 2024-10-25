@@ -104,13 +104,12 @@ NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "apply cleanup policy"
-# cleanup policy seems to be broken with h2 database, see https://github.com/ansible-ThoTeam/nexus3-oss/issues/408#issuecomment-2290776500
-#  NEXUS_PASSWORD="${ADMINPW}" \
-# nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
+NEXUS_PASSWORD="${ADMINPW}" \
+  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
 
 echo "apply cleanup blobstore task"
- NEXUS_PASSWORD="${ADMINPW}" \
- nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
+NEXUS_PASSWORD="${ADMINPW}" \
+  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
 
 
 echo "configuring carp server"

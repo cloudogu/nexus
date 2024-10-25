@@ -39,18 +39,7 @@ versionXLaterOrEqualThanY() {
     printf '%s\n' "$1" "$2" | sort -c -V
 }
 
-versionXLaterThanY() {
-    ! verlte "$2" "$1"
-}
-
-versionXBetweenYZ() {
-    # args: min, actual, max
-    printf '%s\n' "$@" | sort -c -V
-}
-
-echo "test upgrade notification"
-
-if [[ "${FROM_VERSION}" == 3.70.2* ]] && [[ "${TO_VERSION}" == 3.73.* ]]; then
+if [[ "${FROM_VERSION}" == 3.70.2* ]] && [[ "${TO_VERSION}" == 3.73.0* ]]; then
     printf "%s~~~~Warning~~~~\n"
     printf "%sGoing from Nexus 3.70.2 to 3.73.0 requires a migration of the existing OrientDB to a H2 database\n"
     printf "%sThis migration will be performed automatically by the upgrade script\n"
@@ -59,8 +48,7 @@ if [[ "${FROM_VERSION}" == 3.70.2* ]] && [[ "${TO_VERSION}" == 3.73.* ]]; then
 fi
 
 if ! versionXLaterOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && versionXLaterOrEqualThanY "${TO_VERSION}" "3.73.0-1"; then
-    RED='\033[1;31m'
-    printf "%s~~~~Warning~~~~\n" "${RED}"
+    printf "%s~~~~Warning~~~~\n"
     printf "%sThis update requires a database migration\n"
     printf "%sThe migration can only be performed when going from Nexus Version 3.70.2 to 3.73.0\n"
     printf "%sThe upgrade process will exit now\n"

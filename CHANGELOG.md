@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgrade Nexus to version 3.73.0-03
   - this required a switch from the OrientDB to the H2 DB
   - database migration will be performed automatically
+- Warning: the database migration can only be performed when upgrading from v3.70.2 to v3.73.0
 
 ## [v3.70.2-3] - 2024-09-25
 ### Fixed
