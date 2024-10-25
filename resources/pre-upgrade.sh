@@ -10,12 +10,10 @@ source /util.sh
 
 NEXUS_DATA_DIR=/var/lib/nexus
 NEXUS_WORK_DIR=/opt/sonatype/nexus
-MIGRATION_FILE_NAME="opt/sonatype/nexus/orient_backup.bak"
 MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/migration_helper.jar"
 
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
-echo "Executing pre upgrade"
 
 if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
     touch "${NEXUS_DATA_DIR}"/migration
@@ -59,6 +57,7 @@ if [[ $FROM_VERSION == "3.70.2-3" ]] && [[ $TO_VERSION == 3.73.0* ]]; then
     -jar "${MIGRATION_HELPER_JAR}" --yes --content_migration=true --migration_type=h2
 
   # move migration artifact to final location
+  rm -rf /var/lib/nexus/db/*
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
   # give ownership to nexus user, otherwise db cannot be accessed by nexus process
   chown "nexus:nexus" "${NEXUS_DATA_DIR}/db/nexus.mv.db"
