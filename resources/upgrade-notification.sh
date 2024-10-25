@@ -35,10 +35,15 @@ Most notably, if you are using the CES user management, make sure that the admin
     printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
 fi
 
-versionXLaterOrEqualThanY() {
+versionXEarlierEQY() {
     printf '%s\n' "$1" "$2" | sort -c -V
 }
 
+versionXLaterEQY() {
+  versionXEarlierEQY "$2" "$1"
+}
+
+echo "${FROM_VERSION}" "${TO_VERSION}"
 if [[ "${FROM_VERSION}" == 3.70.2* ]] && [[ "${TO_VERSION}" == 3.73.0* ]]; then
     printf "%s~~~~Warning~~~~\n"
     printf "%sGoing from Nexus 3.70.2 to 3.73.0 requires a migration of the existing OrientDB to a H2 database\n"
@@ -47,9 +52,9 @@ if [[ "${FROM_VERSION}" == 3.70.2* ]] && [[ "${TO_VERSION}" == 3.73.0* ]]; then
     printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
 fi
 
-if ! versionXLaterOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && versionXLaterOrEqualThanY "${TO_VERSION}" "3.73.0-1"; then
+if versionXEarlierEQY "${FROM_VERSION}" "3.68.1-6" && versionXLaterEQY "${TO_VERSION}" "3.73.0-1"; then
     printf "%s~~~~Warning~~~~\n"
-    printf "%sThis update requires a database migration\n"
+    printf "%sThis update requires a database migration!\n"
     printf "%sThe migration can only be performed when going from Nexus Version 3.70.2 to 3.73.0\n"
     printf "%sThe upgrade process will exit now\n"
     printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"

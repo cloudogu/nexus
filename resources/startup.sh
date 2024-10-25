@@ -94,9 +94,10 @@ else
   configureNexusAtSubsequentStart
 fi
 
-if doguctl migratedDatabase >/dev/null; then
+if [[ $(doguctl config --default "false" migratedDatabase) == "true" ]]; then
   # remove now unusable backup script
-  curl -u "${ADMINUSER}":"${ADMINPW}" -X DELETE -s --output /dev/null http://localhost:8081/nexus/service/rest/v1/script/orientDatabaseBackup
+  curl -u "${ADMINUSER}":"${ADMINPW}" -X DELETE -s http://localhost:8081/nexus/service/rest/v1/script/orientDatabaseBackup
+  doguctl config --rm migratedDatabase
 fi
 
 echo "writing admin_group_last to local config"
