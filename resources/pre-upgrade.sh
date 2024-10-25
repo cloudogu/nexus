@@ -107,6 +107,7 @@ is_valid_version() {
   fi
 }
 
+# database backup script needs to be written to a file from string, because it is needed in the old container
 writeDatabaseBackupScriptToFile() {
   export BACKUP_TASK_NAME="orientDatabaseBackup"
   echo 'import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskScheduler; def taskScheduler = container.lookup(TaskScheduler.class.getName()); TaskConfiguration config = taskScheduler.createTaskConfigurationInstance("db.backup"); config.setEnabled(true); config.setName("orientDatabaseBackup"); config.setString("location", "/opt/sonatype/nexus"); taskScheduler.submit(config);' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
@@ -122,8 +123,6 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   fi
   NEXUS_USER="$(doguctl config -e admin_user)"
   NEXUS_PASSWORD="$(doguctl config -e admin_pw)"
-  doguctl config migrationUser "${NEXUS_USER}"
-  doguctl config migrationPassword "${NEXUS_PASSWORD}"
 
   writeDatabaseBackupScriptToFile
 
@@ -149,9 +148,6 @@ if versionXLessOrEqualThanY "${FROM_VERSION}" "3.70.2-3" && ! versionXLessOrEqua
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
   # give ownership to nexus user, otherwise db cannot be accessed by nexus process
   chown "nexus:nexus" "${NEXUS_DATA_DIR}/db/nexus.mv.db"
-  echo "nexus.datastore.enabled=true" >> "${NEXUS_DATA_DIR}/etc/nexus.properties"
 
-  # set initial configuration to false, as nexus needs to be reconfigured after the update
-  doguctl config migratedDatabase true
   echo "Database migration completed. Nexus now runs on the H2 database"
 fi
