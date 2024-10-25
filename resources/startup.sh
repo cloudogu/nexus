@@ -32,7 +32,6 @@ export NEXUS_USER=${ADMINUSER}
 CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
-MIGRATION_FILE="${NEXUS_DATA_DIR}/db/orient_backup.zip"
 
 ### backup
 if [ -e "${NEXUS_DATA_DIR}"/migration ]; then
@@ -75,7 +74,6 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
 
   echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
-  echo "${ADMINUSER}" "${ADMINPW}"
 
   # Install default docker registry if not prohibited by config key
   if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
@@ -126,7 +124,6 @@ doguctl config -e admin_pw "${ADMINPW}"
 
 echo "starting claim tool"
 /claim.sh "${ADMINUSER}" "${ADMINPW}"
-
 
 doguctl state ready
 
