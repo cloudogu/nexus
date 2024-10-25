@@ -36,7 +36,7 @@ Most notably, if you are using the CES user management, make sure that the admin
 fi
 
 versionXLaterOrEqualThanY() {
-    printf '%s\n' "$1" "$2" | sort -C -V
+    printf '%s\n' "$1" "$2" | sort -c -V
 }
 
 versionXLaterThanY() {
@@ -45,7 +45,7 @@ versionXLaterThanY() {
 
 versionXBetweenYZ() {
     # args: min, actual, max
-    printf '%s\n' "$@" | sort -C -V
+    printf '%s\n' "$@" | sort -c -V
 }
 
 echo "test upgrade notification"
