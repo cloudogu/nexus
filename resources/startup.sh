@@ -129,6 +129,7 @@ echo "starting claim tool"
 /claim.sh "${ADMINUSER}" "${ADMINPW}"
 
 doguctl state ready
+echo "nexus is ready"
 
 trap terminateNexusAndNexusCarp SIGTERM
 
