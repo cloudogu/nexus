@@ -27,7 +27,7 @@ function claim() {
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-claim apply -i "-"
     if [[ "${CLAIM}" == "once" ]]; then
-      doguctl config claim/"${CLAIM}" "true"
+      doguctl config "${ONCE_LOCK}" "true"
     fi
   fi
   rm -f "${PLAN}"
