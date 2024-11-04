@@ -33,6 +33,12 @@ CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 
+# check whether post-upgrade script is still running
+while [[ "$(doguctl config post_upgrade_running)" == "true" ]]; do
+  echo "Post-upgrade script is running. Waiting..."
+  sleep 3
+done
+
 ### backup
 if [ -e "${NEXUS_DATA_DIR}"/migration ]; then
   echo "moving old nexus data to migration volume"
@@ -82,7 +88,7 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
 
   doguctl config successfulInitialConfiguration true
 else
-    # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
+  # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
   removeLastTemporaryAdminUser
   createTemporaryAdminUser
 

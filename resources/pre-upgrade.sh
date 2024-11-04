@@ -39,28 +39,11 @@ if [[ $FROM_VERSION == "3.70.2-3" ]] && [[ $TO_VERSION == 3.73.0* ]]; then
 
   NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="${NEXUS_USER}" NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   # wait for backup files to appear
-  while [ ! -f "${NEXUS_WORKDIR}/analytics-*.bak" ] && [ ! -f "${NEXUS_WORKDIR}/component-*.bak" ] && [ ! -f "${NEXUS_WORKDIR}/config-*.bak" ] && [ ! -f "${NEXUS_WORKDIR}/security-*.bak" ]
+  echo "waiting for backup to finish"
+  while [ ! -f "${NEXUS_WORKDIR}"/config*.bak ] && [ ! -f "${NEXUS_WORKDIR}"/component-*.bak ] && [ ! -f "${NEXUS_WORKDIR}"/config-*.bak ] && [ ! -f "${NEXUS_WORKDIR}"/security-*.bak ]
   do
-      sleep .6
+      sleep 3
   done
-
-  # nexus cannot be running when database migration takes place
-  "${NEXUS_WORKDIR}/bin/nexus" stop
-
-  # download migration helper
-  curl --location --retry 3 -o "${MIGRATION_HELPER_JAR}" \
-    "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.2-01.jar"
-
-  # run migration
-  java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
-    -jar "${MIGRATION_HELPER_JAR}" --yes --content_migration=true --migration_type=h2
-
-  # move migration artifact to final location
-  rm -rf /var/lib/nexus/db/*
-  mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
-  # give ownership to nexus user, otherwise db cannot be accessed by nexus process
-  chown "nexus:nexus" "${NEXUS_DATA_DIR}/db/nexus.mv.db"
-  doguctl config migratedDatabase "true"
-  echo "Database migration completed. Nexus now runs on the H2 database"
-  echo "Starting new Nexus version ${TO_VERSION}"
+  echo "database backup created"
+  find "${NEXUS_WORKDIR}" -name "*.bak" -exec mv '{}' "${NEXUS_DATA_DIR}" \;
 fi
