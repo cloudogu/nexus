@@ -6,10 +6,12 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## 3.73.0-1
 * Update der Nexus Version auf 3.73.0-12
-* Update von Nexus auf Java 17
 * Nexus nutzt ab dieser Version eine H2-Datenbank statt der bisherigen OrientDB
-  * Beim Upgrade von 3.70.2-x wird die Datenbank automatisch migriert
-  * Es ist **nicht** möglich von einer pre-3.70.2-x-Version auf diese Version upzugraden. In diesem Fall muss erst auf die aktuellste 3.70.2-Version geupgraded werden.
+    * Beim Upgrade von 3.70.2-x wird die Datenbank automatisch migriert
+    * Es ist **nicht** möglich von einer pre-3.70.2-x-Version auf diese Version upzugraden. In diesem Fall muss erst auf die aktuellste 3.70.2-Version geupgraded werden.
+
+## 3.70.2-4
+Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
 
 ## 3.70.2-3
 Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
