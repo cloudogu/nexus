@@ -78,6 +78,7 @@ function setNexusProperties() {
   mkdir -p ${NEXUS_DATA_DIR}/etc
   cat <<EOF >${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
+  nexus.datastore.enabled=true
 EOF
 
   echo "Checking if repository sandboxing should be enabled..."
@@ -206,8 +207,6 @@ function configureNexusAtSubsequentStart() {
   fi
 
   if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
-    echo "Getting current admin password"
-
     echo "Rendering nexusConfParameters template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
@@ -219,12 +218,12 @@ function configureNexusAtSubsequentStart() {
     echo "Rendering compactBlobstore template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
-
     echo "Executing nexusConfigurationSubsequentStart script"
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-scripting execute \
       --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
       "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
+
   else
     echo "Configuration files do not exist"
     exit 1
@@ -327,9 +326,10 @@ function validateDoguLogLevel() {
   return
 }
 
+# exection of sql function will only work when nexus process is not running, as it blocks the db
 function sql() {
   SQL="${1}"
-  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \ "CONNECT plocal:/var/lib/nexus/db/security admin admin; ${SQL}" > /dev/null
+  java -cp /opt/sonatype/nexus/system/com/h2database/h2/*/h2*.jar org.h2.tools.Shell -url "jdbc:h2:file:/var/lib/nexus/db/nexus" -sql "${SQL}" >> /dev/null
 }
 
 function createPasswordHash() {
@@ -341,8 +341,8 @@ function createTemporaryAdminUser() {
   local hashed
   hashed="$(createPasswordHash "${ADMINPW}")"
   echo "Creating admin user '${ADMINUSER}'"
-  sql "INSERT INTO user (status, id, firstName, lastName, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'dogu-tool-admin@cloudogu.com', '${hashed}')"
-  sql "INSERT INTO user_role_mapping (userId, source, roles) VALUES ('${ADMINUSER}', 'default', 'nx-admin')"
+  sql "INSERT INTO security_user (ID, FIRST_NAME, LAST_NAME, PASSWORD, STATUS, EMAIL, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', '${hashed}', 'active', 'dogu-tool-admin@cloudogu.com', 1)"
+  sql "INSERT INTO user_role_mapping (USER_ID, USER_LO, SOURCE, ROLES, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', ARRAY['nx-admin'], 1)"
   doguctl config last_tmp_admin "${ADMINUSER}"
   doguctl config last_tmp_admin_pw "${ADMINPW}"
 }
@@ -356,8 +356,8 @@ function removeLastTemporaryAdminUser() {
   fi
 
   echo "Removing last tmp admin user '${userid}'"
-  sql "DELETE FROM user_role_mapping WHERE userId='${userid}'"
-  sql "DELETE FROM user WHERE id='${userid}'"
+  sql "DELETE FROM user_role_mapping WHERE USER_ID='${userid}'"
+  sql "DELETE FROM security_user WHERE ID='${userid}'"
   doguctl config --rm last_tmp_admin
   doguctl config --rm last_tmp_admin_pw
 }

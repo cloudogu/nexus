@@ -4,6 +4,12 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
+## 3.73.0-1
+* Update der Nexus Version auf 3.73.0-12
+* Nexus nutzt ab dieser Version eine H2-Datenbank statt der bisherigen OrientDB
+    * Beim Upgrade von 3.70.2-x wird die Datenbank automatisch migriert
+    * Es ist **nicht** möglich von einer pre-3.70.2-x-Version auf diese Version upzugraden. In diesem Fall muss erst auf die aktuellste 3.70.2-Version geupgraded werden.
+
 ## 3.70.2-4
 Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
 
