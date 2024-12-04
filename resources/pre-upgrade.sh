@@ -9,7 +9,6 @@ set -o pipefail
 source /util.sh
 
 NEXUS_DATA_DIR=/var/lib/nexus
-MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/migration_helper.jar"
 
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
@@ -35,14 +34,21 @@ if [[ $FROM_VERSION == "3.70.2-3" ]] && [[ $TO_VERSION == 3.73.0* ]]; then
   NEXUS_USER="$(doguctl config -e admin_user)"
   NEXUS_PASSWORD="$(doguctl config -e admin_pw)"
 
+  # remove any old backup artifacts
+  find "${NEXUS_WORKDIR}" -name '*.bak*' -delete
+
   writeDatabaseBackupScriptToFile
 
   NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="${NEXUS_USER}" NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   # wait for backup files to appear
-  echo "waiting for backup to finish"
-  while [ ! -f "${NEXUS_WORKDIR}"/config*.bak ] && [ ! -f "${NEXUS_WORKDIR}"/component-*.bak ] && [ ! -f "${NEXUS_WORKDIR}"/config-*.bak ] && [ ! -f "${NEXUS_WORKDIR}"/security-*.bak ]
-  do
-      sleep 3
+  echo "Creating database backup. Depending on the size of the database this process may take a while.."
+  spin='-\|/'
+  i=0
+  AMOUNT_OF_BACKUP_FILES="4"
+  until [[ $(find "${NEXUS_WORKDIR}" -name '*.bak*' |  wc -l | grep "${AMOUNT_OF_BACKUP_FILES}") == "${AMOUNT_OF_BACKUP_FILES}" ]]; do
+    i=$(( (i+1) %4 ))
+    printf "\r${spin:$i:1}"
+    sleep .3
   done
   echo "database backup created"
   find "${NEXUS_WORKDIR}" -name "*.bak" -exec mv '{}' "${NEXUS_DATA_DIR}" \;
