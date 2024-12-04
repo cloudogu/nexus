@@ -5,7 +5,7 @@ set -o pipefail
 
 doguctl config post_upgrade_running true
 NEXUS_DATA_DIR=/var/lib/nexus
-MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/jars/nexus-db-migrator-3.70.3-01.jar"
+MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/nexus-db-migrator-3.70.3-01.jar"
 
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
