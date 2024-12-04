@@ -48,7 +48,7 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
   AMOUNT_OF_BACKUP_FILES="4"
   until [[ $(find "${NEXUS_WORKDIR}" -name '*.bak*' |  wc -l | grep "${AMOUNT_OF_BACKUP_FILES}") == "${AMOUNT_OF_BACKUP_FILES}" ]]; do
     i=$(( (i+1) %4 ))
-    printf "\r${spin:$i:1}"
+    printf "\r%s" "${spin:$i:1}"
     sleep .3
   done
   echo "database backup created"
