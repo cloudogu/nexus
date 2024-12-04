@@ -5,17 +5,17 @@ set -o pipefail
 
 doguctl config post_upgrade_running true
 NEXUS_DATA_DIR=/var/lib/nexus
-MIGRATION_HELPER_JAR="/jars/nexus-db-migrator-3.70.3-01.jar"
+MIGRATION_HELPER_JAR="${NEXUS_WORKDIR}/jars/nexus-db-migrator-3.70.3-01.jar"
 
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
 
 if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.73.0* ]]; then
-  if [ ! -f "${MIGRATION_HELPER_JAR}" ]; then
-    # try to download migration helper jar if it does not exist
-    echo "trying to download the migration helper, warum auch immer"
-    curl -s -L --retry 3 -o "${MIGRATION_HELPER_JAR}" "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.3-01.jar"
-  fi
+  # if [ ! -f "${MIGRATION_HELPER_JAR}" ]; then
+  #   # try to download migration helper jar if it does not exist
+  #   echo "trying to download the migration helper, warum auch immer"
+  #   curl -s -L --retry 3 -o "${MIGRATION_HELPER_JAR}" "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.3-01.jar"
+  # fi
   "${NEXUS_WORKDIR}/bin/nexus" stop
   # move the backup artifacts to the workdir because the jar expects them there
   find "${NEXUS_DATA_DIR}" -name "*.bak" -exec mv '{}' "${NEXUS_WORKDIR}" \;
