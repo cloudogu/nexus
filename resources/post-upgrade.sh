@@ -10,7 +10,11 @@ MIGRATION_HELPER_JAR="/jars/nexus-db-migrator-3.70.2-01.jar"
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
 
-if [[ $FROM_VERSION == "3.70.2-3" ]] && [[ $TO_VERSION == 3.73.0* ]]; then
+if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.73.0* ]]; then
+  if [ ! -f "${MIGRATION_HELPER_JAR}" ]; then
+    # try to download migration helper jar if it does not exist
+    curl -s -L --retry 3 -o "${MIGRATION_HELPER_JAR}" "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.2-01.jar"
+  fi
   # move the backup artifacts to the workdir because the jar expects them there
   find "${NEXUS_DATA_DIR}" -name "*.bak" -exec mv '{}' "${NEXUS_WORKDIR}" \;
   chown "nexus:nexus" "${MIGRATION_HELPER_JAR}"
