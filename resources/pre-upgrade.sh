@@ -52,5 +52,5 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.73.0* ]]; then
   done
   echo "database backup created"
   find "${NEXUS_WORKDIR}" -name "*.bak" -exec mv '{}' "${NEXUS_DATA_DIR}" \;
-  find "/jars" -name "*.jar" -exec mv '{}' "${NEXUS_WORKDIR}/jars" \;
+  find "/jars" -name "*.jar" -exec mv '{}' "${NEXUS_DATA_DIR}/jars" \;
 fi
