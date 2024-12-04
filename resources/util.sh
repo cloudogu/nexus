@@ -144,6 +144,59 @@ function setupSecretFile() {
   doguctl config "secret_encryption/start" "1"
   echo " - Scheduled API-Task after startup"
 
+
+  setupSecretFile
+
+}
+
+function setupSecretFile() {
+  # See https://help.sonatype.com/en/re-encryption-in-nexus-repository.html
+  # for further instructions
+  SECRET_FILE="${NEXUS_DATA_DIR}/etc/nexus.secrets.json"
+  if [ -f "${SECRET_FILE}" ] && [ -f "${NEXUS_WORKDIR}/resources/nexus.secrets.json.tpl" ]; then
+    echo "Secret-File ${SECRET_FILE} already exists"
+    return
+  fi
+
+  echo "Creating new Security-File for Dynamic Encryption Key"
+
+  # 01 Create the JSON Key File
+  # ---------------------------
+
+  SECRET_ID="nexus-dynamic-secret"
+  SECRET_KEY="$(doguctl random)"
+  # this might be "null" if we are on a multinode system
+  doguctl config "secret_encryption/active" "${SECRET_ID}"
+
+  # to activate match "active" with "id"
+  doguctl config "secret_encryption/id" "${SECRET_ID}"
+  doguctl config "secret_encryption/key" "${SECRET_KEY}"
+
+  # create secret file via template
+  doguctl template "${NEXUS_WORKDIR}/resources/nexus.secrets.json.tpl" "${SECRET_FILE}"
+
+  echo " - Security-File created"
+
+  # 02 Enable Re-Encryption
+  # -----------------------
+
+  # configure Nexus to use this newly created file
+  if grep -Fxq "nexus.secrets.file=" "${NEXUS_DATA_DIR}/etc/nexus.properties"; then
+    echo "Nexus properties already contains a nexus secret file."
+    echo "Check ${NEXUS_DATA_DIR}/etc/nexus.properties"
+    exit 1
+  fi
+  echo "nexus.secrets.file=${SECRET_FILE}" >>${NEXUS_DATA_DIR}/etc/nexus.properties
+
+  echo " - Security-File set in nexus.properties"
+
+  # 03 Create Re-encryption Task via API
+  # ------------------------------------
+
+  # enable encryption after start
+  doguctl config "secret_encryption/start" "1"
+  echo " - Scheduled API-Task after startup"
+
 }
 
 function configureNexusAtFirstStart() {
@@ -192,15 +245,15 @@ function configureNexusAtSubsequentStart() {
     echo " - use $(doguctl config -global "fqdn") as fqdn"
     echo " - use $(doguctl config 'secret_encryption/id') as secretKeyId"
 
+    sleep 3600
+
     curl -X 'PUT' \
       "http://localhost:8081/nexus/service/rest/v1/secrets/encryption/re-encrypt" \
       -H 'accept: application/json' \
       -H 'Content-Type: application/json' \
-      -H 'NX-ANTI-CSRF-TOKEN: 1234' \
       -H 'X-Nexus-UI: true' \
-      -d "{
-            'secretKeyId': '$(doguctl config 'secret_encryption/id')',
-          }"
+      -d '{ "secretKeyId": "nexus-dynamic-secret"}' \
+      -v -u "${NEXUS_USER}:${ADMINPW}"
 
     # deactivate for next startup
     doguctl config 'secret_encryption/start' '0'
