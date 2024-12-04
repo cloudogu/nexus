@@ -24,7 +24,7 @@ writeDatabaseBackupScriptToFile() {
   echo 'import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskScheduler; def taskScheduler = container.lookup(TaskScheduler.class.getName()); TaskConfiguration config = taskScheduler.createTaskConfigurationInstance("db.backup"); config.setEnabled(true); config.setName("orientDatabaseBackup"); config.setString("location", "/opt/sonatype/nexus"); taskScheduler.submit(config);' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
 }
 
-if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.73.0* ]]; then
+if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
   echo "Starting migration to H2 database now"
   # check ram size, upgrade needs at least 16GB
   hasEnoughRAM=$(free -g | grep Mem: | awk '{print $2}')
