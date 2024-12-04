@@ -16,6 +16,7 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.73.0* ]]; then
     echo "trying to download the migration helper, warum auch immer"
     curl -s -L --retry 3 -o "${MIGRATION_HELPER_JAR}" "https://download.sonatype.com/nexus/nxrm3-migrator/nexus-db-migrator-3.70.3-01.jar"
   fi
+  "${NEXUS_WORKDIR}/bin/nexus" stop
   # move the backup artifacts to the workdir because the jar expects them there
   find "${NEXUS_DATA_DIR}" -name "*.bak" -exec mv '{}' "${NEXUS_WORKDIR}" \;
   chown "nexus:nexus" "${MIGRATION_HELPER_JAR}"
