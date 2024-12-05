@@ -100,7 +100,7 @@ function setupSecretFile() {
   # See https://help.sonatype.com/en/re-encryption-in-nexus-repository.html
   # for further instructions
   SECRET_FILE="${NEXUS_DATA_DIR}/etc/nexus.secrets.json"
-  if [ -f "${SECRET_FILE}" ] && [ -f "${NEXUS_WORKDIR}/resources/nexus.secrets.json.tpl" ]; then
+  if [[ -f "${SECRET_FILE}" ]] && [[ -f "${NEXUS_WORKDIR}/resources/nexus.secrets.json.tpl" ]]; then
     echo "Secret-File ${SECRET_FILE} already exists"
     echo "nexus.secrets.file=${SECRET_FILE}" >>${NEXUS_DATA_DIR}/etc/nexus.properties
     return
