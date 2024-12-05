@@ -44,18 +44,18 @@ versionXLaterEQY() {
 }
 
 echo "${FROM_VERSION}" "${TO_VERSION}"
-if [[ "${FROM_VERSION}" == 3.70.2* ]] && [[ "${TO_VERSION}" == 3.73.0* ]]; then
+if [[ "${FROM_VERSION}" == 3.70.2* ]] && [[ "${TO_VERSION}" == 3.75.0* ]]; then
     printf "~~~~Warning~~~~\n"
-    printf "Going from Nexus 3.70.2 to 3.73.0 requires a migration of the existing OrientDB to a H2 database\n"
+    printf "Going from Nexus 3.70.2 to 3.75.0 requires a migration of the existing OrientDB to a H2 database\n"
     printf "This migration will be performed automatically by the upgrade script\n"
     printf "It is not necessary to perform a manual backup of the database, all Nexus data will be transfered to the new database\n"
     printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
 fi
 
-if versionXEarlierEQY "${FROM_VERSION}" "3.68.1-6" && versionXLaterEQY "${TO_VERSION}" "3.73.0-1"; then
+if versionXEarlierEQY "${FROM_VERSION}" "3.68.1-6" && versionXLaterEQY "${TO_VERSION}" "3.75.0-1"; then
     printf "~~~~Warning~~~~\n"
     printf "This update requires a database migration!\n"
-    printf "The migration can only be performed when going from Nexus Version 3.70.2 to 3.73.0\n"
+    printf "The migration can only be performed when going from Nexus Version 3.70.2 to 3.75.0\n"
     printf "The upgrade process will exit now\n"
     printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
     exit 2

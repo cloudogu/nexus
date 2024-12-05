@@ -9,6 +9,7 @@ set -o pipefail
 source /util.sh
 
 NEXUS_DATA_DIR=/var/lib/nexus
+MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/nexus-db-migrator-3.70.3-01.jar"
 
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
@@ -23,7 +24,7 @@ writeDatabaseBackupScriptToFile() {
   echo 'import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskScheduler; def taskScheduler = container.lookup(TaskScheduler.class.getName()); TaskConfiguration config = taskScheduler.createTaskConfigurationInstance("db.backup"); config.setEnabled(true); config.setName("orientDatabaseBackup"); config.setString("location", "/opt/sonatype/nexus"); taskScheduler.submit(config);' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
 }
 
-if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.73.0* ]]; then
+if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
   echo "Starting migration to H2 database now"
   # check ram size, upgrade needs at least 16GB
   hasEnoughRAM=$(free -g | grep Mem: | awk '{print $2}')
@@ -47,9 +48,28 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.73.0* ]]; then
   AMOUNT_OF_BACKUP_FILES="4"
   until [[ $(find "${NEXUS_WORKDIR}" -name '*.bak*' |  wc -l | grep "${AMOUNT_OF_BACKUP_FILES}") == "${AMOUNT_OF_BACKUP_FILES}" ]]; do
     i=$(( (i+1) %4 ))
-    printf "\r${spin:$i:1}"
+    printf "\r%s" "${spin:$i:1}"
     sleep .3
   done
   echo "database backup created"
   find "${NEXUS_WORKDIR}" -name "*.bak" -exec mv '{}' "${NEXUS_DATA_DIR}" \;
+  mv -v /jars/* "${NEXUS_DATA_DIR}"
+
+  "${NEXUS_WORKDIR}/bin/nexus" stop
+  # move the backup artifacts to the workdir because the jar expects them there
+  find "${NEXUS_DATA_DIR}" -name "*.bak" -exec mv '{}' "${NEXUS_WORKDIR}" \;
+  chown "nexus:nexus" "${MIGRATION_HELPER_JAR}"
+  # run migration
+  java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
+    -jar "${MIGRATION_HELPER_JAR}" --yes --content_migration=true --migration_type=h2
+
+  # move migration artifact to final location
+  rm -rf /var/lib/nexus/db/*
+  mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
+  # give ownership to nexus user, otherwise db cannot be accessed by nexus process
+  chown "nexus:nexus" "${NEXUS_DATA_DIR}/db/nexus.mv.db"
+  doguctl config migratedDatabase "true"
+  rm -rf "${MIGRATION_HELPER_JAR}"
+  echo "Database migration completed. Nexus now runs on the H2 database"
+  echo "Starting new Nexus version ${TO_VERSION}"
 fi
