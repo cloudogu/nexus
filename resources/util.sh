@@ -252,7 +252,7 @@ function validateDoguLogLevel() {
   return
 }
 
-# exection of sql function will only work when nexus process is not running, as it blocks the db
+# execution of sql function will only work when nexus process is not running, as it blocks the db
 function sql() {
   SQL="${1}"
   java -cp /opt/sonatype/nexus/system/com/h2database/h2/*/h2*.jar org.h2.tools.Shell -url "jdbc:h2:file:/var/lib/nexus/db/nexus" -sql "${SQL}" >> /dev/null

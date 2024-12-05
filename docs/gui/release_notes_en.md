@@ -4,6 +4,14 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
+## 3.75.0-1
+* Update of the Nexus version to 3.75.0-6
+* Nexus now uses an H2 database instead of an OrientDb
+    * The database migration will be performed automatically when upgrading from 3.70.x
+    * Es ist **nicht** möglich von einer pre-3.70.2-x-Version auf diese Version upzugraden. In diesem Fall muss erst auf die aktuellste 3.70.2-Version geupgraded werden.
+    * It is **not** possible to upgrade from a pre-3.70.2-x version to this version. In this case update to the newest 3.70.2-x version first
+    * For airgapped environments make sure to upgrade to 3.70.2-5 first, as this version contains the needed migration jar
+
 ## 3.70.2-4
 We have only made technical changes. You can find more details in the changelogs.
 
