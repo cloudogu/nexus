@@ -36,6 +36,7 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
 
   if [ ! -e "/jars/${MIGRATION_HELPER_JAR_NAME}" ]; then
     # try to download migration helper jar if it does not exist
+    echo "downloading migrator jar"
     curl -s -L --retry 3 -o /jars/"${MIGRATION_HELPER_JAR_NAME}" "https://download.sonatype.com/nexus/nxrm3-migrator/${MIGRATION_HELPER_JAR_NAME}"
   fi
   NEXUS_USER="$(doguctl config -e admin_user)"
@@ -70,7 +71,8 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
     -jar "${MIGRATION_HELPER_JAR}" --yes --content_migration=true --migration_type=h2
 
   # move migration artifact to final location
-  mv "${NEXUS_WORKDIR}"/db/* "${NEXUS_WORKDIR}"/db/olddb
+  mkfir olddb
+  mv "${NEXUS_WORKDIR}"/db/* "${NEXUS_WORKDIR}"/olddb
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
   # give ownership to nexus user, otherwise db cannot be accessed by nexus process
   chown "nexus:nexus" "${NEXUS_DATA_DIR}/db/nexus.mv.db"
