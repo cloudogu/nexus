@@ -11,6 +11,7 @@ Technical details on a release can be found in the corresponding [Changelog](htt
     * Es ist **nicht** möglich von einer pre-3.70.2-x-Version auf diese Version upzugraden. In diesem Fall muss erst auf die aktuellste 3.70.2-Version geupgraded werden.
     * It is **not** possible to upgrade from a pre-3.70.2-x version to this version. In this case update to the newest 3.70.2-x version first
     * For airgapped environments make sure to upgrade to 3.70.2-5 first, as this version contains the needed migration jar
+    * Attention: The migration needs at least 16Gb of memory
 
 ## 3.70.2-4
 We have only made technical changes. You can find more details in the changelogs.

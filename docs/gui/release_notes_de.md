@@ -10,6 +10,7 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
     * Beim Upgrade von 3.70.2-x wird die Datenbank automatisch migriert
     * Es ist **nicht** möglich von einer pre-3.70.2-x-Version auf diese Version upzugraden. In diesem Fall muss erst auf die aktuellste 3.70.2-Version geupgraded werden.
     * In airgapped-Systemen muss zuerst die Version 3.70.2-5 installiert werden, da sich die benötigte Migrations-Jar in dieser Version befindet
+    * Achtung: Die Migration benötigt mindestens 16GB Arbeitsspeicher
 
 ## 3.70.2-4
 Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
