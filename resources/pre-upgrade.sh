@@ -55,12 +55,11 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
     sleep .3
   done
   echo "Database backup created"
+  # move the backup artifacts to the workdir because the jar expects them there
   find "${NEXUS_WORKDIR}" -name "*.bak" -exec mv '{}' "${NEXUS_DATA_DIR}" \;
   cp -fr /jars/* "${NEXUS_DATA_DIR}"
 
   "${NEXUS_WORKDIR}/bin/nexus" stop
-  # move the backup artifacts to the workdir because the jar expects them there
-  find "${NEXUS_DATA_DIR}" -name "*.bak" -exec mv '{}' "${NEXUS_WORKDIR}" \;
   chown "nexus:nexus" "${MIGRATION_HELPER_JAR}"
   # check ram size, upgrade needs at least 16GB
   availableRAM=$(free -g | grep Mem: | awk '{print $2}')
