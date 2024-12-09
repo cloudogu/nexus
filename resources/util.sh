@@ -65,9 +65,6 @@ EOF
     echo "Setting memory limits..."
     echo "-XX:MaxRAMPercentage=${MEMORY_LIMIT_MAX_PERCENTAGE}" >>"${VM_OPTIONS_FILE}"
     echo "-XX:MinRAMPercentage=${MEMORY_LIMIT_MIN_PERCENTAGE}" >>"${VM_OPTIONS_FILE}"
-  else
-    echo "-Xms1200M" >>"${VM_OPTIONS_FILE}"
-    echo "-Xmx1200M" >>"${VM_OPTIONS_FILE}"
   fi
 
   cat "${VM_OPTIONS_FILE}"
