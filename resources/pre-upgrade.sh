@@ -55,8 +55,6 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
     sleep .3
   done
   echo "Database backup created"
-  # move the backup artifacts to the workdir because the jar expects them there
-  find "${NEXUS_WORKDIR}" -name "*.bak" -exec mv '{}' "${NEXUS_DATA_DIR}" \;
   cp -fr /jars/* "${NEXUS_DATA_DIR}"
 
   "${NEXUS_WORKDIR}/bin/nexus" stop
