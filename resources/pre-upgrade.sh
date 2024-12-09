@@ -70,7 +70,7 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
     -jar "${MIGRATION_HELPER_JAR}" --yes --content_migration=true --migration_type=h2
 
   # move migration artifact to final location
-  mkdir olddb
+  mkdir "${NEXUS_DATA_DIR}"/olddb
   mv "${NEXUS_DATA_DIR}"/db/* "${NEXUS_DATA_DIR}"/olddb
   mv "nexus.mv.db" "${NEXUS_DATA_DIR}/db"
   # give ownership to nexus user, otherwise db cannot be accessed by nexus process
