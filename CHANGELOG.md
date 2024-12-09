@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.70.2-5] - 2024-12-09
+### Added
+- [#151] OrientDB database migration jar in preparation for 3.75 update
+
 ## [v3.70.2-4] - 2024-10-30
 ### Fixed
 - [#148] Fix writing the claim once lock into wrong key
