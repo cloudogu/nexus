@@ -13,6 +13,9 @@ Technical details on a release can be found in the corresponding [Changelog](htt
     * For airgapped environments make sure to upgrade to 3.70.2-5 first, as this version contains the needed migration jar
     * Attention: The migration needs at least 16Gb of memory
 
+## 3.70.2-5
+We have only made technical changes. You can find more details in the changelogs.
+
 ## 3.70.2-4
 We have only made technical changes. You can find more details in the changelogs.
 

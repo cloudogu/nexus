@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - database migration will be performed automatically
 - Warning: the database migration can only be performed when upgrading from v3.70.2 to v3.75.0
 
+## [v3.70.2-5] - 2024-12-09
+### Added
+- [#151] OrientDB database migration jar in preparation for 3.75 update
+
 ## [v3.70.2-4] - 2024-10-30
 ### Fixed
 - [#148] Fix writing the claim once lock into wrong key
