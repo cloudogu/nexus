@@ -78,6 +78,7 @@ function setNexusProperties() {
   mkdir -p ${NEXUS_DATA_DIR}/etc
   cat <<EOF >${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
+  nexus.datastore.enabled=true
 EOF
 
   echo "Checking if repository sandboxing should be enabled..."
@@ -90,6 +91,59 @@ EOF
   fi
   echo "enabling groovy scripting"
   echo "nexus.scripts.allowCreation=true" >>${NEXUS_DATA_DIR}/etc/nexus.properties
+
+  setupSecretFile
+
+}
+
+function setupSecretFile() {
+  # See https://help.sonatype.com/en/re-encryption-in-nexus-repository.html
+  # for further instructions
+  SECRET_FILE="${NEXUS_DATA_DIR}/etc/nexus.secrets.json"
+  if [[ -f "${SECRET_FILE}" ]] && [[ -f "${NEXUS_WORKDIR}/resources/nexus.secrets.json.tpl" ]]; then
+    echo "Secret-File ${SECRET_FILE} already exists"
+    echo "nexus.secrets.file=${SECRET_FILE}" >>${NEXUS_DATA_DIR}/etc/nexus.properties
+    return
+  fi
+
+  echo "Creating new Security-File for Dynamic Encryption Key"
+
+  # 01 Create the JSON Key File
+  # ---------------------------
+
+  SECRET_ID="nexus-dynamic-secret"
+  SECRET_KEY="$(doguctl random)"
+  # this might be "null" if we are on a multinode system
+  doguctl config "secret_encryption/active" "${SECRET_ID}"
+
+  # to activate match "active" with "id"
+  doguctl config "secret_encryption/id" "${SECRET_ID}"
+  doguctl config "secret_encryption/key" "${SECRET_KEY}"
+
+  # create secret file via template
+  doguctl template "${NEXUS_WORKDIR}/resources/nexus.secrets.json.tpl" "${SECRET_FILE}"
+
+  echo " - Security-File created"
+
+  # 02 Enable Re-Encryption
+  # -----------------------
+
+  # configure Nexus to use this newly created file
+  if grep -Fxq "nexus.secrets.file=" "${NEXUS_DATA_DIR}/etc/nexus.properties"; then
+    echo "Nexus properties already contains a nexus secret file."
+    echo "Check ${NEXUS_DATA_DIR}/etc/nexus.properties"
+    exit 1
+  fi
+  echo "nexus.secrets.file=${SECRET_FILE}" >>${NEXUS_DATA_DIR}/etc/nexus.properties
+
+  echo " - Security-File set in nexus.properties"
+
+  # 03 Create Re-encryption Task via API
+  # ------------------------------------
+
+  # enable encryption after start
+  doguctl config "secret_encryption/start" "1"
+  echo " - Scheduled API-Task after startup"
 }
 
 function configureNexusAtFirstStart() {
@@ -131,9 +185,8 @@ function configureNexusAtFirstStart() {
 }
 
 function configureNexusAtSubsequentStart() {
-  if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
-    echo "Getting current admin password"
 
+  if [ -f "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy" ] && [ -f "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" ]; then
     echo "Rendering nexusConfParameters template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusConfParameters.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusConfParameters.json"
@@ -145,15 +198,33 @@ function configureNexusAtSubsequentStart() {
     echo "Rendering compactBlobstore template"
     doguctl template "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json.tpl" \
       "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
-
     echo "Executing nexusConfigurationSubsequentStart script"
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-scripting execute \
       --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
       "${NEXUS_WORKDIR}/resources/nexusConfigurationSubsequentStart.groovy"
+
   else
     echo "Configuration files do not exist"
     exit 1
+  fi
+
+  # Enable re-encryption if set
+  if [ "$(doguctl config 'secret_encryption/start')" == "1" ]; then
+    echo "Start Task for Re-Encryption"
+    echo " - use $(doguctl config -global "fqdn") as fqdn"
+    echo " - use $(doguctl config 'secret_encryption/id') as secretKeyId"
+
+    curl --user "${ADMINUSER}:${ADMINPW}" \
+      -X 'PUT' \
+      "http://localhost:8081/nexus/service/rest/v1/secrets/encryption/re-encrypt" \
+      -H 'accept: application/json' \
+      -H 'Content-Type: application/json' \
+      -H 'X-Nexus-UI: true' \
+      -d '{ "secretKeyId": "nexus-dynamic-secret"}' \
+
+    # deactivate for next startup
+    doguctl config -rm 'secret_encryption/start'
   fi
 }
 
@@ -253,9 +324,10 @@ function validateDoguLogLevel() {
   return
 }
 
+# execution of sql function will only work when nexus process is not running, as it blocks the db
 function sql() {
   SQL="${1}"
-  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \ "CONNECT plocal:/var/lib/nexus/db/security admin admin; ${SQL}" > /dev/null
+  java -cp /opt/sonatype/nexus/system/com/h2database/h2/*/h2*.jar org.h2.tools.Shell -url "jdbc:h2:file:/var/lib/nexus/db/nexus" -sql "${SQL}" >> /dev/null
 }
 
 function createPasswordHash() {
@@ -267,8 +339,8 @@ function createTemporaryAdminUser() {
   local hashed
   hashed="$(createPasswordHash "${ADMINPW}")"
   echo "Creating admin user '${ADMINUSER}'"
-  sql "INSERT INTO user (status, id, firstName, lastName, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'dogu-tool-admin@cloudogu.com', '${hashed}')"
-  sql "INSERT INTO user_role_mapping (userId, source, roles) VALUES ('${ADMINUSER}', 'default', 'nx-admin')"
+  sql "INSERT INTO security_user (ID, FIRST_NAME, LAST_NAME, PASSWORD, STATUS, EMAIL, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', '${hashed}', 'active', 'dogu-tool-admin@cloudogu.com', 1)"
+  sql "INSERT INTO user_role_mapping (USER_ID, USER_LO, SOURCE, ROLES, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', ARRAY['nx-admin'], 1)"
   doguctl config last_tmp_admin "${ADMINUSER}"
   doguctl config last_tmp_admin_pw "${ADMINPW}"
 }
@@ -282,8 +354,8 @@ function removeLastTemporaryAdminUser() {
   fi
 
   echo "Removing last tmp admin user '${userid}'"
-  sql "DELETE FROM user_role_mapping WHERE userId='${userid}'"
-  sql "DELETE FROM user WHERE id='${userid}'"
+  sql "DELETE FROM user_role_mapping WHERE USER_ID='${userid}'"
+  sql "DELETE FROM security_user WHERE ID='${userid}'"
   doguctl config --rm last_tmp_admin
   doguctl config --rm last_tmp_admin_pw
 }

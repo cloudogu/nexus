@@ -33,6 +33,12 @@ CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 
+# check whether post-upgrade script is still running
+while [[ "$(doguctl config post_upgrade_running)" == "true" ]]; do
+  echo "Post-upgrade script is running. Waiting..."
+  sleep 3
+done
+
 ### backup
 if [ -e "${NEXUS_DATA_DIR}"/migration ]; then
   echo "moving old nexus data to migration volume"
@@ -94,7 +100,12 @@ else
 
   echo "Configuring Nexus for subsequent start..."
   configureNexusAtSubsequentStart
+fi
 
+if [[ $(doguctl config --default "false" migratedDatabase) == "true" ]]; then
+  # remove now unusable backup script
+  curl -u "${ADMINUSER}":"${ADMINPW}" -X DELETE -s http://localhost:8081/nexus/service/rest/v1/script/nexusBackupOrientDBTask
+  doguctl config --rm migratedDatabase
 fi
 
 echo "writing admin_group_last to local config"
@@ -105,12 +116,12 @@ NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "apply cleanup policy"
- NEXUS_PASSWORD="${ADMINPW}" \
-nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
+NEXUS_PASSWORD="${ADMINPW}" \
+  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
 
 echo "apply cleanup blobstore task"
- NEXUS_PASSWORD="${ADMINPW}" \
- nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
+NEXUS_PASSWORD="${ADMINPW}" \
+  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
 
 
 echo "configuring carp server"

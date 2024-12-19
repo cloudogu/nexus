@@ -10,6 +10,14 @@ Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Cha
 ## 3.70.2-5
 Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
 
+## 3.75.0-1
+* Update der Nexus Version auf 3.75.0-6
+* Nexus nutzt ab dieser Version eine H2-Datenbank statt der bisherigen OrientDB
+    * Beim Upgrade von 3.70.2-x wird die Datenbank automatisch migriert
+    * Es ist **nicht** möglich von einer pre-3.70.2-x-Version auf diese Version upzugraden. In diesem Fall muss erst auf die aktuellste 3.70.2-Version geupgraded werden.
+    * In airgapped-Systemen muss zuerst die Version 3.70.2-5 installiert werden, da sich die benötigte Migrations-Jar in dieser Version befindet
+    * Achtung: Die Migration benötigt mindestens 16GB Arbeitsspeicher
+
 ## 3.70.2-4
 Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
 

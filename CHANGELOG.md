@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- [#149] update base image to OpenJDK 17.0.12-3
+- Upgrade Nexus to version 3.75.0-03
+  - this required a switch from the OrientDB to the H2 DB
+  - database migration will be performed automatically
+- Warning: the database migration can only be performed when upgrading from v3.70.2 to v3.75.0
 - [#154] The internal makefiles have been updated to standardize the versioning of the release notes.
 
 ## [v3.70.2-5] - 2024-12-09
