@@ -1,10 +1,6 @@
 import org.sonatype.nexus.cleanup.storage.CleanupPolicyStorage
 import groovy.json.JsonSlurper
 
-import static org.sonatype.nexus.repository.search.DefaultComponentMetadataProducer.IS_PRERELEASE_KEY
-import static org.sonatype.nexus.repository.search.DefaultComponentMetadataProducer.LAST_BLOB_UPDATED_KEY
-import static org.sonatype.nexus.repository.search.DefaultComponentMetadataProducer.REGEX_KEY
-
 // get parameters from payload JSON file
 def configurationParameters = new JsonSlurper().parseText(args)
 
@@ -30,14 +26,14 @@ def createMavenSnapshotCleanupPolicy(configurationParameters) {
     cleanupPolicy.setFormat(configurationParameters.format)
 
     def criteriaMap = [:]
-    criteriaMap.put(REGEX_KEY, configurationParameters.criteria.regex) // criteriaAssetRegex
+    criteriaMap.put('regex', configurationParameters.criteria.regex) // criteriaAssetRegex
     if (configurationParameters.criteria.criteriaReleaseType != "") {
         // We do a additional check here as the criteriaReleaseType is not supported for every kind of repository
         // and should therefore be only set if a value is present.
         // see: https://help.sonatype.com/repomanager3/nexus-repository-administration/repository-management/cleanup-policies
-        criteriaMap.put(IS_PRERELEASE_KEY, "PRERELEASES".equals(configurationParameters.criteria.criteriaReleaseType).toString())
+        criteriaMap.put('isPrerelease', "PRERELEASES".equals(configurationParameters.criteria.criteriaReleaseType).toString())
     }
-    criteriaMap.put(LAST_BLOB_UPDATED_KEY, asStringSeconds(configurationParameters.criteria.criteriaLastBlobUpdated))
+    criteriaMap.put('lastBlobUpdated', asStringSeconds(configurationParameters.criteria.criteriaLastBlobUpdated))
 
     cleanupPolicy.setCriteria(criteriaMap)
 
