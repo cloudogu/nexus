@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- [#156] Update Makefiles to 9.5.2
+- [#156] Update java base image to 17.0.13-1
 
 ## [v3.75.0-1] - 2024-12-19
 ### Changed
