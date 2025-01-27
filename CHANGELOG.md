@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.75.0-2] - 2025-01-27
+### Changed
+- [#156] Update Makefiles to 9.5.2
+- [#156] Update java base image to 17.0.13-1
+- [#158] Update ces-build-lib to 4.0.1 and dogu-build-lib to v3.0.0
+
 ## [v3.75.0-1] - 2024-12-19
 ### Changed
 - [#149] update base image to OpenJDK 17.0.12-3

@@ -6,6 +6,9 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.75.0-2] - 2025-01-27
+Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
+
 ## [v3.75.0-1] - 2024-12-19
 * Update der Nexus Version auf 3.75.0-6
 * Nexus nutzt ab dieser Version eine H2-Datenbank statt der bisherigen OrientDB
