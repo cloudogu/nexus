@@ -290,6 +290,71 @@
       "Validation": {
         "Type": "BINARY_MEASUREMENT"
       }
+    },
+    {
+      "Name": "proxyConfiguration/http/host",
+      "Description": "The host name of the HTTP proxy server. This has to be set for HTTPS and non proxy hosts, too.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/port",
+      "Description": "The port of the HTTP proxy server. This has to be set for HTTPS and non proxy hosts, too.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/username",
+      "Description": "The authentication username of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/password",
+      "Description": "The authentication password of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/ntlmHost",
+      "Description": "The authentication ntlmHost of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/domain",
+      "Description": "The authentication domain of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/host",
+      "Description": "The host name of the HTTPS proxy server.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/port",
+      "Description": "The port of the HTTPS proxy server.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/username",
+      "Description": "The authentication username of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/password",
+      "Description": "The authentication password of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/ntlmHost",
+      "Description": "The authentication ntlmHost of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/domain",
+      "Description": "The authentication domain of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/nonProxyHosts",
+      "Description": "A list of hosts that should be reached directly, bypassing the proxy. This is a list of patterns separated by |.",
+      "Optional": true
     }
   ],
   "HealthChecks": [
