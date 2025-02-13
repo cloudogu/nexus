@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.75.0-3] - 2025-02-13
+### Added
+- Add missing keys to dogu.json
+
+### Changed
+- Exit on invalid logging key configuration
+
+### Removed
+- Remove duplicated config entries in dogu.json
+
 ## [v3.75.0-2] - 2025-01-27
 ### Changed
 - [#156] Update Makefiles to 9.5.2

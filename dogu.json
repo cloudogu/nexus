@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.75.0-2",
+  "Version": "3.75.0-3",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -134,14 +134,6 @@
       }
     },
     {
-      "Name": "container_config/swap_limit",
-      "Description": "Limits the container's swap memory usage. Use zero or a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte). 0 will disable swapping.",
-      "Optional": true,
-      "Validation": {
-        "Type": "BINARY_MEASUREMENT"
-      }
-    },
-    {
       "Name": "container_config/java_max_ram_percentage",
       "Description": "Limits the heap stack size of the Nexus process to the configured percentage of the available physical memory when the container has more than approx. 250 MB of memory available. Is only considered when a memory_limit is set. Use a valid float value with decimals between 0 and 100 (f. ex. 55.0 for 55%). Default value for Nexus: 25%",
       "Optional": true,
@@ -256,14 +248,6 @@
       "Default": "30"
     },
     {
-      "Name": "container_config/memory_limit",
-      "Description": "Limits the container's memory usage. Use a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte).",
-      "Optional": true,
-      "Validation": {
-        "Type": "BINARY_MEASUREMENT"
-      }
-    },
-    {
       "Name": "container_config/memory_request",
       "Description": "Requests the container's minimal memory requirement. Use a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte).",
       "Optional": true,
@@ -306,6 +290,71 @@
       "Validation": {
         "Type": "BINARY_MEASUREMENT"
       }
+    },
+    {
+      "Name": "proxyConfiguration/http/host",
+      "Description": "The host name of the HTTP proxy server. This has to be set for HTTPS and non proxy hosts, too.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/port",
+      "Description": "The port of the HTTP proxy server. This has to be set for HTTPS and non proxy hosts, too.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/username",
+      "Description": "The authentication username of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/password",
+      "Description": "The authentication password of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/ntlmHost",
+      "Description": "The authentication ntlmHost of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/domain",
+      "Description": "The authentication domain of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/host",
+      "Description": "The host name of the HTTPS proxy server.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/port",
+      "Description": "The port of the HTTPS proxy server.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/username",
+      "Description": "The authentication username of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/password",
+      "Description": "The authentication password of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/ntlmHost",
+      "Description": "The authentication ntlmHost of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/domain",
+      "Description": "The authentication domain of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/nonProxyHosts",
+      "Description": "A list of hosts that should be reached directly, bypassing the proxy. This is a list of patterns separated by |.",
+      "Optional": true
     }
   ],
   "HealthChecks": [
