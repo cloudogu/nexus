@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add missing keys to dogu.json
+
+### Changed
+- Exit on invalid logging key configuration
+
+### Removed
+- Remove duplicated config entries in dogu.json
 
 ## [v3.75.0-2] - 2025-01-27
 ### Changed
