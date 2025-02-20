@@ -34,7 +34,7 @@ versionXLaterEQY() {
 }
 
 # OrientDB needs to be migrated to H2 in this upgrade
-if [[ $FROM_VERSION == 3.70.2* ]] && $(versionXLaterEQY "${TO_VERSION}" "3.75.0-1"); then
+if [[ $FROM_VERSION == 3.70.2* ]] && versionXLaterEQY "${TO_VERSION}" "3.75.0-1"; then
   echo "Starting migration to H2 database now"
 
   if [ ! -e "/jars/${MIGRATION_HELPER_JAR_NAME}" ]; then
