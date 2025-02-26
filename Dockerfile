@@ -41,18 +41,18 @@ RUN set -o errexit \
   && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_BUILD_DIR}/ \
   && mv /tmp/nexus-${NEXUS_VERSION}/.[!.]* ${NEXUS_BUILD_DIR}/ \
   # install nexus-claim
-  && curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
-    https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
-  && echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
-  && tar -xf nexus-claim.tar.gz -C ${BUILD_BIN_DIR} \
+  #&& curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
+  #  https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
+  #&& echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
+  #&& tar -xf nexus-claim.tar.gz -C ${BUILD_BIN_DIR} \
   && curl --fail --silent --location --retry 3 -o nexus-scripting.tar.gz \
     https://github.com/cloudogu/nexus-scripting/releases/download/v${NEXUS_SCRIPTING_VERSION}/nexus-scripting-${NEXUS_SCRIPTING_VERSION}.tar.gz \
   && echo "${SHA256_NEXUS_SCRIPTING} *nexus-scripting.tar.gz" |sha256sum -c - \
   && tar -xf nexus-scripting.tar.gz -C ${BUILD_BIN_DIR} \
-  && curl --fail --silent --location --retry 3 -o nexus-carp.tar.gz \
-    https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
-  && echo "${SHA256_NEXUS_CARP} *nexus-carp.tar.gz" | sha256sum -c - \
-  && tar -xf nexus-carp.tar.gz -C ${BUILD_BIN_DIR} \
+  #&& curl --fail --silent --location --retry 3 -o nexus-carp.tar.gz \
+  #  https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
+  #&& echo "${SHA256_NEXUS_CARP} *nexus-carp.tar.gz" | sha256sum -c - \
+  #&& tar -xf nexus-carp.tar.gz -C ${BUILD_BIN_DIR} \
   && apk add maven \
   && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
   && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
