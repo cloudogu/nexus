@@ -6,7 +6,7 @@ LABEL maintainer="hello@cloudogu.com" \
 WORKDIR /build
 
 # The version of nexus to install
-ENV NEXUS_VERSION=3.77.1-01 \
+ENV NEXUS_VERSION=3.77.1-02 \
     TINI_VERSION=0.19.0 \
     NEXUS_CLAIM_VERSION=1.1.1 \
     NEXUS_CARP_VERSION=1.4.1 \
