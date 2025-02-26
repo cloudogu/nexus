@@ -25,8 +25,16 @@ writeDatabaseBackupScriptToFile() {
   echo 'import org.sonatype.nexus.scheduling.TaskConfiguration; import org.sonatype.nexus.scheduling.TaskScheduler; def taskScheduler = container.lookup(TaskScheduler.class.getName()); TaskConfiguration config = taskScheduler.createTaskConfigurationInstance("db.backup"); config.setEnabled(true); config.setName("orientDatabaseBackup"); config.setString("location", "/opt/sonatype/nexus"); taskScheduler.submit(config);' > "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
 }
 
+versionXEarlierEQY() {
+    printf '%s\n' "$1" "$2" | sort -c -V
+}
+
+versionXLaterEQY() {
+  versionXEarlierEQY "$2" "$1"
+}
+
 # OrientDB needs to be migrated to H2 in this upgrade
-if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
+if [[ $FROM_VERSION == 3.70.2* ]] && versionXLaterEQY "${TO_VERSION}" "3.75.0-1"; then
   echo "Starting migration to H2 database now"
 
   if [ ! -e "/jars/${MIGRATION_HELPER_JAR_NAME}" ]; then
