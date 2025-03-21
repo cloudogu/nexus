@@ -8,10 +8,11 @@ ADMINPW="${2}"
 
 if ! doguctl wait --port 8081 --timeout 120; then 
   echo "Nexus seems not to be started. Exiting."
-  exit 1
+  exit 1w
 fi
 
-ONCE_LOCK="claim/once.lock"
+ONCE_TIMESTAMP="claim/once.timestamp"
+ONCE_TIMESTAMP_LAST="claim/once.timestamp_last"
 
 # NEXUS_URL is already set correctly
 # NEXUS_SERVER is already set in Dockerfile
@@ -20,6 +21,7 @@ export NEXUS_USER="${ADMINUSER}"
 function claim() {
   CLAIM="${1}"
   PLAN=$(mktemp)
+
   if doguctl config claim/"${CLAIM}" > "${PLAN}"; then
     echo "exec claim ${CLAIM}"
     NEXUS_PASSWORD="${ADMINPW}" \
@@ -27,7 +29,9 @@ function claim() {
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-claim apply -i "-"
     if [[ "${CLAIM}" == "once" ]]; then
-      doguctl config "${ONCE_LOCK}" "true"
+      local currentDate
+      currentDate=$(date "+%Y-%m-%d %H:%M:%S")
+      doguctl config "${ONCE_TIMESTAMP_LAST}" "${currentDate}"
     fi
   fi
   rm -f "${PLAN}"
@@ -41,7 +45,30 @@ function claim_always() {
   claim "always"
 }
 
-if [[ "$(doguctl config --default "false" "${ONCE_LOCK}")" == "false" ]]; then
+function getTimestampFromConfig() {
+  local configKey="${1}"
+  local exitCode=0
+
+  result=$(doguctl config "${configKey}" --default "1970-01-01") || exitCode=$?
+  if [[ "${exitCode}" != "0" ]]; then
+    echo 0
+    return
+  fi
+
+  local timestamp
+  timestamp=$(date -d "${result}" +%s) || exitCode=$?
+  if [[ "${exitCode}" != "0" ]]; then
+    echo 0
+    return
+  fi
+
+  echo "$timestamp"
+}
+
+onceTimestamp=$(getTimestampFromConfig "${ONCE_TIMESTAMP}")
+onceTimestampLast=$(getTimestampFromConfig "${ONCE_TIMESTAMP_LAST}")
+
+if [[ "${onceTimestamp}" -ge "${onceTimestampLast}"  ]]; then
   echo "Executing claim once..."
   claim_once
 else

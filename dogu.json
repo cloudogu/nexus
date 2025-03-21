@@ -82,12 +82,12 @@
   "Configuration": [
     {
       "Name": "claim/once",
-      "Description": "A claim script definition which is only executed once. After that, it will set the claim/once.lock key which prevents further execution.",
+      "Description": "A claim script definition which is only executed once. After that, it will save the timestamp of last execution internally to prevent further executions. See 'claim/once.timestamp'.",
       "Optional": true
     },
     {
-      "Name": "claim/once.lock",
-      "Description": "If this key is set to true it will prevent the claim/once script from being executed.",
+      "Name": "claim/once.timestamp",
+      "Description": "If this set to a current timestamp, it will execute the claim/once script. The timestamp has to be in the format `YYYY-MM-DD hh:mm:ss` (e.g. `2025-03-20 09:30:00`). Before execution this timestamp is compared with the timestamp from the last execution of the 'claim/once'-script. If the timestamp entered here is “newer”, the script will be executed.",
       "Optional": true
     },
     {
