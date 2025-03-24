@@ -8,7 +8,7 @@ ADMINPW="${2}"
 
 if ! doguctl wait --port 8081 --timeout 120; then 
   echo "Nexus seems not to be started. Exiting."
-  exit 1w
+  exit 1
 fi
 
 ONCE_TIMESTAMP="claim/once.timestamp"
