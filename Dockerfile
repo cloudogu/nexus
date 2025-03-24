@@ -45,11 +45,11 @@ RUN set -e -u -o pipefail \
  && mv /tmp/nexus-${NEXUS_VERSION}/.[!.]* ${NEXUS_BUILD_DIR}/
 
 # install nexus-claim
-#RUN set -e -u -o pipefail \
- #&& curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
- #  https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
- #&& echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
- #&& tar -xf nexus-claim.tar.gz -C ${BUILD_BIN_DIR}
+RUN set -e -u -o pipefail \
+ && curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
+    https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
+ && echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
+ && tar -xf nexus-claim.tar.gz -C ${BUILD_BIN_DIR}
 
 # install nexus-scripting
 RUN set -e -u -o pipefail \
@@ -59,11 +59,11 @@ RUN set -e -u -o pipefail \
  && tar -xf nexus-scripting.tar.gz -C ${BUILD_BIN_DIR}
 
 # install nexus-carp
-#RUN set -e -u -o pipefail \
- #&& curl --fail --silent --location --retry 3 -o nexus-carp.tar.gz \
- #  https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
- #&& echo "${SHA256_NEXUS_CARP} *nexus-carp.tar.gz" | sha256sum -c - \
- #&& tar -xf nexus-carp.tar.gz -C ${BUILD_BIN_DIR}
+RUN set -e -u -o pipefail \
+ && curl --fail --silent --location --retry 3 -o nexus-carp.tar.gz \
+    https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
+ && echo "${SHA256_NEXUS_CARP} *nexus-carp.tar.gz" | sha256sum -c - \
+ && tar -xf nexus-carp.tar.gz -C ${BUILD_BIN_DIR}
 
 # install shiro
 RUN set -e -u -o pipefail \
