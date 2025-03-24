@@ -20,42 +20,56 @@ ENV NEXUS_VERSION=3.77.1-02 \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
     SHA256_NEXUS_CARP="db742df8f4c672d1aaa049efa097756d1f9b86e050331a01406cb97e11c41485"
 
-RUN set -o errexit \
-  && set -o nounset \
-  && set -o pipefail \
-  && apk update \
-  && apk upgrade \
-  && apk add curl \
-  && mkdir -p ${BUILD_BIN_DIR} \
-  # install tini
-  && curl --fail --silent --location --retry 3 -o ${BUILD_BIN_DIR}/tini \
+RUN mkdir -p ${BUILD_BIN_DIR} \
+ && mkdir -p ${NEXUS_BUILD_DIR}
+
+RUN set -e -u -o pipefail \
+ && apk update \
+ && apk upgrade \
+ && apk add curl
+
+# install tini
+RUN set -e -u -o pipefail \
+ && curl --fail --silent --location --retry 3 -o ${BUILD_BIN_DIR}/tini \
     https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-static-amd64 \
-  && echo "${SHA256_TINI} *${BUILD_BIN_DIR}/tini" |sha256sum -c - \
-  && chmod +x ${BUILD_BIN_DIR}/tini \
-  # install nexus
-  && mkdir -p ${NEXUS_BUILD_DIR} \
-  && curl --fail --silent --location --retry 3 -o nexus.tar.gz \
+ && echo "${SHA256_TINI} *${BUILD_BIN_DIR}/tini" |sha256sum -c - \
+ && chmod +x ${BUILD_BIN_DIR}/tini
+
+# install nexus
+RUN set -e -u -o pipefail \
+ && curl --fail --silent --location --retry 3 -o nexus.tar.gz \
     https://download.sonatype.com/nexus/3/nexus-unix-x86-64-${NEXUS_VERSION}.tar.gz \
-  && echo "${SHA256_NEXUS_TAR} *nexus.tar.gz" |sha256sum -c - \
-  && tar -xf nexus.tar.gz -C /tmp nexus-${NEXUS_VERSION} \
-  && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_BUILD_DIR}/ \
-  && mv /tmp/nexus-${NEXUS_VERSION}/.[!.]* ${NEXUS_BUILD_DIR}/ \
-  # install nexus-claim
-  #&& curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
-  #  https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
-  #&& echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
-  #&& tar -xf nexus-claim.tar.gz -C ${BUILD_BIN_DIR} \
-  && curl --fail --silent --location --retry 3 -o nexus-scripting.tar.gz \
+ && echo "${SHA256_NEXUS_TAR} *nexus.tar.gz" |sha256sum -c - \
+ && tar -xf nexus.tar.gz -C /tmp nexus-${NEXUS_VERSION} \
+ && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_BUILD_DIR}/ \
+ && mv /tmp/nexus-${NEXUS_VERSION}/.[!.]* ${NEXUS_BUILD_DIR}/
+
+# install nexus-claim
+#RUN set -e -u -o pipefail \
+ #&& curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
+ #  https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
+ #&& echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
+ #&& tar -xf nexus-claim.tar.gz -C ${BUILD_BIN_DIR}
+
+# install nexus-scripting
+RUN set -e -u -o pipefail \
+ && curl --fail --silent --location --retry 3 -o nexus-scripting.tar.gz \
     https://github.com/cloudogu/nexus-scripting/releases/download/v${NEXUS_SCRIPTING_VERSION}/nexus-scripting-${NEXUS_SCRIPTING_VERSION}.tar.gz \
-  && echo "${SHA256_NEXUS_SCRIPTING} *nexus-scripting.tar.gz" |sha256sum -c - \
-  && tar -xf nexus-scripting.tar.gz -C ${BUILD_BIN_DIR} \
-  #&& curl --fail --silent --location --retry 3 -o nexus-carp.tar.gz \
-  #  https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
-  #&& echo "${SHA256_NEXUS_CARP} *nexus-carp.tar.gz" | sha256sum -c - \
-  #&& tar -xf nexus-carp.tar.gz -C ${BUILD_BIN_DIR} \
-  && apk add maven \
-  && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
-  && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
+ && echo "${SHA256_NEXUS_SCRIPTING} *nexus-scripting.tar.gz" |sha256sum -c - \
+ && tar -xf nexus-scripting.tar.gz -C ${BUILD_BIN_DIR}
+
+# install nexus-carp
+#RUN set -e -u -o pipefail \
+ #&& curl --fail --silent --location --retry 3 -o nexus-carp.tar.gz \
+ #  https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
+ #&& echo "${SHA256_NEXUS_CARP} *nexus-carp.tar.gz" | sha256sum -c - \
+ #&& tar -xf nexus-carp.tar.gz -C ${BUILD_BIN_DIR}
+
+# install shiro
+RUN set -e -u -o pipefail \
+ && apk add maven \
+ && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
+ && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
 
 FROM registry.cloudogu.com/official/java:17.0.13-1
 
