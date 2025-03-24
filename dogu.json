@@ -87,7 +87,7 @@
     },
     {
       "Name": "claim/once.timestamp",
-      "Description": "If this set to a current timestamp, it will execute the claim/once script. The timestamp has to be in the format `YYYY-MM-DD hh:mm:ss` (e.g. `2025-03-20 09:30:00`). Before execution this timestamp is compared with the timestamp from the last execution of the 'claim/once'-script. If the timestamp entered here is “newer”, the script will be executed.",
+      "Description": "If set to a current timestamp, it will execute the claim/once script. The timestamp has to be in the format `YYYY-MM-DD hh:mm:ss` (e.g. `2025-03-20 09:30:00`). Before execution this timestamp is compared with the timestamp from the last execution of the 'claim/once'-script. If the timestamp entered here is “newer”, the script will be executed.",
       "Optional": true
     },
     {

@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Fixed
+- [#167] Fix "claim/once" for CES Multinode
+    - If `claim/once.timestamp` set to a current timestamp, it will execute the claim/once script. 
+      The timestamp has to be in the format `YYYY-MM-DD hh:mm:ss` (e.g. `2025-03-20 09:30:00`). 
+      Before execution this timestamp is compared with the timestamp from the last execution of the 'claim/once'-script. 
+      If the timestamp entered here is “newer”, the script will be executed.
+    - `claim/once.lock` is no longer supported. Use `claim/once.timestamp` instead.
 
 ## [v3.75.0-3] - 2025-02-13
 ### Added
