@@ -35,7 +35,7 @@ RUN set -o errexit \
   # install nexus
   && mkdir -p ${NEXUS_BUILD_DIR} \
   && curl --fail --silent --location --retry 3 -o nexus.tar.gz \
-    https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-unix.tar.gz \
+    https://download.sonatype.com/nexus/3/nexus-unix-x86-64-${NEXUS_VERSION}.tar.gz \
   && echo "${SHA256_NEXUS_TAR} *nexus.tar.gz" |sha256sum -c - \
   && tar -xf nexus.tar.gz -C /tmp nexus-${NEXUS_VERSION} \
   && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_BUILD_DIR}/ \
