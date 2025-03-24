@@ -173,8 +173,9 @@ function configureNexusAtFirstStart() {
       "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json"
 
     echo "Executing nexusConfigurationFirstStart script"
+
     NEXUS_PASSWORD="${nexusPassword}" \
-      nexus-scripting execute --insecure \
+      nexus-scripting execute \
       --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" \
       "${NEXUS_WORKDIR}/resources/nexusConfigurationFirstStart.groovy"
   else
