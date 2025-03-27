@@ -5,6 +5,14 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+* Fehler in "claim/once" für CES Multinode behoben
+    * Wenn `claim/once.timestamp` auf einen aktuellen Zeitstempel gesetzt wird, wird das "claim/once"-Skript ausgeführt.
+      Der Zeitstempel muss im Format `YYYY-MM-DD hh:mm:ss` sein (z.B. `2025-03-20 09:30:00`).
+      Vor der Ausführung wird dieser Zeitstempel mit dem Zeitstempel der letzten Ausführung des "claim/once"-Skripts verglichen.
+      Ist der hier eingegebene Zeitstempel „neuer“, wird das Skript ausgeführt.
+    * `claim/once.lock` wird nicht mehr unterstützt. Verwenden Sie stattdessen `claim/once.timestamp`.
+
+Übersetzt mit DeepL.com (kostenlose Version)
 
 ## [v3.75.0-3] - 2025-02-13
 Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
