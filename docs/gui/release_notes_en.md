@@ -5,6 +5,8 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+
+## [v3.75.0-4] - 2025-03-27
 * Fix "claim/once" for CES Multinode
   * If `claim/once.timestamp` set to a current timestamp, it will execute the "claim/once"-script.
     The timestamp has to be in the format `YYYY-MM-DD hh:mm:ss` (e.g. `2025-03-20 09:30:00`).
