@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.75.0-5] - 2025-04-25
+### Changed
+- [#169] Set sensible resource requests and limits
+
 ## [v3.75.0-4] - 2025-03-27
 ### Fixed
 - [#167] Fix "claim/once" for CES Multinode

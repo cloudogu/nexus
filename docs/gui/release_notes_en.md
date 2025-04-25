@@ -6,6 +6,10 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.75.0-5] - 2025-04-25
+### Changed
+- Usage of memory and CPU was optimized for the Kubernetes Mutlinode environment.
+
 ## [v3.75.0-4] - 2025-03-27
 * Fix "claim/once" for CES Multinode
   * If `claim/once.timestamp` set to a current timestamp, it will execute the "claim/once"-script.

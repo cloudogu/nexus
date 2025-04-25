@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.75.0-4",
+  "Version": "3.75.0-5",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -131,7 +131,8 @@
       "Optional": true,
       "Validation": {
         "Type": "BINARY_MEASUREMENT"
-      }
+      },
+      "Default": "2500m"
     },
     {
       "Name": "container_config/java_max_ram_percentage",
@@ -273,7 +274,7 @@
       "Name": "container_config/cpu_core_request",
       "Description": "Requests the container's minimal CPU core requirement. Use a positive floating value describing a fraction of 1 CPU core. When you define a value of '0.5', you are requesting half as much CPU time compared to if you asked for '1.0' CPU.",
       "Optional": true,
-      "Default": "1.0"
+      "Default": "0.35"
     },
     {
       "Name": "container_config/storage_limit",
