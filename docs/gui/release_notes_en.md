@@ -5,6 +5,8 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Changed
+- Usage of memory and CPU was optimized for the Kubernetes Mutlinode environment.
 
 ## [v3.75.0-4] - 2025-03-27
 * Fix "claim/once" for CES Multinode
