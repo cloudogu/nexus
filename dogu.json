@@ -132,7 +132,7 @@
       "Validation": {
         "Type": "BINARY_MEASUREMENT"
       },
-      "Default": "1954m"
+      "Default": "2500m"
     },
     {
       "Name": "container_config/java_max_ram_percentage",
@@ -255,7 +255,7 @@
       "Validation": {
         "Type": "BINARY_MEASUREMENT"
       },
-      "Default": "1954m"
+      "Default": "2500m"
     },
     {
       "Name": "container_config/swap_limit",
