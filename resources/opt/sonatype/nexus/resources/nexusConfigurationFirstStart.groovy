@@ -6,7 +6,9 @@ import groovy.json.JsonSlurper
 // get parameters from payload JSON file
 def configurationParameters = new JsonSlurper().parseText(args)
 
-def securitySystem = security.getSecuritySystem()
+
+// securitySystem is a private Field since 3.77.1
+def securitySystem = security.@securitySystem
 
 println("Enabling rutauth-realm")
 realmManager = container.lookup(RealmManager.class.getName())
@@ -69,3 +71,5 @@ role = new org.sonatype.nexus.security.role.Role(
 authorizationManager.addRole(role)
 
 securitySystem.changePassword("admin", configurationParameters.defaultAdminPassword, configurationParameters.newAdminPassword)
+
+println("Finished nexusConfigFirstStart")

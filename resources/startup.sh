@@ -84,6 +84,7 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   # Install default docker registry if not prohibited by config key
   if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
     installDefaultDockerRegistry
+    echo "registry installed"
   fi
 
   doguctl config successfulInitialConfiguration true
