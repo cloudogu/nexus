@@ -13,7 +13,7 @@ function startComponentRoutine() {
 
   deleteOldComponents
 
-  createNewComponents "${adminUser}" "${adminPW}" "${componentConfigs}"
+  createNewComponents "${adminUser}" "${adminPW}"
 }
 
 function waitForNexus() {
