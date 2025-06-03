@@ -163,3 +163,43 @@ function deleteUserViaAPI() {
     --user "${user}":"${pass}" \
     --url "${NEXUS_V1_URL}"/security/users/"${userID}"
 }
+
+#######################################
+# This function deletes an existing component by its id.
+# GLOBALS:
+#   NEXUS_V1_URL
+# ARGUMENTS:
+#   #1 - username for the request
+#   #2 - password for the request
+#   #3 - the ID of the component that should be deleted
+# OUTPUTS:
+#   The response from the endpoint
+# RETURN:
+#   0 if succeeds, non-zero on error
+#######################################
+function deleteComponentViaAPI() {
+  local user="$1" pass="$2" id="$3"
+
+  curl -u "${user}":"${pass}" -X DELETE "${NEXUS_V1_URL}/service/rest/v1/components/${id}"
+}
+
+#######################################
+# This function creates or updates a component.
+# GLOBALS:
+#   NEXUS_V1_URL
+# ARGUMENTS:
+#   #1 - username for the request
+#   #2 - password for the request
+#   #3 - the repository of the component
+#   #4 - the form params for the specific repository type
+#        See [Components API](https://help.sonatype.com/en/components-api.html#ComponentsAPI-UploadComponent).
+# OUTPUTS:
+#   The response from the endpoint
+# RETURN:
+#   0 if succeeds, non-zero on error
+#######################################
+function uploadComponentViaAPI() {
+  local user="$1" pass="$2" repository="$3" formParams="$4"
+
+  curl -u "${user}:${pass}" -X POST "${NEXUS_V1_URL}/service/rest/v1/components?repository${repository}" "${formParams}"
+}

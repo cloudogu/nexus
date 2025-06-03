@@ -139,6 +139,9 @@ doguctl config -e admin_pw "${ADMINPW}"
 echo "starting claim tool"
 /claim.sh "${ADMINUSER}" "${ADMINPW}"
 
+echo "upload repository components"
+/component-upload.sh "${ADMINUSER}" "${ADMINPW}"
+
 doguctl state ready
 echo "nexus is ready"
 
