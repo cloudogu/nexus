@@ -2,7 +2,7 @@
 
 Es können Dateien in vorkonfigurierten [Nexus-Repositories](preconfigure_repositories_de.md) ausgebracht werden.
 Der Mechanismus wird durch den Konfigurationsschlüssel `repository_component_uploads` gestartet.
-Files können dabei nur aus dem Volume [`repository_component_uploads`](../../dogu.json) verwendet werden.
+Files können dabei nur aus dem Volume `repository_component_uploads` verwendet werden.
 Sie müssen diese also vor dem Start des Dogus in das Volume ablegen.
 In Multinode-Umgebung müssen die Files über den Mechanismus [`additionalMounts`](https://github.com/cloudogu/k8s-dogu-operator/blob/develop/docs/operations/additional_dogu_mounts_de.md) abgelegt werden.
 

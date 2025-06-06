@@ -2,9 +2,9 @@
 
 Files can be deployed in preconfigured [Nexus repositories](preconfigure_repositories_en.md).
 The mechanism is started by the configuration key `repository_component_uploads`.
-Files can only be used from the volume [`repository_component_uploads`](../../dogu.json).
+Files can only be used from the volume `repository_component_uploads`.
 You must therefore store these in the volume before starting Dogus.
-In a multinode environment, the files must be stored using the [`additionalMounts`](https://github.com/cloudogu/k8s-dogu-operator/blob/develop/docs/operations/additional_dogu_mounts_de.md) mechanism.
+In a multinode environment, the files must be stored using the [`additionalMounts`](https://github.com/cloudogu/k8s-dogu-operator/blob/develop/docs/operations/additional_dogu_mounts_en.md) mechanism.
 
 In general, the Dogu uses the [Nexus Components REST API](https://help.sonatype.com/en/components-api.html) to copy the files to the repositories.
 The configuration `repository_component_uploads` is based on the official API.
