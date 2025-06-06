@@ -172,15 +172,13 @@ function deleteUserViaAPI() {
 #   #1 - username for the request
 #   #2 - password for the request
 #   #3 - the ID of the component that should be deleted
-# OUTPUTS:
-#   The response from the endpoint
 # RETURN:
 #   0 if succeeds, non-zero on error
 #######################################
 function deleteComponentViaAPI() {
   local user="$1" pass="$2" id="$3"
 
-  curl -u "${user}":"${pass}" -X DELETE "${NEXUS_V1_URL}/service/rest/v1/components/${id}"
+  curl -s -u "${user}":"${pass}" -X DELETE "${NEXUS_V1_URL}/components/${id}"
 }
 
 #######################################
@@ -193,13 +191,36 @@ function deleteComponentViaAPI() {
 #   #3 - the repository of the component
 #   #4 - the form params for the specific repository type
 #        See [Components API](https://help.sonatype.com/en/components-api.html#ComponentsAPI-UploadComponent).
-# OUTPUTS:
-#   The response from the endpoint
 # RETURN:
 #   0 if succeeds, non-zero on error
 #######################################
 function uploadComponentViaAPI() {
   local user="$1" pass="$2" repository="$3" formParams="$4"
 
-  curl -u "${user}:${pass}" -X POST "${NEXUS_V1_URL}/service/rest/v1/components?repository${repository}" "${formParams}"
+  # shellcheck disable=SC2086
+  curl -s -u "${user}:${pass}" ${formParams} -X POST "${NEXUS_V1_URL}/components?repository=${repository}"
+}
+
+#######################################
+# This function lists component ids with \n seperated containing the specified username as uploader.
+# It is mainly used to identify uploads by our technical admin user who changes every dogu restart but always has a fix prefix.
+# GLOBALS:
+#   NEXUS_V1_URL
+# ARGUMENTS:
+#   #1 - username for the request
+#   #2 - password for the request
+#   #3 - the repository of the component
+#   #4 - the string that should be in the username
+# OUTPUTS:
+#   The IDs of the components uploaded by the containing username.
+# RETURN:
+#   0 if succeeds, non-zero on error
+#######################################
+function getComponentIDsByUploaderInRepository() {
+  local user="$1" pass="$2" userContains="$3" repository="$4" response ids
+
+  response=$(curl -s -u "${user}:${pass}" "${NEXUS_V1_URL}/components?repository=${repository}")
+  ids=$(echo "${response}" | jq -r ".items[] | select(.assets[]? | .uploader | contains(\"${userContains}\")) | .id")
+
+  echo "${ids}"
 }
