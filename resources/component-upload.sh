@@ -7,7 +7,7 @@ LOCAL_CONFIG_KEY_CURRENT_COMPONENT_IDS="current_repository_component_ids"
 COMPONENT_CONFIG_KEY="repository_component_uploads"
 
 # shellcheck disable=SC1091
-source /nexus_api.sh
+source "${DOGU_RESOURCE_DIR}"/nexus_api.sh
 
 function startComponentRoutine() {
   local adminUser="${1}" adminPW="${2}"
@@ -95,9 +95,8 @@ function getRepositoryParameter() {
 }
 
 function getCurlComponentFormParameter() {
-  local entry=$1 repository entryWithoutRepo formEntries
+  local entry=$1 entryWithoutRepo formEntries
 
-  repository=$(echo "${entry}" | jq -r '.repository')
   entryWithoutRepo=$(echo "${entry}" | jq 'del(.repository)')
   formEntries=$(splitJSONArrayToList "$(echo "${entryWithoutRepo}" | jq 'to_entries')")
 
