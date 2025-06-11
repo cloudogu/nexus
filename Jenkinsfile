@@ -49,6 +49,10 @@ node('vagrant') {
         }
 
         try {
+            stage('Bats Tests') {
+                Bats bats = new Bats(this, docker)
+                bats.checkAndExecuteTests()
+            }
 
             stage('Provision') {
                 // change namespace to prerelease_namespace if in develop-branch
