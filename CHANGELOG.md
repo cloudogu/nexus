@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- [#171] Adds a configuration option to provision data in repositorys created by claims. See [docs](./docs/operations/preconfigure_repository_data_en.md) for usage.
+- [#171] Adds a configuration option to provision data in repositories created by claims. See [docs](./docs/operations/preconfigure_repository_data_en.md) for usage.
 
 ## [v3.75.0-5] - 2025-04-25
 ### Changed

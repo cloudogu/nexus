@@ -51,17 +51,17 @@ function createNewComponents() {
 
   # For data consistency, we need the component ids of the uploaded component.
   # On dogu restart, we delete all components by ids and recreate them.
-  # For simplicity, we track all used repositorys, fetch components from these at the end and select all id with the dogu-tool-admin as uploader
+  # For simplicity, we track all used repositories, fetch components from these at the end and select all id with the dogu-tool-admin as uploader
   # otherwise we have to handle with filename and paths from the different formular fields and assets.
-  declare -A repositorys
+  declare -A repositories
 
   for componentConfig in ${componentConfigsList}; do
     repo=$(getRepositoryParameter "${componentConfig}")
-    repositorys[${repo}]=""
+    repositories[${repo}]=""
     uploadComponent "${adminUser}" "${adminPW}" "${componentConfig}"
   done
 
-  saveComponentIDsFromRepositorys "${adminUser}" "${adminPW}" "$(declare -p repositorys)"
+  saveComponentIDsFromRepositories "${adminUser}" "${adminPW}" "$(declare -p repositories)"
 }
 
 function uploadComponent() {
@@ -74,13 +74,13 @@ function uploadComponent() {
   uploadComponentViaAPI "${adminUser}" "${adminPW}" "${repository}" "${formParams}"
 }
 
-function saveComponentIDsFromRepositorys() {
+function saveComponentIDsFromRepositories() {
   local adminUser="${1}" adminPW="${2}" repositoryHashMapStr="${3}" ids idList repoKey
-  local -A repositorys
+  local -A repositories
   eval "$repositoryHashMapStr"
 
   idList=""
-  for repoKey in "${!repositorys[@]}"; do
+  for repoKey in "${!repositories[@]}"; do
     echo "Getting IDs for repository $repoKey"
     ids="$(getComponentIDsByUploaderInRepository "${adminUser}" "${adminPW}" "dogu-tool-admin" "${repoKey}")"
     idList+=$'\n'"${ids}"
