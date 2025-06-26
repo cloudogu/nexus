@@ -178,7 +178,7 @@ function deleteUserViaAPI() {
 function deleteComponentViaAPI() {
   local user="$1" pass="$2" id="$3"
 
-  curl -s -u "${user}":"${pass}" -X DELETE "${NEXUS_V1_URL}/components/${id}"
+  curl -u "${user}":"${pass}" -X DELETE "${NEXUS_V1_URL}/components/${id}"
 }
 
 #######################################
@@ -198,7 +198,7 @@ function uploadComponentViaAPI() {
   local user="$1" pass="$2" repository="$3" formParams="$4"
 
   # shellcheck disable=SC2086
-  curl -s -u "${user}:${pass}" ${formParams} -X POST "${NEXUS_V1_URL}/components?repository=${repository}"
+  curl -u "${user}:${pass}" ${formParams} -X POST "${NEXUS_V1_URL}/components?repository=${repository}"
 }
 
 #######################################
