@@ -1,4 +1,4 @@
-FROM registry.cloudogu.com/official/java:17.0.13-1 as builder
+FROM registry.cloudogu.com/official/java:17.0.13-1 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.75.0-5"
