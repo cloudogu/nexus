@@ -6,6 +6,10 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.75.0-6] - 2025-06-27
+### Added
+- Konfigurationsoption für die automatische Befüllung von Nexus-Repositorys hinzugefügt. Siehe [docs](../operations/preconfigure_repository_data_de.md).
+
 ## [v3.75.0-5] - 2025-04-25
 ### Changed
 - Die Verwendung von Speicher und CPU wurden für die Kubernetes-Multinode-Umgebung optimiert.

@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.75.0-5",
+  "Version": "3.75.0-6",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -52,6 +52,13 @@
       "NeedsBackup": true
     },
     {
+      "Name": "repository_component_uploads",
+      "Path": "/app/data/repository_component_uploads",
+      "Owner": "1000",
+      "Group": "1000",
+      "NeedsBackup": false
+    },
+    {
       "Name": "localConfig",
       "Path": "/var/ces/config",
       "Owner": "1000",
@@ -80,6 +87,16 @@
     }
   ],
   "Configuration": [
+    {
+      "Name": "repository_component_uploads",
+      "Description": "A structure that describes file uploads to nexus repositories according the component rest api. Only files mounted in the volume 'repository_component_uploads' can be used. Missing repositories should be created with the claim scripts.",
+      "Optional": true
+    },
+    {
+      "Name": "current_repository_component_ids",
+      "Description": "Holds current component ids uploaded by `repository_component_uploads`. Only edit these values while debugging repository_component_uploads.",
+      "Optional": true
+    },
     {
       "Name": "claim/once",
       "Description": "A claim script definition which is only executed once. After that, it will save the timestamp of last execution internally to prevent further executions. See 'claim/once.timestamp'.",
