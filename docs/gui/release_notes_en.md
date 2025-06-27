@@ -6,6 +6,10 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.75.0-6] - 2025-06-27
+### Added
+- Adds a configuration option to provision data in repositories created by claims. See [docs](./docs/operations/preconfigure_repository_data_en.md) for usage.
+
 ## [v3.75.0-5] - 2025-04-25
 ### Changed
 - Usage of memory and CPU was optimized for the Kubernetes Mutlinode environment.
