@@ -1,4 +1,4 @@
-FROM registry.cloudogu.com/official/java:17.0.13-1 as builder
+FROM registry.cloudogu.com/official/java:17.0.13-1 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.75.0-5"
@@ -62,7 +62,8 @@ FROM registry.cloudogu.com/official/java:17.0.13-1
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
-    NEXUS_SERVER="http://localhost:8081/nexus"
+    NEXUS_SERVER="http://localhost:8081/nexus" \
+    DOGU_RESOURCE_DIR="/"
 
 COPY --from=builder /build /
 COPY resources /
