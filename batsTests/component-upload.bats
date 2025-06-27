@@ -55,11 +55,11 @@ END
   assert_equal "$(mock_get_call_args "${doguctl}" "1")" "config --default default current_repository_component_ids"
   assert_equal "$(mock_get_call_num "${doguctl}")" "1"
   assert_line "Delete old uploaded component with ID: 1"
-  assert_equal "$(mock_get_call_args "${curl}" "1")" "-s -u ${testUser}:${testPassword} -X DELETE ${apiURL}/components/1"
+  assert_equal "$(mock_get_call_args "${curl}" "1")" "-u ${testUser}:${testPassword} -X DELETE ${apiURL}/components/1"
   assert_line "Delete old uploaded component with ID: 2"
-  assert_equal "$(mock_get_call_args "${curl}" "2")" "-s -u ${testUser}:${testPassword} -X DELETE ${apiURL}/components/2"
+  assert_equal "$(mock_get_call_args "${curl}" "2")" "-u ${testUser}:${testPassword} -X DELETE ${apiURL}/components/2"
   assert_line "Delete old uploaded component with ID: 3"
-  assert_equal "$(mock_get_call_args "${curl}" "3")" "-s -u ${testUser}:${testPassword} -X DELETE ${apiURL}/components/3"
+  assert_equal "$(mock_get_call_args "${curl}" "3")" "-u ${testUser}:${testPassword} -X DELETE ${apiURL}/components/3"
   assert_equal "$(mock_get_call_num "${curl}")" "3"
 }
 
@@ -169,7 +169,7 @@ expectedNexusIDs=$'\n'"${nexusIDs}"
 
   assert_line "Create component in repository core with params:"
   assert_line "[$entry]"
-  assert_equal "$(mock_get_call_args "${curl}" "1")" "-s -u ${testUser}:${testPassword} -F raw.directory=dir -F raw.asset1=@/app/data/repository_component_uploads/test.html -F raw.asset1.filename=test.html -F raw.asset2=@/app/data/repository_component_uploads/test1.html -F raw.asset2.filename=test1.html -X POST ${apiURL}/components?repository=core"
+  assert_equal "$(mock_get_call_args "${curl}" "1")" "-u ${testUser}:${testPassword} -F raw.directory=dir -F raw.asset1=@/app/data/repository_component_uploads/test.html -F raw.asset1.filename=test.html -F raw.asset2=@/app/data/repository_component_uploads/test1.html -F raw.asset2.filename=test1.html -X POST ${apiURL}/components?repository=core"
 
   assert_line "Getting IDs for repository core"
   assert_equal "$(mock_get_call_args "${curl}" "2")" "-s -u ${testUser}:${testPassword} ${apiURL}/components?repository=core"
