@@ -8,7 +8,7 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [v3.75.0-6] - 2025-06-27
 ### Added
-- Konfigurationsoption für die automatische Befüllung von Nexus-Repositorys hinzugefügt. Siehe [docs](./docs/operations/preconfigure_repository_data_de.md).
+- Konfigurationsoption für die automatische Befüllung von Nexus-Repositorys hinzugefügt. Siehe [docs](../operations/preconfigure_repository_data_de.md).
 
 ## [v3.75.0-5] - 2025-04-25
 ### Changed
