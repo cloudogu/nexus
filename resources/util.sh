@@ -294,10 +294,31 @@ function installDefaultDockerRegistry() {
   echo "Installing default docker registry"
   export NEXUS_SERVER="http://localhost:8081/nexus"
 
+#  echo "waiting....."
+#  echo "${ADMINPW}"
+#  sleep infinity
+#
   NEXUS_PASSWORD="${ADMINPW}" \
     nexus-claim plan -i /defaultDockerRegistry.hcl -o "-" | \
     NEXUS_PASSWORD="${ADMINPW}" \
       nexus-claim apply -i "-"
+
+#curl -X POST \
+#  -u admin:${ADMINPW} \
+#  -H "Content-Type: application/json" \
+#  -d @<(jq -n \
+#    --arg name "createRepository" \
+#    --arg type "groovy" \
+#    --arg content "$(cat /createRepository.groovy)" \
+#    '{name: $name, type: $type, content: $content}') \
+#  http://localhost:8081/nexus/service/rest/v1/script
+#
+#curl -s -w "\nHTTP status: %{http_code}\n" \
+#  -X POST "http://localhost:8081/nexus/service/rest/v1/script/createRepository/run" \
+#  -H "Content-Type: text/plain" \
+#  -u admin:${ADMINPW} \
+#  --data-raw '{"attributes":{"docker":{"forceBasicAuth":true,"v1Enabled":false},"storage":{"blobStoreName":"default","strictContentTypeValidation":true,"writePolicy":"ALLOW"}},"format":"docker","id":"docker-registry","online":true,"recipeName":"docker-hosted","repositoryName":"docker-registry","type":"hosted"}'
+
 }
 
 function renderLoggingConfig() {
