@@ -8,7 +8,7 @@ WORKDIR /build
 # The version of nexus to install
 ENV NEXUS_VERSION=3.77.1-01 \
     TINI_VERSION=0.19.0 \
-    NEXUS_CLAIM_VERSION=1.1.1 \
+    NEXUS_CLAIM_VERSION=1.1.2 \
     NEXUS_CARP_VERSION=1.4.1 \
     NEXUS_SCRIPTING_VERSION=0.3.0 \
     SHIRO_VERSION=1.11.0 \
@@ -16,7 +16,7 @@ ENV NEXUS_VERSION=3.77.1-01 \
     BUILD_BIN_DIR=/build/usr/bin \
     SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
     SHA256_NEXUS_TAR="539ec646cbbfa2e553ae1ea53fbda001fe2dd5f9fe943105f3ace243a128fce7" \
-    SHA256_NEXUS_CLAIM="74b0f9d752855a14533e829e658cb619fc2832d845860af2e0ddbf0cdd47a785" \
+    SHA256_NEXUS_CLAIM="1f566eb7837b28c0447ed6ddd1bbee91c9d5d2d6c04d1acbced468cc57173946" \
     SHA256_NEXUS_SCRIPTING="05401ed82bfbcbb1a40b7876f1971c491974788e3a3347109f46a8754f53a03a" \
     SHA256_NEXUS_CARP="db742df8f4c672d1aaa049efa097756d1f9b86e050331a01406cb97e11c41485"
 
@@ -45,13 +45,11 @@ RUN set -e -u -o pipefail \
  && mv /tmp/nexus-${NEXUS_VERSION}/.[!.]* ${NEXUS_BUILD_DIR}/
 
 ## install nexus-claim
-#RUN set -e -u -o pipefail \
-# && curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
-#    https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
-# && echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
-# && tar -xf nexus-claim.tar.gz -C ${BUILD_BIN_DIR}
-
-COPY nexus-claim ${BUILD_BIN_DIR}
+RUN set -e -u -o pipefail \
+ && curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
+    https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
+ && echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
+ && tar -xf nexus-claim.tar.gz -C ${BUILD_BIN_DIR}
 
 # install nexus-scripting
 RUN set -e -u -o pipefail \
