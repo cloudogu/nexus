@@ -22,17 +22,15 @@ def adminGroup = configurationParameters.adminGroup
 def lastAdminGroup = configurationParameters.lastAdminGroup
 
 if ( !(adminGroup.equals(lastAdminGroup) || lastAdminGroup.equals("")) ) {
-    def securitySystem = security.getSecuritySystem()
-    def authManager = securitySystem.getAuthorizationManager('default')
 
     def adminRole = null
 
     try {
-        adminRole = authManager.getRole(adminGroup)
+        adminRole = security.getRole(adminGroup)
         adminRole.addPrivilege(ADMIN_ROLE_PRIVILEGES)
 
         println("persisting new admin role after updating it")
-        authManager.updateRole(adminRole)
+        security.updateRole(adminRole)
     } catch (org.sonatype.nexus.security.role.NoSuchRoleException e) {
         println("role " + adminRole + " does not exist, creating" + e)
 
@@ -47,14 +45,14 @@ if ( !(adminGroup.equals(lastAdminGroup) || lastAdminGroup.equals("")) ) {
         )
 
         println("persisting new admin role after creating it")
-        authManager.addRole(adminRole)
+        security.addRole(adminRole)
     }
 
     println("removing admin privilege from last admin group")
     try {
-        def lastAdminRole = authManager.getRole(lastAdminGroup)
+        def lastAdminRole = security.getRole(lastAdminGroup)
         removeAdminPrivilege(lastAdminRole, ADMIN_ROLE_PRIVILEGES)
-        authManager.updateRole(lastAdminRole)
+        security.updateRole(lastAdminRole)
     } catch (org.sonatype.nexus.security.role.NoSuchRoleException e) {
         println("last admin group " + lastAdminGroup + " does not exist. Ignoring"+ e)
     }

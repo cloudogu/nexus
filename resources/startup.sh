@@ -33,6 +33,12 @@ CES_ADMIN_GROUP=$(doguctl config --global admin_group)
 export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 
+# check whether post-upgrade script is still running
+while [[ "$(doguctl config upgrade_running)" == "true" ]]; do
+  echo "Post-upgrade script is running. Waiting..."
+  sleep 3
+done
+
 ### backup
 if [ -e "${NEXUS_DATA_DIR}"/migration ]; then
   echo "moving old nexus data to migration volume"
@@ -50,6 +56,7 @@ renderLoggingConfig
 
 echo "Setting nexus.vmoptions..."
 setNexusVmoptionsAndProperties
+setPostgresEnvVariables
 
 echo "Setting nexus.properties..."
 setNexusProperties
@@ -76,9 +83,10 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   configureNexusAtFirstStart
 
   # Install default docker registry if not prohibited by config key
-  if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
-    installDefaultDockerRegistry
-  fi
+  #TODO fix this
+  #if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
+  #  installDefaultDockerRegistry
+  #fi
 
   doguctl config successfulInitialConfiguration true
 else
@@ -111,7 +119,6 @@ nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupP
 echo "apply cleanup blobstore task"
  NEXUS_PASSWORD="${ADMINPW}" \
  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
-
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"

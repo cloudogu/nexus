@@ -15,6 +15,9 @@ MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/${MIGRATION_HELPER_JAR_NAME}"
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
 
+# upgrade_running key blocks the execution of the startup script
+doguctl config upgrade_running "true"
+
 if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
     touch "${NEXUS_DATA_DIR}"/migration
 fi

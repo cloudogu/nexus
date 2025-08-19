@@ -40,7 +40,6 @@ function setNexusVmoptionsAndProperties() {
       -Djava.net.preferIPv4Stack=true
       --add-reads=java.xml=java.logging
       --add-exports=java.base/org.apache.karaf.specs.locator=java.xml,ALL-UNNAMED
-      --patch-module=java.base=./lib/endorsed/org.apache.karaf.specs.locator-4.3.9.jar
       --patch-module=java.xml=./lib/endorsed/org.apache.karaf.specs.java.xml-4.3.9.jar
       --add-opens=java.base/java.security=ALL-UNNAMED
       --add-opens=java.base/java.net=ALL-UNNAMED
@@ -54,6 +53,7 @@ function setNexusVmoptionsAndProperties() {
       --add-exports=jdk.xml.dom/org.w3c.dom.html=ALL-UNNAMED
       --add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED
       --add-exports=java.security.sasl/com.sun.security.sasl=ALL-UNNAMED
+      --add-exports ch.qos.logback.classic/ch.qos.logback.classic.model.processor=ch.qos.logback.core
 EOF
 
   echo "Setting memory limits..."
@@ -71,6 +71,16 @@ EOF
   fi
 
   cat "${VM_OPTIONS_FILE}"
+}
+
+function setPostgresEnvVariables() {
+  user=$(doguctl config -e sa-postgresql/username)
+  pw=$(doguctl config -e sa-postgresql/password)
+  db=$(doguctl config -e sa-postgresql/database)
+
+  export NEXUS_DATASTORE_NEXUS_JDBCURL="jdbc:postgresql://postgresql:5432/${db}?user=${user}&password=${pw}&currentSchema=public"
+  export NEXUS_DATASTORE_NEXUS_USERNAME="${user}"
+  export NEXUS_DATASTORE_NEXUS_PASSWORD="${pw}"
 }
 
 function setNexusProperties() {
@@ -255,7 +265,7 @@ function validateDoguLogLevel() {
 
 function sql() {
   SQL="${1}"
-  java -jar /opt/sonatype/nexus/lib/support/nexus-orient-console.jar \ "CONNECT plocal:/var/lib/nexus/db/security admin admin; ${SQL}" > /dev/null
+  psql -d "postgresql://$(doguctl config -e sa-postgresql/username):$(doguctl config -e sa-postgresql/password)@postgresql:5432/$(doguctl config -e sa-postgresql/database)" -c "${SQL}"
 }
 
 function createPasswordHash() {
@@ -267,8 +277,8 @@ function createTemporaryAdminUser() {
   local hashed
   hashed="$(createPasswordHash "${ADMINPW}")"
   echo "Creating admin user '${ADMINUSER}'"
-  sql "INSERT INTO user (status, id, firstName, lastName, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'dogu-tool-admin@cloudogu.com', '${hashed}')"
-  sql "INSERT INTO user_role_mapping (userId, source, roles) VALUES ('${ADMINUSER}', 'default', 'nx-admin')"
+  sql "INSERT INTO security_user (status, id, first_name, last_name, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'dogu-tool-admin@cloudogu.com', '${hashed}');"
+  sql "INSERT INTO user_role_mapping (user_id, user_lo, source, roles) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', '[\"nx-admin\"]');"
   doguctl config last_tmp_admin "${ADMINUSER}"
   doguctl config last_tmp_admin_pw "${ADMINPW}"
 }
@@ -282,8 +292,8 @@ function removeLastTemporaryAdminUser() {
   fi
 
   echo "Removing last tmp admin user '${userid}'"
-  sql "DELETE FROM user_role_mapping WHERE userId='${userid}'"
-  sql "DELETE FROM user WHERE id='${userid}'"
+  sql "DELETE FROM user_role_mapping WHERE user_id='${userid}';"
+  sql "DELETE FROM security_user WHERE id='${userid}';"
   doguctl config --rm last_tmp_admin
   doguctl config --rm last_tmp_admin_pw
 }

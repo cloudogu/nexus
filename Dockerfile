@@ -62,7 +62,9 @@ FROM registry.cloudogu.com/official/java:17.0.13-1
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
-    NEXUS_SERVER="http://localhost:8081/nexus"
+    NEXUS_SERVER="http://localhost:8081/nexus" \
+    # Nexus uses their own jdk by default
+    INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-17-openjdk
 
 COPY --from=builder /build /
 COPY resources /
@@ -75,6 +77,9 @@ RUN set -o errexit \
   && apk update \
   && apk upgrade \
   && apk add --no-cache curl \
+  && apk add libc6-compat \
+  # use psql14 client until the postgresql database gets updated to newest version
+  && apk add postgresql14-client \
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
   && adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \
