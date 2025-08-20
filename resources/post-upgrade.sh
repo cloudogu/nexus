@@ -33,7 +33,7 @@ waitForDatabaseBackup() {
 }
 
 echo "executing post upgrade"
-if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.82.0* ]]; then
+if [[ ($FROM_VERSION == 3.70.2* && $TO_VERSION == 3.82.0*) || ($FROM_VERSION == 3.75.0* && $TO_VERSION == 3.82.0*) ]]; then
   # Migration from H2 to postgresql database
   # this follows the official guide from https://help.sonatype.com/en/migrating-to-a-new-database.html#migrating-from-h2-to-postgresql
   echo "Starting migration from H2 to postgresql."
@@ -75,8 +75,8 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.82.0* ]]; then
 
   cd "${WORKDIR}"
 
-  # delete backup artifact
-  rm -rf ${NEXUS_DATA_DIR}/db/nexus-*.zip
+  # delete db directory as it is not needed anymore
+  rm -rf ${NEXUS_DATA_DIR}/db
 
   # clean up postgresql db after migration as suggested by nexus
   echo "Cleaning up postgresql database after migrating."
