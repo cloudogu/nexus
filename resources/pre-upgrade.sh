@@ -80,6 +80,7 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.82.0* ]]; then
   chown "nexus:nexus" "${NEXUS_DATA_DIR}/db/nexus.mv.db"
   doguctl config migratedDatabase "true"
   rm -rf "${MIGRATION_HELPER_JAR}"
+
   echo "Database migration completed. Nexus now runs on the H2 database"
   echo "Starting new Nexus version ${TO_VERSION}"
 fi

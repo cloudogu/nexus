@@ -44,7 +44,9 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.82.0* ]]; then
   echo "Starting nexus"
   setNexusVmoptionsAndProperties
   setNexusProperties
-  startNexus
+  # start with nexus user, otherwise nexus creates elasticsearch directories with root user, which crashes nexus in startup
+  su nexus -c '"${NEXUS_WORKDIR}/bin/nexus" run' &
+    NEXUS_PID=$!
 
   # wait for nexus to get ready before creating backup
   while [[ "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/nexus/service/rest/v1/status)" != "200" ]]; do
@@ -57,8 +59,8 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.82.0* ]]; then
   waitForDatabaseBackup
 
   # nexus cannot be running while the migration is being performed
-  echo "Stopping Nexus"
-  kill -TERM "$NEXUS_PID" || true
+  echo "Stopping Nexus. There might be database errors as a result of this"
+  su nexus -c '"${NEXUS_WORKDIR}/bin/nexus" stop'
   wait "$NEXUS_PID" || true
 
   echo "Migrating to postgresql"
