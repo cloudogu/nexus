@@ -83,10 +83,9 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   configureNexusAtFirstStart
 
   # Install default docker registry if not prohibited by config key
-  #TODO fix this
-  #if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
-  #  installDefaultDockerRegistry
-  #fi
+  if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
+    installDefaultDockerRegistry
+  fi
 
   doguctl config successfulInitialConfiguration true
 else
