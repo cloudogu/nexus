@@ -6,7 +6,7 @@
 
     <jmxConfigurator/>
 
-    <appender name="osgi" class="org.ops4j.pax.logging.logback.appender.PaxAppenderDelegate">
+    <appender name="osgi" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="org.sonatype.nexus.logging.NexusLogFilter" />
     </appender>
 
