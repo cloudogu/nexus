@@ -101,7 +101,12 @@ else
 
   echo "Configuring Nexus for subsequent start..."
   configureNexusAtSubsequentStart
+fi
 
+if [[ $(doguctl config --default "false" migratedDatabase) == "true" ]]; then
+  # remove now unusable backup script
+  curl -u "${ADMINUSER}":"${ADMINPW}" -X DELETE -s http://localhost:8081/nexus/service/rest/v1/script/nexusBackupOrientDBTask
+  doguctl config --rm migratedDatabase
 fi
 
 echo "writing admin_group_last to local config"
@@ -112,12 +117,13 @@ NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusConfParameters.json" "${NEXUS_WORKDIR}/resources/proxyConfiguration.groovy"
 
 echo "apply cleanup policy"
- NEXUS_PASSWORD="${ADMINPW}" \
-nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
+NEXUS_PASSWORD="${ADMINPW}" \
+  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCleanupPolicies.json" "${NEXUS_WORKDIR}/resources/nexusSetupCleanupPolicies.groovy"
 
 echo "apply cleanup blobstore task"
- NEXUS_PASSWORD="${ADMINPW}" \
- nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
+NEXUS_PASSWORD="${ADMINPW}" \
+  nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
+
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"
@@ -133,6 +139,9 @@ doguctl config -e admin_pw "${ADMINPW}"
 
 echo "starting claim tool"
 /claim.sh "${ADMINUSER}" "${ADMINPW}"
+
+echo "upload repository components"
+/component-upload.sh "${ADMINUSER}" "${ADMINPW}"
 
 doguctl state ready
 echo "nexus is ready"

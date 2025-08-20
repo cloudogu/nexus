@@ -59,6 +59,13 @@
       "NeedsBackup": true
     },
     {
+      "Name": "repository_component_uploads",
+      "Path": "/app/data/repository_component_uploads",
+      "Owner": "1000",
+      "Group": "1000",
+      "NeedsBackup": false
+    },
+    {
       "Name": "localConfig",
       "Path": "/var/ces/config",
       "Owner": "1000",
@@ -92,13 +99,23 @@
   ],
   "Configuration": [
     {
-      "Name": "claim/once",
-      "Description": "A claim script definition which is only executed once. After that, it will set the claim/once.lock key which prevents further execution.",
+      "Name": "repository_component_uploads",
+      "Description": "A structure that describes file uploads to nexus repositories according the component rest api. Only files mounted in the volume 'repository_component_uploads' can be used. Missing repositories should be created with the claim scripts.",
       "Optional": true
     },
     {
-      "Name": "claim/once.lock",
-      "Description": "If this key is set to true it will prevent the claim/once script from being executed.",
+      "Name": "current_repository_component_ids",
+      "Description": "Holds current component ids uploaded by `repository_component_uploads`. Only edit these values while debugging repository_component_uploads.",
+      "Optional": true
+    },
+    {
+      "Name": "claim/once",
+      "Description": "A claim script definition which is only executed once. After that, it will save the timestamp of last execution internally to prevent further executions. See 'claim/once.timestamp'.",
+      "Optional": true
+    },
+    {
+      "Name": "claim/once.timestamp",
+      "Description": "If set to a current timestamp, it will execute the claim/once script. The timestamp has to be in the format `YYYY-MM-DD hh:mm:ss` (e.g. `2025-03-20 09:30:00`). Before execution this timestamp is compared with the timestamp from the last execution of the 'claim/once'-script. If the timestamp entered here is “newer”, the script will be executed.",
       "Optional": true
     },
     {
@@ -142,15 +159,8 @@
       "Optional": true,
       "Validation": {
         "Type": "BINARY_MEASUREMENT"
-      }
-    },
-    {
-      "Name": "container_config/swap_limit",
-      "Description": "Limits the container's swap memory usage. Use zero or a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte). 0 will disable swapping.",
-      "Optional": true,
-      "Validation": {
-        "Type": "BINARY_MEASUREMENT"
-      }
+      },
+      "Default": "2500m"
     },
     {
       "Name": "container_config/java_max_ram_percentage",
@@ -267,14 +277,6 @@
       "Default": "30"
     },
     {
-      "Name": "container_config/memory_limit",
-      "Description": "Limits the container's memory usage. Use a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte).",
-      "Optional": true,
-      "Validation": {
-        "Type": "BINARY_MEASUREMENT"
-      }
-    },
-    {
       "Name": "container_config/memory_request",
       "Description": "Requests the container's minimal memory requirement. Use a positive integer value followed by one of these units [b,k,m,g] (byte, kibibyte, mebibyte, gibibyte).",
       "Optional": true,
@@ -300,7 +302,7 @@
       "Name": "container_config/cpu_core_request",
       "Description": "Requests the container's minimal CPU core requirement. Use a positive floating value describing a fraction of 1 CPU core. When you define a value of '0.5', you are requesting half as much CPU time compared to if you asked for '1.0' CPU.",
       "Optional": true,
-      "Default": "1.0"
+      "Default": "0.35"
     },
     {
       "Name": "container_config/storage_limit",
@@ -317,6 +319,71 @@
       "Validation": {
         "Type": "BINARY_MEASUREMENT"
       }
+    },
+    {
+      "Name": "proxyConfiguration/http/host",
+      "Description": "The host name of the HTTP proxy server. This has to be set for HTTPS and non proxy hosts, too.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/port",
+      "Description": "The port of the HTTP proxy server. This has to be set for HTTPS and non proxy hosts, too.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/username",
+      "Description": "The authentication username of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/password",
+      "Description": "The authentication password of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/ntlmHost",
+      "Description": "The authentication ntlmHost of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/http/authentication/domain",
+      "Description": "The authentication domain of the HTTP proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/host",
+      "Description": "The host name of the HTTPS proxy server.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/port",
+      "Description": "The port of the HTTPS proxy server.",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/username",
+      "Description": "The authentication username of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/password",
+      "Description": "The authentication password of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/ntlmHost",
+      "Description": "The authentication ntlmHost of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/https/authentication/domain",
+      "Description": "The authentication domain of the HTTPS proxy server. Use either username and password or a NTLM hostname and domain (if using a Windows NT LAN Manager).",
+      "Optional": true
+    },
+    {
+      "Name": "proxyConfiguration/nonProxyHosts",
+      "Description": "A list of hosts that should be reached directly, bypassing the proxy. This is a list of patterns separated by |.",
+      "Optional": true
     }
   ],
   "HealthChecks": [

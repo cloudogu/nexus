@@ -1,4 +1,4 @@
-FROM registry.cloudogu.com/official/java:11.0.24-3 as builder
+FROM registry.cloudogu.com/official/java:17.0.13-1 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.82.0-1"
@@ -63,6 +63,7 @@ ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
     NEXUS_SERVER="http://localhost:8081/nexus" \
+    DOGU_RESOURCE_DIR="/"
     # Nexus uses their own jdk by default
     INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-17-openjdk
 

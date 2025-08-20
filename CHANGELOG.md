@@ -6,6 +6,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.75.0-6] - 2025-06-27
+### Added
+- [#171] Adds a configuration option to provision data in repositories created by claims. See [docs](./docs/operations/preconfigure_repository_data_en.md) for usage.
+
+## [v3.75.0-5] - 2025-04-25
+### Changed
+- [#169] Set sensible resource requests and limits
+
+## [v3.75.0-4] - 2025-03-27
+### Fixed
+- [#167] Fix "claim/once" for CES Multinode
+    - If `claim/once.timestamp` set to a current timestamp, it will execute the claim/once script. 
+      The timestamp has to be in the format `YYYY-MM-DD hh:mm:ss` (e.g. `2025-03-20 09:30:00`). 
+      Before execution this timestamp is compared with the timestamp from the last execution of the 'claim/once'-script. 
+      If the timestamp entered here is “newer”, the script will be executed.
+    - `claim/once.lock` is no longer supported. Use `claim/once.timestamp` instead.
+
+## [v3.75.0-3] - 2025-02-13
+### Added
+- Add missing keys to dogu.json
+
+### Changed
+- Exit on invalid logging key configuration
+
+### Removed
+- Remove duplicated config entries in dogu.json
+
+## [v3.75.0-2] - 2025-01-27
+### Changed
+- [#156] Update Makefiles to 9.5.2
+- [#156] Update java base image to 17.0.13-1
+- [#158] Update ces-build-lib to 4.0.1 and dogu-build-lib to v3.0.0
+
+## [v3.75.0-1] - 2024-12-19
+### Changed
+- [#149] update base image to OpenJDK 17.0.12-3
+- Upgrade Nexus to version 3.75.0-03
+  - this required a switch from the OrientDB to the H2 DB
+  - database migration will be performed automatically
+- Warning: the database migration can only be performed when upgrading from v3.70.2 to v3.75.0
+- [#154] The internal makefiles have been updated to standardize the versioning of the release notes.
+
 ## [v3.70.2-5] - 2024-12-09
 ### Added
 - [#151] OrientDB database migration jar in preparation for 3.75 update

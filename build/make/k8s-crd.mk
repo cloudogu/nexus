@@ -1,4 +1,10 @@
-ARTIFACT_CRD_ID = $(ARTIFACT_ID)-crd
+# we set this default to maintain compatibility with CRDs that are still inside monorepos
+APPEND_CRD_SUFFIX ?= true
+ifeq ($(APPEND_CRD_SUFFIX), true)
+	ARTIFACT_CRD_ID = $(ARTIFACT_ID)-crd
+else ifeq ($(APPEND_CRD_SUFFIX), false)
+	ARTIFACT_CRD_ID = $(ARTIFACT_ID)
+endif
 DEV_CRD_VERSION ?= ${VERSION}-dev
 HELM_CRD_SOURCE_DIR ?= ${WORKDIR}/k8s/helm-crd
 HELM_CRD_TARGET_DIR ?= $(K8S_RESOURCE_TEMP_FOLDER)/helm-crd
@@ -28,7 +34,7 @@ crd-add-labels: $(BINARY_YQ)
 	@echo "Adding labels to CRD..."
 	@for file in ${HELM_CRD_SOURCE_DIR}/templates/*.yaml ; do \
 		$(BINARY_YQ) -i e ".metadata.labels.app = \"ces\"" $${file} ;\
-		$(BINARY_YQ) -i e ".metadata.labels.\"app.kubernetes.io/name\" = \"${ARTIFACT_ID}\"" $${file} ;\
+		$(BINARY_YQ) -i e ".metadata.labels.\"app.kubernetes.io/name\" = \"${ARTIFACT_CRD_ID}\"" $${file} ;\
 	done
 
 .PHONY: crd-helm-generate ## Generates the Helm CRD chart
@@ -105,7 +111,7 @@ crd-component-generate: ${K8S_RESOURCE_TEMP_FOLDER} ## Generate the CRD componen
 	fi
 
 .PHONY: crd-component-apply
-crd-component-apply: check-k8s-namespace-env-var crd-helm-chart-import crd-component-generate ## Applies the CRD component YAML resource to the actual defined context.
+crd-component-apply: isLocal check-k8s-namespace-env-var crd-helm-chart-import crd-component-generate ## Applies the CRD component YAML resource to the actual defined context.
 	@kubectl apply -f "${K8S_RESOURCE_CRD_COMPONENT}" --namespace="${NAMESPACE}" --context="${KUBE_CONTEXT_NAME}"
 	@echo "Done."
 
