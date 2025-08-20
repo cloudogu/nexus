@@ -9,7 +9,7 @@ WORKDIR /build
 ENV NEXUS_VERSION=3.82.0-08 \
     TINI_VERSION=0.19.0 \
     NEXUS_CLAIM_VERSION=1.1.1 \
-    NEXUS_CARP_VERSION=1.4.1 \
+    NEXUS_CARP_VERSION=1.6.0 \
     NEXUS_SCRIPTING_VERSION=0.2.0 \
     SHIRO_VERSION=1.11.0 \
     NEXUS_BUILD_DIR=/build/opt/sonatype/nexus \
@@ -18,7 +18,7 @@ ENV NEXUS_VERSION=3.82.0-08 \
     SHA256_NEXUS_TAR="697eacdda855e6f81a861465b7febaf190da12c4aa298268805b87d894302d35" \
     SHA256_NEXUS_CLAIM="74b0f9d752855a14533e829e658cb619fc2832d845860af2e0ddbf0cdd47a785" \
     SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
-    SHA256_NEXUS_CARP="db742df8f4c672d1aaa049efa097756d1f9b86e050331a01406cb97e11c41485"
+    SHA256_NEXUS_CARP="d79d75bd54565029cd4ff2201494ac39342e7841f63676a64bf86f2e069dcdd3"
 
 RUN set -o errexit \
   && set -o nounset \
@@ -78,7 +78,8 @@ RUN set -o errexit \
   && apk upgrade \
   && apk add --no-cache curl \
   && apk add libc6-compat \
-  # use psql14 client until the postgresql database gets updated to newest version
+  # use psql14 client until the postgresql database gets updated to newest version \
+  # ignore the warning in the logs until then
   && apk add postgresql14-client \
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
