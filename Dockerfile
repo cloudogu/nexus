@@ -63,7 +63,7 @@ ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
     NEXUS_WORKDIR=/opt/sonatype/nexus \
     NEXUS_SERVER="http://localhost:8081/nexus" \
-    DOGU_RESOURCE_DIR="/"
+    DOGU_RESOURCE_DIR="/" \
     # Nexus uses their own jdk by default
     INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-17-openjdk
 

@@ -60,7 +60,7 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.82.0* ]]; then
 
   # nexus cannot be running while the migration is being performed
   echo "Stopping Nexus. There might be database errors as a result of this"
-  su nexus -c '"${NEXUS_WORKDIR}/bin/nexus" stop'
+  kill -TERM "$NEXUS_PID" || true
   wait "$NEXUS_PID" || true
 
   echo "Migrating to postgresql"
