@@ -93,6 +93,9 @@ else
   removeLastTemporaryAdminUser
   createTemporaryAdminUser
 
+  echo "removing session timeout"
+  removeSessionTimeout
+
   echo "Starting Nexus..."
   startNexus
 
@@ -123,7 +126,6 @@ NEXUS_PASSWORD="${ADMINPW}" \
 echo "apply cleanup blobstore task"
 NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
-
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"

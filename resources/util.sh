@@ -73,16 +73,6 @@ EOF
   cat "${VM_OPTIONS_FILE}"
 }
 
-function setPostgresEnvVariables() {
-  user=$(doguctl config -e sa-postgresql/username)
-  pw=$(doguctl config -e sa-postgresql/password)
-  db=$(doguctl config -e sa-postgresql/database)
-
-  export NEXUS_DATASTORE_NEXUS_JDBCURL="jdbc:postgresql://postgresql:5432/${db}?user=${user}&password=${pw}&currentSchema=public"
-  export NEXUS_DATASTORE_NEXUS_USERNAME="${user}"
-  export NEXUS_DATASTORE_NEXUS_PASSWORD="${pw}"
-}
-
 function setNexusProperties() {
   echo "Creating properties file..."
   mkdir -p ${NEXUS_DATA_DIR}/etc
@@ -368,4 +358,24 @@ function removeLastTemporaryAdminUser() {
   sql "DELETE FROM security_user WHERE id='${userid}';"
   doguctl config --rm last_tmp_admin
   doguctl config --rm last_tmp_admin_pw
+}
+
+# Nexus has a default session timeout of 30 minutes
+# it is removed by setting the time to 0ms
+# If it is not removed, the ui crashes after 30 minutes of inactivity
+function removeSessionTimeout() {
+  # manipulate the database entry directly, until nexus adds this feature to the capabilities api
+  sql "UPDATE capability_storage_item
+     SET properties = jsonb_set(properties, '{sessionTimeout}', '\"0\"', true)
+   WHERE type = 'rapture.settings';"
+}
+
+function setPostgresEnvVariables() {
+  user=$(doguctl config -e sa-postgresql/username)
+  pw=$(doguctl config -e sa-postgresql/password)
+  db=$(doguctl config -e sa-postgresql/database)
+
+  export NEXUS_DATASTORE_NEXUS_JDBCURL="jdbc:postgresql://postgresql:5432/${db}?user=${user}&password=${pw}&currentSchema=public"
+  export NEXUS_DATASTORE_NEXUS_USERNAME="${user}"
+  export NEXUS_DATASTORE_NEXUS_PASSWORD="${pw}"
 }
