@@ -82,6 +82,14 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
 
+  # nexus needs to be stopped to execute database queries
+  echo "restarting nexus to apply session timeout config"
+  terminateNexus
+  echo "removing session timeout"
+  removeSessionTimeout
+  startNexus
+  waitForHealthEndpointAtFirstStart "${ADMINUSER}"
+
   # Install default docker registry if not prohibited by config key
   if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
     installDefaultDockerRegistry

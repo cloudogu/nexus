@@ -280,14 +280,18 @@ function waitForHealthEndpointAtSubsequentStart() {
 }
 
 function terminateNexusAndNexusCarp() {
-  echo "kill nexus"
-  kill -TERM "$NEXUS_PID" || true
-  wait "$NEXUS_PID" || true
-  echo "kill nexus-carp"
+  terminateNexus
+  echo "Stopping nexus-carp"
   kill -TERM "$NEXUS_CARP_PID" || true
   wait "$NEXUS_CARP_PID" || true
   echo "Nexus shut down gracefully"
   exit 1
+}
+
+function terminateNexus() {
+  echo "Stopping nexus"
+  kill -TERM "$NEXUS_PID" || true
+  wait "$NEXUS_PID" || true
 }
 
 function installDefaultDockerRegistry() {
