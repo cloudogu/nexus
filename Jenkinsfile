@@ -71,6 +71,7 @@ node('vagrant') {
                 timeout(15) {
                     ecoSystem.waitForDogu("cas")
                     ecoSystem.waitForDogu("usermgt")
+                    ecoSystem.waitForDogu("postgresql")
                 }
             }
 
