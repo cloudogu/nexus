@@ -64,7 +64,7 @@ node('vagrant') {
 
             stage('Setup') {
                 ecoSystem.loginBackend('cesmarvin-setup')
-                ecoSystem.setup()
+                ecoSystem.setup([additionalDependencies: ['official/postgresql']])
             }
 
             stage('Wait for dependencies') {
