@@ -6,10 +6,11 @@ const fullyLoadPageAndClosePopups = () => {
     cy.contains("User signed in", {timeout: 10000}).should("be.visible");
 
     cy.get("body").then(body => {
-        if (body.children("div[role='presentation'].x-mask.x-border-box").length > 0){
+        if (body.children("div[role='presentation'].x-css-shadow").length > 0){
             cy.get("span").contains("Next").click();
-            cy.get("label").contains("No, not interested.").click();
-            cy.get("span").contains("Next").click({force: true});
+            cy.get("span").contains("Next").click();
+            cy.get("span").contains("Agree").click({force: true});
+            cy.wait(1000)
             cy.get("span").contains("Finish").click();
         }
     });

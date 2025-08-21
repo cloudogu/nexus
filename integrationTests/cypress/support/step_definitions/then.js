@@ -4,11 +4,11 @@ const {
 
 
 Then(/^the user can see administration icon$/, function () {
-    cy.get('#button-1125-btnIconEl').should('be.visible')
+    cy.get('a[href="#admin/repository]').should('be.visible')
 });
 
 Then(/^the user cannot see administration icon$/, function () {
-    cy.get('#button-1125-btnIconEl').should('not.be.visible')
+    cy.get('a[href="#admin/repository]').should('not.be.visible')
 });
 
 Then(/^the user can access scripts api$/, function () {
