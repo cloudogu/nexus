@@ -1,7 +1,7 @@
 FROM registry.cloudogu.com/official/java:17.0.13-1 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.82.0-1"
+    VERSION="3.75.0-6"
 
 WORKDIR /build
 
@@ -39,7 +39,6 @@ RUN set -o errexit \
   && echo "${SHA256_NEXUS_TAR} *nexus.tar.gz" |sha256sum -c - \
   && tar -xf nexus.tar.gz -C /tmp nexus-${NEXUS_VERSION} \
   && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_BUILD_DIR}/ \
-  # && mv /tmp/nexus-${NEXUS_VERSION}/.[!.]* ${NEXUS_BUILD_DIR}/ \
   # install nexus-claim
   && curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
     https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
@@ -78,7 +77,6 @@ RUN set -o errexit \
   && apk update \
   && apk upgrade \
   && apk add --no-cache curl \
-  && apk add libc6-compat \
   # use psql14 client until the postgresql database gets updated to newest version \
   # ignore the warning in the logs until then
   && apk add postgresql14-client \

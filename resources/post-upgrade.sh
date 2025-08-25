@@ -8,7 +8,7 @@ set -o pipefail
 source /util.sh
 
 NEXUS_DATA_DIR=/var/lib/nexus
-MIGRATION_HELPER_JAR_NAME="nexus-db-migrator-3.70.3-01.jar"
+MIGRATION_HELPER_JAR_NAME="nexus-db-migrator.jar"
 MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/${MIGRATION_HELPER_JAR_NAME}"
 NEXUS_WORKDIR=/opt/sonatype/nexus
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
@@ -38,7 +38,7 @@ if [[ ($FROM_VERSION == 3.70.2* && $TO_VERSION == 3.82.0*) || ($FROM_VERSION == 
   # this follows the official guide from https://help.sonatype.com/en/migrating-to-a-new-database.html#migrating-from-h2-to-postgresql
   echo "Starting migration from H2 to postgresql."
   # copy the migrator jar to the location nexus expects it to be in
-  cp /jars/nexus-db-migrator-3.70.3-01.jar "${NEXUS_DATA_DIR}/db/${MIGRATION_HELPER_JAR_NAME}"
+  cp "$(find /jars -maxdepth 1 -name 'nexus-db-migrator*' | head -n1)" "${NEXUS_DATA_DIR}/db/${MIGRATION_HELPER_JAR_NAME}"
 
   # start nexus
   echo "Starting nexus"
@@ -48,8 +48,14 @@ if [[ ($FROM_VERSION == 3.70.2* && $TO_VERSION == 3.82.0*) || ($FROM_VERSION == 
   su nexus -c '"${NEXUS_WORKDIR}/bin/nexus" run' &
     NEXUS_PID=$!
 
-  # wait for nexus to get ready before creating backup
+  # wait up to ten minutes for nexus to get ready before creating backup
+  counter=0
   while [[ "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/nexus/service/rest/v1/status)" != "200" ]]; do
+    if [ "$counter" -gt 120 ]; then
+      echo "waited more than ten minutes for nexus to get ready"
+      return 1
+    fi
+    counter++
     sleep 5
   done
 
@@ -68,19 +74,19 @@ if [[ ($FROM_VERSION == 3.70.2* && $TO_VERSION == 3.82.0*) || ($FROM_VERSION == 
   cd "${NEXUS_DATA_DIR}/db"
 
   java -Xmx16G -Xms16G -XX:+UseG1GC -XX:MaxDirectMemorySize=28672M \
-  -jar nexus-db-migrator-*.jar \
+  -jar "${MIGRATION_HELPER_JAR_NAME}" \
   --migration_type=h2_to_postgres \
   --yes \
   --db_url="jdbc:postgresql://postgresql:5432/${DATABASE_DB}?user=${DATABASE_USER}&password=${DATABASE_PASSWORD}&currentSchema=public"
 
   cd "${WORKDIR}"
 
-  # delete db directory as it is not needed anymore
-  rm -rf ${NEXUS_DATA_DIR}/db
-
   # clean up postgresql db after migration as suggested by nexus
   echo "Cleaning up postgresql database after migrating."
   sql "VACUUM(FULL, ANALYZE, VERBOSE);"
+
+  # delete db directory as it is not needed anymore
+  rm -rf ${NEXUS_DATA_DIR}/db
 
   echo "The migration was successful. Nexus now uses the external postgres database"
 fi
