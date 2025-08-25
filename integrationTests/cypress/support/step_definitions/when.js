@@ -9,3 +9,8 @@ When(/^the user clicks the logout button$/, function () {
         .find('button.nx-dropdown-button')
         .click()
 });
+
+When(/^cache is cleared$/, function () {
+    cy.clearCookies()
+    cy.clearLocalStorage()
+});

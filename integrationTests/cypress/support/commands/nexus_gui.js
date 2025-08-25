@@ -7,11 +7,11 @@ const fullyLoadPageAndClosePopups = () => {
 
     cy.get("body").then(body => {
         if (body.children("div[role='presentation'].x-css-shadow").length > 0){
-            cy.get("span").contains("Next").click();
-            cy.get("span").contains("Next").click();
+            cy.get("span").contains("Next").click({force: true});
+            cy.get("span").contains("Next").click({force: true});
             cy.get("span").contains("Agree").click({force: true});
             cy.wait(1000)
-            cy.get("span").contains("Finish").click();
+            cy.get("span").contains("Finish").click({force: true});
         }
     });
 
