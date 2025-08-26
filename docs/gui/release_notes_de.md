@@ -5,6 +5,13 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Changed
+* Update der Nexus Version auf 3.82.0-08
+* Nexus nutzt ab dieser Version eine postgresql-Datenbank statt der bisherigen OrientDB/H2
+    * Beim Upgrade von 3.70.2-5 und 3.75.0-1 wird die Datenbank automatisch migriert
+    * Es ist **nicht** möglich von einer pre-3.70.2-x-Version auf diese Version upzugraden. In diesem Fall muss erst auf die aktuellste 3.70.2-Version geupgraded werden.
+    * In airgapped-Systemen muss zuerst die Version 3.70.2-5/3.75.0-1 installiert werden, da sich die benötigte Migrations-Jar in dieser Version befindet
+    * Achtung: Die Migration benötigt mindestens 16GB Arbeitsspeicher
 
 ## [v3.75.0-6] - 2025-06-27
 ### Added

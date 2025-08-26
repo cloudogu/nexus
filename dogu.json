@@ -26,6 +26,11 @@
     {
       "type": "dogu",
       "name": "postfix"
+    },
+    {
+      "type": "dogu",
+      "name": "postgresql",
+      "version": ">=14.18-2"
     }
   ],
   "ServiceAccounts": [
@@ -34,6 +39,9 @@
       "Params": [
         "cas"
       ]
+    },
+    {
+      "Type": "postgresql"
     }
   ],
   "Volumes": [
@@ -80,6 +88,10 @@
     {
       "Name": "pre-upgrade",
       "Command": "/pre-upgrade.sh"
+    },
+    {
+      "Name": "post-upgrade",
+      "Command": "/post-upgrade.sh"
     },
     {
       "Name": "upgrade-notification",

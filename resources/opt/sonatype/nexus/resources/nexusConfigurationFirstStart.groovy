@@ -1,12 +1,11 @@
 import org.sonatype.nexus.capability.CapabilityRegistry
 import org.sonatype.nexus.capability.CapabilityType
 import org.sonatype.nexus.security.realm.RealmManager
+import org.sonatype.nexus.security.SecuritySystem
 import groovy.json.JsonSlurper
 
 // get parameters from payload JSON file
 def configurationParameters = new JsonSlurper().parseText(args)
-
-def securitySystem = security.getSecuritySystem()
 
 println("Enabling rutauth-realm")
 realmManager = container.lookup(RealmManager.class.getName())
@@ -14,10 +13,15 @@ realmManager.enableRealm("rutauth-realm")
 
 println("Add rutauth capability")
 capabilityRegistry = container.lookup(CapabilityRegistry.class)
-capabilityType = new CapabilityType("rutauth")
 Map properties = new HashMap<String, String>();
 properties.put("httpHeader", "X-CARP-Authentication")
-capabilityRegistry.add(capabilityType, true, null, properties)
+def existing = capabilityRegistry.all.find { it.type().toString() == "rutauth" }
+if (existing) {
+    capabilityRegistry.update(existing.id(), existing.active, existing.notes(), properties)
+} else {
+    capabilityType = new CapabilityType("rutauth")
+    capabilityRegistry.add(capabilityType, true, null, properties)
+}
 
 if (configurationParameters.disableOutreachManagement == "true") {
     for (c in capabilityRegistry.getAll()) {
@@ -35,37 +39,11 @@ println("Disabling anonymous access")
 security.setAnonymousAccess(false)
 
 println("Creating ces admin group role")
-authorizationManager = securitySystem.getAuthorizationManager('default')
-role = new org.sonatype.nexus.security.role.Role(
-    roleId: configurationParameters.adminGroup,
-    source: "CAS",
-    name: configurationParameters.adminGroup,
-    description: "Administrator of CES",
-    readOnly: false,
-    privileges: [ "nx-all" ],
-    roles: []
-)
-authorizationManager.addRole(role)
+security.addRole(configurationParameters.adminGroup, configurationParameters.adminGroup, "Administrator of CES", [ "nx-all" ], [])
 
 println("Creating default ces user role")
-authorizationManager = securitySystem.getAuthorizationManager('default')
-role = new org.sonatype.nexus.security.role.Role(
-    roleId: "cesUser",
-    source: "CAS",
-    name: "cesUser",
-    description: "User of CES",
-    readOnly: false,
-    privileges: [
-                "nx-healthcheck-read",
-                "nx-healthcheck-summary-read",
-                "nx-repository-view-*-*-browse",
-                "nx-repository-view-*-*-add",
-                "nx-repository-view-*-*-read",
-                "nx-search-read",
-                "nx-userschangepw",
-                "nx-apikey-all"],
-    roles: []
-)
-authorizationManager.addRole(role)
+security.addRole("cesUser", "cesUser", "User of CES", ["nx-healthcheck-read", "nx-healthcheck-summary-read", "nx-repository-view-*-*-browse", "nx-repository-view-*-*-add", "nx-repository-view-*-*-read", "nx-search-read", "nx-userschangepw", "nx-apikey-all"], [])
 
-securitySystem.changePassword("admin", configurationParameters.defaultAdminPassword, configurationParameters.newAdminPassword)
+println("Changing admin password")
+def securitySystem = container.lookup(SecuritySystem.class.getName())
+securitySystem.changePassword("admin", configurationParameters.newAdminPassword)

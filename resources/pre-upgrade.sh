@@ -15,6 +15,9 @@ MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/${MIGRATION_HELPER_JAR_NAME}"
 FROM_VERSION="${1}"
 TO_VERSION="${2}"
 
+# upgrade_running key blocks the execution of the startup script
+doguctl config upgrade_running "true"
+
 if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
     touch "${NEXUS_DATA_DIR}"/migration
 fi
@@ -26,7 +29,7 @@ writeDatabaseBackupScriptToFile() {
 }
 
 # OrientDB needs to be migrated to H2 in this upgrade
-if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
+if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.82.0* ]]; then
   echo "Starting migration to H2 database now"
 
   if [ ! -e "/jars/${MIGRATION_HELPER_JAR_NAME}" ]; then
@@ -77,6 +80,7 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.75.0* ]]; then
   chown "nexus:nexus" "${NEXUS_DATA_DIR}/db/nexus.mv.db"
   doguctl config migratedDatabase "true"
   rm -rf "${MIGRATION_HELPER_JAR}"
+
   echo "Database migration completed. Nexus now runs on the H2 database"
   echo "Starting new Nexus version ${TO_VERSION}"
 fi

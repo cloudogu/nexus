@@ -10,17 +10,20 @@ doguTestLibrary.registerSteps();
 When(/^the user clicks the dogu logout button$/, function () {
     Cypress.on('uncaught:exception', () => { return false; }); // Catch nexus errors and prevent test from failing
     cy.fullyLoadPageAndClosePopups()
-    cy.get('#nx-header-signout-1152-btnEl').click();
+    cy.get('[data-analytics-id="nxrm-global-header-profile-menu"]').click();
+    cy.get('div.nx-dropdown-menu')
+        .find('button.nx-dropdown-button')
+        .click()
 });
 
 Then(/^the user has administrator privileges in the dogu$/, function () {
     Cypress.on('uncaught:exception', () => { return false; }); // Catch nexus errors and prevent test from failing
     cy.fullyLoadPageAndClosePopups()
-    cy.get('#nx-header-mode-1132-innerCt').should('be.visible')
+    cy.get('a[href="#admin/repository"]').should('exist')
 });
 
 Then(/^the user has no administrator privileges in the dogu$/, function () {
     Cypress.on('uncaught:exception', () => { return false; }); // Catch nexus errors and prevent test from failing
     cy.fullyLoadPageAndClosePopups()
-    cy.get('#nx-header-mode-1132-innerCt').should('not.be.visible')
+    cy.get('a[href="#admin/repository"]').should('not.exist')
 });
