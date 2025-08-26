@@ -55,7 +55,7 @@ if [[ ($FROM_VERSION == 3.70.2* && $TO_VERSION == 3.82.0*) || ($FROM_VERSION == 
       echo "waited more than ten minutes for nexus to get ready"
       return 1
     fi
-    counter++
+    counter=$((counter + 1))
     sleep 5
   done
 
