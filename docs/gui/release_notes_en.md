@@ -5,6 +5,8 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+
+## [v3.82.0-1] - 2025-08-26
 ### Changed
 * Update of the Nexus version to 3.82.0-08
   * Starting with this version, Nexus uses a postgresql database instead of the previous OrientDB/H2
