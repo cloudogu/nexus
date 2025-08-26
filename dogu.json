@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.75.0-6",
+  "Version": "3.82.0-1",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -26,6 +26,11 @@
     {
       "type": "dogu",
       "name": "postfix"
+    },
+    {
+      "type": "dogu",
+      "name": "postgresql",
+      "version": ">=14.18-2"
     }
   ],
   "ServiceAccounts": [
@@ -34,6 +39,9 @@
       "Params": [
         "cas"
       ]
+    },
+    {
+      "Type": "postgresql"
     }
   ],
   "Volumes": [
@@ -80,6 +88,10 @@
     {
       "Name": "pre-upgrade",
       "Command": "/pre-upgrade.sh"
+    },
+    {
+      "Name": "post-upgrade",
+      "Command": "/post-upgrade.sh"
     },
     {
       "Name": "upgrade-notification",

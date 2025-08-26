@@ -6,12 +6,12 @@
 
     <jmxConfigurator/>
 
-    <appender name="osgi" class="org.ops4j.pax.logging.logback.appender.PaxAppenderDelegate">
-        <filter class="org.sonatype.nexus.pax.logging.NexusLogFilter" />
+    <appender name="osgi" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="org.sonatype.nexus.logging.NexusLogFilter" />
     </appender>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="org.sonatype.nexus.pax.logging.NexusLogFilter" />
+        <filter class="org.sonatype.nexus.logging.NexusLogFilter" />
         <encoder>
             <pattern>%d{"yyyy-MM-dd HH:mm:ss,SSSZ"} %-5p [%thread] %mdc{userId:-*SYSTEM} %c - %m%n</pattern>
         </encoder>
@@ -20,7 +20,7 @@
     <appender name="logfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>${karaf.data}/log/nexus.log</File>
         <Append>true</Append>
-        <encoder class="org.sonatype.nexus.pax.logging.NexusLayoutEncoder">
+        <encoder class="org.sonatype.nexus.logging.NexusLayoutEncoder">
             <pattern>%d{"yyyy-MM-dd HH:mm:ss,SSSZ"} %-5p [%thread] %node %mdc{userId:-*SYSTEM} %c - %m%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -28,13 +28,13 @@
             <maxHistory>14</maxHistory>
             <totalSizeCap>20MB</totalSizeCap>
         </rollingPolicy>
-        <filter class="org.sonatype.nexus.pax.logging.NexusLogFilter" />
+        <filter class="org.sonatype.nexus.logging.NexusLogFilter" />
     </appender>
 
     <appender name="clusterlogfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>${karaf.data}/log/nexus_cluster.log</File>
         <Append>true</Append>
-        <encoder class="org.sonatype.nexus.pax.logging.NexusLayoutEncoder">
+        <encoder class="org.sonatype.nexus.logging.NexusLayoutEncoder">
             <pattern>%d{"yyyy-MM-dd HH:mm:ss,SSSZ"} %-5p [%thread] %node %mdc{userId:-*SYSTEM} %c - %m%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -42,11 +42,11 @@
             <maxHistory>14</maxHistory>
             <totalSizeCap>20MB</totalSizeCap>
         </rollingPolicy>
-        <filter class="org.sonatype.nexus.pax.logging.ClusterLogFilter" />
+        <filter class="org.sonatype.nexus.logging.ClusterLogFilter" />
     </appender>
 
     <appender name="tasklogfile" class="ch.qos.logback.classic.sift.SiftingAppender">
-        <filter class="org.sonatype.nexus.pax.logging.TaskLogsFilter" />
+        <filter class="org.sonatype.nexus.logging.TaskLogsFilter" />
         <discriminator>
             <key>taskIdAndDate</key>
             <defaultValue>unknown</defaultValue>
@@ -54,7 +54,7 @@
         <sift>
             <appender name="taskAppender" class="ch.qos.logback.core.FileAppender">
                 <file>${karaf.data}/log/tasks/${taskIdAndDate}.log</file>
-                <encoder class="org.sonatype.nexus.pax.logging.NexusLayoutEncoder">
+                <encoder class="org.sonatype.nexus.logging.NexusLayoutEncoder">
                     <pattern>%d{"yyyy-MM-dd HH:mm:ss,SSSZ"} %-5p [%thread] %node %mdc{userId:-*SYSTEM} %c - %m%n</pattern>
                 </encoder>
             </appender>
@@ -67,7 +67,7 @@
         <encoder>
             <pattern>%msg%n</pattern>
         </encoder>
-        <filter class="org.sonatype.nexus.pax.logging.AuditLogFilter"/>
+        <filter class="org.sonatype.nexus.logging.AuditLogFilter"/>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${karaf.data}/log/audit/audit-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
             <maxHistory>14</maxHistory>
@@ -79,7 +79,7 @@
         <appender-ref ref="auditlogfile"/>
     </logger>
 
-    <appender name="metrics" class="org.sonatype.nexus.pax.logging.InstrumentedAppender"/>
+    <appender name="metrics" class="org.sonatype.nexus.logging.InstrumentedAppender"/>
 
     <logger name="org.eclipse.jetty.webapp" level="${root.level:-{{ .Config.GetOrDefault "logging/root" "WARN"}}}"/>
     <logger name="org.eclipse.jetty.webapp.StandardDescriptorProcessor" level="${root.level:-{{ .Config.GetOrDefault "logging/root" "WARN"}}}"/>

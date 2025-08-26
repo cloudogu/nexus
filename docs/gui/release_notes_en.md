@@ -6,6 +6,15 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.82.0-1] - 2025-08-26
+### Changed
+* Update of the Nexus version to 3.82.0-08
+  * Starting with this version, Nexus uses a postgresql database instead of the previous OrientDB/H2
+  * When upgrading from 3.70.2-5 and 3.75.0-1, the database is automatically migrated
+  * It is **not** possible to upgrade from a pre-3.70.2-x version to this version. In this case, you must first upgrade to the latest 3.70.2 version.
+  * In airgapped systems, version 3.70.2-5/3.75.0-1 must be installed first, as the required migration jar is located in this version
+  * Attention: The migration requires at least 16GB of RAM
+
 ## [v3.75.0-6] - 2025-06-27
 ### Added
 - Adds a configuration option to provision data in repositories created by claims. See [docs](../operations/preconfigure_repository_data_en.md) for usage.

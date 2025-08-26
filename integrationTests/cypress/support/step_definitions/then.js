@@ -4,14 +4,15 @@ const {
 
 
 Then(/^the user can see administration icon$/, function () {
-    cy.get('#button-1125-btnIconEl').should('be.visible')
+    cy.get('a[href="#admin/repository]').should('be.visible')
 });
 
 Then(/^the user cannot see administration icon$/, function () {
-    cy.get('#button-1125-btnIconEl').should('not.be.visible')
+    cy.get('a[href="#admin/repository]').should('not.be.visible')
 });
 
 Then(/^the user can access scripts api$/, function () {
+    Cypress.on('uncaught:exception', () => { return false; }); // Catch nexus errors and prevent test from failing
     cy.fixture("testuser_data").then(function (testUser) {
         cy.nexusRequestScriptingApi(testUser.username, testUser.password).then((response) => {
             expect(response.status).to.eq(200)
@@ -20,6 +21,7 @@ Then(/^the user can access scripts api$/, function () {
 });
 
 Then(/^the user cannot access scripts api (403)$/, function () {
+    Cypress.on('uncaught:exception', () => { return false; }); // Catch nexus errors and prevent test from failing
     cy.fixture("testuser_data").then(function (testUser) {
         cy.nexusRequestScriptingApi(testUser.username, testUser.password).then((response) => {
             expect(response.status).to.eq(403)

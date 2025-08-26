@@ -23,6 +23,7 @@ Feature: Browser-based CAS login and logout functionality
 
   @requires_testuser
   Scenario: logged in user can log out via logout button (front-channel)
+    And cache is cleared
     Given the user is logged into the CES
     When the user opens the dogu start page
     And the user clicks the dogu logout button

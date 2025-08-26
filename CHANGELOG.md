@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.82.0-1] - 2025-08-26
+### Changed
+- Upgrade Nexus to version 3.82.0-08
+  - this required a switch from the OrientDB to the postgresql DB
+  - database migration will be performed automatically
+- Warning: the database migration can only be performed when upgrading from dogu version 3.70.2 to 3.82.0 or 3.75.2-5 to 3.82.0
+
 ## [v3.75.0-6] - 2025-06-27
 ### Added
 - [#171] Adds a configuration option to provision data in repositories created by claims. See [docs](./docs/operations/preconfigure_repository_data_en.md) for usage.

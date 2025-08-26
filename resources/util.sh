@@ -40,7 +40,6 @@ function setNexusVmoptionsAndProperties() {
       -Djava.net.preferIPv4Stack=true
       --add-reads=java.xml=java.logging
       --add-exports=java.base/org.apache.karaf.specs.locator=java.xml,ALL-UNNAMED
-      --patch-module=java.base=./lib/endorsed/org.apache.karaf.specs.locator-4.3.9.jar
       --patch-module=java.xml=./lib/endorsed/org.apache.karaf.specs.java.xml-4.3.9.jar
       --add-opens=java.base/java.security=ALL-UNNAMED
       --add-opens=java.base/java.net=ALL-UNNAMED
@@ -54,6 +53,7 @@ function setNexusVmoptionsAndProperties() {
       --add-exports=jdk.xml.dom/org.w3c.dom.html=ALL-UNNAMED
       --add-exports=jdk.naming.rmi/com.sun.jndi.url.rmi=ALL-UNNAMED
       --add-exports=java.security.sasl/com.sun.security.sasl=ALL-UNNAMED
+      --add-exports ch.qos.logback.classic/ch.qos.logback.classic.model.processor=ch.qos.logback.core
 EOF
 
   echo "Setting memory limits..."
@@ -280,14 +280,18 @@ function waitForHealthEndpointAtSubsequentStart() {
 }
 
 function terminateNexusAndNexusCarp() {
-  echo "kill nexus"
-  kill -TERM "$NEXUS_PID" || true
-  wait "$NEXUS_PID" || true
-  echo "kill nexus-carp"
+  terminateNexus
+  echo "Stopping nexus-carp"
   kill -TERM "$NEXUS_CARP_PID" || true
   wait "$NEXUS_CARP_PID" || true
   echo "Nexus shut down gracefully"
   exit 1
+}
+
+function terminateNexus() {
+  echo "Stopping nexus"
+  kill -TERM "$NEXUS_PID" || true
+  wait "$NEXUS_PID" || true
 }
 
 function installDefaultDockerRegistry() {
@@ -327,7 +331,7 @@ function validateDoguLogLevel() {
 # execution of sql function will only work when nexus process is not running, as it blocks the db
 function sql() {
   SQL="${1}"
-  java -cp /opt/sonatype/nexus/system/com/h2database/h2/*/h2*.jar org.h2.tools.Shell -url "jdbc:h2:file:/var/lib/nexus/db/nexus" -sql "${SQL}" >> /dev/null
+  psql -d "postgresql://$(doguctl config -e sa-postgresql/username):$(doguctl config -e sa-postgresql/password)@postgresql:5432/$(doguctl config -e sa-postgresql/database)" -c "${SQL}"
 }
 
 function createPasswordHash() {
@@ -339,8 +343,8 @@ function createTemporaryAdminUser() {
   local hashed
   hashed="$(createPasswordHash "${ADMINPW}")"
   echo "Creating admin user '${ADMINUSER}'"
-  sql "INSERT INTO security_user (ID, FIRST_NAME, LAST_NAME, PASSWORD, STATUS, EMAIL, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', '${hashed}', 'active', 'dogu-tool-admin@cloudogu.com', 1)"
-  sql "INSERT INTO user_role_mapping (USER_ID, USER_LO, SOURCE, ROLES, VERSION) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', ARRAY['nx-admin'], 1)"
+  sql "INSERT INTO security_user (status, id, first_name, last_name, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'dogu-tool-admin@cloudogu.com', '${hashed}');"
+  sql "INSERT INTO user_role_mapping (user_id, user_lo, source, roles) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', '[\"nx-admin\"]');"
   doguctl config last_tmp_admin "${ADMINUSER}"
   doguctl config last_tmp_admin_pw "${ADMINPW}"
 }
@@ -354,8 +358,28 @@ function removeLastTemporaryAdminUser() {
   fi
 
   echo "Removing last tmp admin user '${userid}'"
-  sql "DELETE FROM user_role_mapping WHERE USER_ID='${userid}'"
-  sql "DELETE FROM security_user WHERE ID='${userid}'"
+  sql "DELETE FROM user_role_mapping WHERE user_id='${userid}';"
+  sql "DELETE FROM security_user WHERE id='${userid}';"
   doguctl config --rm last_tmp_admin
   doguctl config --rm last_tmp_admin_pw
+}
+
+# Nexus has a default session timeout of 30 minutes
+# it is removed by setting the time to 0ms
+# If it is not removed, the ui crashes after 30 minutes of inactivity
+function removeSessionTimeout() {
+  # manipulate the database entry directly, until nexus adds this feature to the capabilities api
+  sql "UPDATE capability_storage_item
+     SET properties = jsonb_set(properties, '{sessionTimeout}', '\"0\"', true)
+   WHERE type = 'rapture.settings';"
+}
+
+function setPostgresEnvVariables() {
+  user=$(doguctl config -e sa-postgresql/username)
+  pw=$(doguctl config -e sa-postgresql/password)
+  db=$(doguctl config -e sa-postgresql/database)
+
+  export NEXUS_DATASTORE_NEXUS_JDBCURL="jdbc:postgresql://postgresql:5432/${db}?user=${user}&password=${pw}&currentSchema=public"
+  export NEXUS_DATASTORE_NEXUS_USERNAME="${user}"
+  export NEXUS_DATASTORE_NEXUS_PASSWORD="${pw}"
 }

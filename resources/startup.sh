@@ -34,7 +34,7 @@ export CES_ADMIN_GROUP=${CES_ADMIN_GROUP}
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 
 # check whether post-upgrade script is still running
-while [[ "$(doguctl config post_upgrade_running)" == "true" ]]; do
+while [[ "$(doguctl config upgrade_running)" == "true" ]]; do
   echo "Post-upgrade script is running. Waiting..."
   sleep 3
 done
@@ -56,6 +56,7 @@ renderLoggingConfig
 
 echo "Setting nexus.vmoptions..."
 setNexusVmoptionsAndProperties
+setPostgresEnvVariables
 
 echo "Setting nexus.properties..."
 setNexusProperties
@@ -81,6 +82,14 @@ if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   echo "Configuring Nexus for first start..."
   configureNexusAtFirstStart
 
+  # nexus needs to be stopped to execute database queries
+  echo "restarting nexus to apply session timeout config"
+  terminateNexus
+  echo "removing session timeout"
+  removeSessionTimeout
+  startNexus
+  waitForHealthEndpointAtFirstStart "${ADMINUSER}"
+
   # Install default docker registry if not prohibited by config key
   if "$(doguctl config --default true installDefaultDockerRegistry)" != "false"; then
     installDefaultDockerRegistry
@@ -91,6 +100,9 @@ else
   # Remove last temporary admin after successful startup and also here to make sure that it is deleted even in restart loop.
   removeLastTemporaryAdminUser
   createTemporaryAdminUser
+
+  echo "removing session timeout"
+  removeSessionTimeout
 
   echo "Starting Nexus..."
   startNexus
@@ -122,7 +134,6 @@ NEXUS_PASSWORD="${ADMINPW}" \
 echo "apply cleanup blobstore task"
 NEXUS_PASSWORD="${ADMINPW}" \
   nexus-scripting execute --file-payload "${NEXUS_WORKDIR}/resources/nexusCompactBlobstoreTask.json" "${NEXUS_WORKDIR}/resources/nexusSetupCompactBlobstoreTask.groovy"
-
 
 echo "configuring carp server"
 doguctl template /etc/carp/carp.yml.tpl "${NEXUS_DATA_DIR}/carp.yml"
