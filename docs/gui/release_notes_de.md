@@ -5,6 +5,9 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Added
+* Neuer Konfigurationsschlüssel, mit dem die Anzahl an Datenbankverbindungen, die Nexus belegt, konfiguriert werden kann
+    * database/maxConnections, Standardwert: 30
 
 ## [v3.82.0-1] - 2025-08-26
 ### Changed
