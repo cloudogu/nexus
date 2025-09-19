@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.82.0-2] - 2025-09-19
+### Added
+- [#176] make the amount of database connection nexus occupies configurable
+  - config key: database/maxConnections
+
 ## [v3.82.0-1] - 2025-08-26
 ### Changed
 - Upgrade Nexus to version 3.82.0-08

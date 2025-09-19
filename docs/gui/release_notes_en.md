@@ -6,6 +6,11 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.82.0-2] - 2025-09-19
+### Added 
+* Added new configuration key to make the amount of database connections nexus occupies configurable
+  * database/maxConnections, default: 30
+
 ## [v3.82.0-1] - 2025-08-26
 ### Changed
 * Update of the Nexus version to 3.82.0-08

@@ -1,6 +1,6 @@
 {
   "Name": "official/nexus",
-  "Version": "3.82.0-1",
+  "Version": "3.82.0-2",
   "DisplayName": "Sonatype Nexus",
   "Description": "The Nexus Repository is like the local warehouse where all of the parts and finished goods used in your software supply chain are stored and distributed.",
   "Url": "http://www.sonatype.org/nexus",
@@ -385,6 +385,12 @@
       "Name": "proxyConfiguration/nonProxyHosts",
       "Description": "A list of hosts that should be reached directly, bypassing the proxy. This is a list of patterns separated by |.",
       "Optional": true
+    },
+    {
+      "Name": "database/maxConnections",
+      "Description": "maxConnections configures how many connections to the postgresql database nexus occupies. Postgresql has 100 connections by default, the amount can be configured with key `config/postgresql/database_config/max_connections`",
+      "Optional": true,
+      "Default": "30"
     }
   ],
   "HealthChecks": [
