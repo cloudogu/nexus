@@ -22,6 +22,64 @@ if [[ $FROM_VERSION == 2* ]] && [[ $TO_VERSION == 3* ]]; then
     touch "${NEXUS_DATA_DIR}"/migration
 fi
 
+# versionXLessOrEqualThanY returns true if X is less than or equal to Y; otherwise false
+function versionXLessOrEqualThanY() {
+  local sourceVersion="${1}"
+  local targetVersion="${2}"
+
+  if [[ "${sourceVersion}" == "${targetVersion}" ]]; then
+    echo "upgrade to same version"
+    return 0
+  fi
+
+  declare -r semVerRegex='([0-9]+)\.([0-9]+)\.([0-9]+)-([0-9]+)'
+
+   sourceMajor=0
+   sourceMinor=0
+   sourceBugfix=0
+   sourceDogu=0
+   targetMajor=0
+   targetMinor=0
+   targetBugfix=0
+   targetDogu=0
+
+  if [[ ${sourceVersion} =~ ${semVerRegex} ]]; then
+    sourceMajor=${BASH_REMATCH[1]}
+    sourceMinor="${BASH_REMATCH[2]}"
+    sourceBugfix="${BASH_REMATCH[3]}"
+    sourceDogu="${BASH_REMATCH[4]}"
+  else
+    echo "ERROR: source dogu version ${sourceVersion} does not seem to be a semantic version"
+    exit 1
+  fi
+
+  if [[ ${targetVersion} =~ ${semVerRegex} ]]; then
+    targetMajor=${BASH_REMATCH[1]}
+    targetMinor="${BASH_REMATCH[2]}"
+    targetBugfix="${BASH_REMATCH[3]}"
+    targetDogu="${BASH_REMATCH[4]}"
+  else
+    echo "ERROR: target dogu version ${targetVersion} does not seem to be a semantic version"
+    exit 1
+  fi
+
+  if [[ $((sourceMajor)) -lt $((targetMajor)) ]] ; then
+    return 0;
+  fi
+  if [[ $((sourceMajor)) -le $((targetMajor)) && $((sourceMinor)) -lt $((targetMinor)) ]] ; then
+    return 0;
+  fi
+  if [[ $((sourceMajor)) -le $((targetMajor)) && $((sourceMinor)) -le $((targetMinor)) && $((sourceBugfix)) -lt $((targetBugfix)) ]] ; then
+    return 0;
+  fi
+  if [[ $((sourceMajor)) -le $((targetMajor)) && $((sourceMinor)) -le $((targetMinor)) && $((sourceBugfix)) -le $((targetBugfix)) && $((sourceDogu)) -lt $((targetDogu)) ]] ; then
+    return 0;
+  fi
+
+  return 1
+}
+
+
 # database backup script needs to be written to a file from string, because it is needed in the old container
 writeDatabaseBackupScriptToFile() {
   export BACKUP_TASK_NAME="orientDatabaseBackup"
@@ -83,4 +141,12 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.82.0* ]]; then
 
   echo "Database migration completed. Nexus now runs on the H2 database"
   echo "Starting new Nexus version ${TO_VERSION}"
+fi
+
+# migration from the old once.lock to the new once.timestamp
+# ensure that claim/once will not be executed for this upgrade if once.lock is set to true
+if versionXLessOrEqualThanY "$FROM_VERSION" "3.75.0-3" &&
+[[ "$(doguctl config --default "false" "claim/once.lock")" == "true" ]]; then
+  currentDate=$(date "+%Y-%m-%d %H:%M:%S")
+  doguctl config "claim/once.timestamp_last" "${currentDate}"
 fi
