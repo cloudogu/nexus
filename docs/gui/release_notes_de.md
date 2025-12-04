@@ -5,6 +5,8 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+
+## [v3.82.0-3] - 2025-12-04
 ### Fixed
 * Fehler bei Migration von [`once.lock` auf `once.timestamp`](#v3750-4---2025-03-27) wurde behoben
     * `claim/once` wird nun bei der Migration von Nexus v3.75.0-3 auf höhere Versionen nicht mehr ausgeführt,
