@@ -6,6 +6,12 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.82.0-3] - 2025-12-04
+### Fixed
+* Fehler bei Migration von [`once.lock` auf `once.timestamp`](#v3750-4---2025-03-27) wurde behoben
+    * `claim/once` wird nun bei der Migration von Nexus v3.75.0-3 auf höhere Versionen nicht mehr ausgeführt,
+      wenn es schon einmal ausgeführt wurde.
+
 ## [v3.82.0-2] - 2025-09-19
 ### Added
 * Neuer Konfigurationsschlüssel, mit dem die Anzahl an Datenbankverbindungen, die Nexus belegt, konfiguriert werden kann
@@ -35,8 +41,6 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
       Vor der Ausführung wird dieser Zeitstempel mit dem Zeitstempel der letzten Ausführung des "claim/once"-Skripts verglichen.
       Ist der hier eingegebene Zeitstempel „neuer“, wird das Skript ausgeführt.
     * `claim/once.lock` wird nicht mehr unterstützt. Verwenden Sie stattdessen `claim/once.timestamp`.
-
-Übersetzt mit DeepL.com (kostenlose Version)
 
 ## [v3.75.0-3] - 2025-02-13
 Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
