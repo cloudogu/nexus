@@ -1,4 +1,4 @@
-FROM registry.cloudogu.com/official/java:21.0.9-2 AS builder
+FROM registry.cloudogu.com/official/java:17.0.13-1 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.86.2-0"
@@ -56,7 +56,7 @@ RUN set -o errexit \
   && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
   && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
 
-FROM registry.cloudogu.com/official/java:21.0.9-2
+FROM registry.cloudogu.com/official/java:17.0.13-1
 
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
@@ -64,7 +64,7 @@ ENV SERVICE_TAGS=webapp \
     NEXUS_SERVER="http://localhost:8081/nexus" \
     DOGU_RESOURCE_DIR="/" \
     # Nexus uses their own jdk by default
-    INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-21-openjdk
+    INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-17-openjdk
 
 COPY --from=builder /build /
 COPY resources /
