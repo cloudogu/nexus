@@ -64,7 +64,7 @@ ENV SERVICE_TAGS=webapp \
     NEXUS_SERVER="http://localhost:8081/nexus" \
     DOGU_RESOURCE_DIR="/" \
     # Nexus uses their own jdk by default
-    INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-17-openjdk
+    INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-21-openjdk
 
 COPY --from=builder /build /
 COPY resources /
