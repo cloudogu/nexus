@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.86.2-1] - 2025-12-15
+### Added
+- [#180] update nexus to 3.86.2-01
+- [#180] fixed logback osgi error
+- [#180] install postgresql14-client from old repo since its not available in upstream anymore
+
 ## [v3.82.0-3] - 2025-12-04
 ### Fixed
 - [#178] migration from `once.lock` to `once.timestamp`

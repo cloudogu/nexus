@@ -6,6 +6,10 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.86.2-1] - 2025-12-15
+### Changed
+* Update der Nexus Version auf 3.86.2-01
+
 ## [v3.82.0-3] - 2025-12-04
 ### Fixed
 * Fehler bei Migration von [`once.lock` auf `once.timestamp`](#v3750-4---2025-03-27) wurde behoben
