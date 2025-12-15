@@ -79,7 +79,17 @@ RUN set -o errexit \
   && apk add --no-cache curl \
   # use psql14 client until the postgresql database gets updated to newest version \
   # ignore the warning in the logs until then
-  && apk add postgresql14-client \
+  # && apk add postgresql14-client \
+  \
+  # temporarily add old repo
+  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/main" > /tmp/old-repos \
+  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/community" >> /tmp/old-repos \
+  \
+  && apk add --no-cache --repositories-file=/tmp/old-repos postgresql14-client \
+  \
+  # cleanup
+  && rm -f /tmp/old-repos \
+  \  
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
   && adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \
