@@ -8,6 +8,9 @@
 
     <appender name="osgi" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="org.sonatype.nexus.logging.NexusLogFilter" />
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
     </appender>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
