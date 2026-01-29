@@ -79,7 +79,6 @@ function setNexusProperties() {
   cat <<EOF >${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
   nexus.datastore.enabled=true
-  nexus.repository.content.migration.enabled=true
 EOF
 
   echo "Checking if repository sandboxing should be enabled..."
@@ -216,7 +215,7 @@ function configureNexusAtSubsequentStart() {
     echo " - use $(doguctl config -global "fqdn") as fqdn"
     echo " - use $(doguctl config 'secret_encryption/id') as secretKeyId"
 
-    curl -v --user "${ADMINUSER}:${ADMINPW}" \
+    curl --user "${ADMINUSER}:${ADMINPW}" \
       -X 'PUT' \
       "http://localhost:8081/nexus/service/rest/v1/secrets/encryption/re-encrypt" \
       -H 'accept: application/json' \
