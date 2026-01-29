@@ -210,7 +210,7 @@ function configureNexusAtSubsequentStart() {
   fi
 
   # Enable re-encryption if set
-#  if [ "$(doguctl config 'secret_encryption/start')" == "1" ]; then
+  if [ "$(doguctl config 'secret_encryption/start')" == "1" ]; then
     echo "Start Task for Re-Encryption"
     echo " - use $(doguctl config -global "fqdn") as fqdn"
     echo " - use $(doguctl config 'secret_encryption/id') as secretKeyId"
@@ -224,8 +224,8 @@ function configureNexusAtSubsequentStart() {
       -d '{ "secretKeyId": "nexus-dynamic-secret"}' \
 
     # deactivate for next startup
-#    doguctl config -rm 'secret_encryption/start'
-#  fi
+    doguctl config -rm 'secret_encryption/start'
+  fi
 }
 
 function waitForFile() {
