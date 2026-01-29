@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- [#182] CVE fixed: [cve-2025-15467](https://avd.aquasec.com/nvd/2025/cve-2025-15467/)
+
 ## [v3.86.2-1] - 2025-12-15
 ### Added
 - [#180] update nexus to 3.86.2-01

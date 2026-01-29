@@ -6,6 +6,9 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+### Security
+- [#182] fixed [cve-2025-15467](https://avd.aquasec.com/nvd/2025/cve-2025-15467/)
+
 ## [v3.86.2-1] - 2025-12-15
 ### Changed
 * Update of the Nexus version to 3.86.2-01
