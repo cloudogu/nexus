@@ -1,7 +1,7 @@
 FROM registry.cloudogu.com/official/java:17.0.13-1 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.86.2-1"
+    VERSION="3.86.2-2"
 
 WORKDIR /build
 
