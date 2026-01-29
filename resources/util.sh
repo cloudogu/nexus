@@ -79,6 +79,7 @@ function setNexusProperties() {
   cat <<EOF >${NEXUS_DATA_DIR}/etc/nexus.properties
   nexus-context-path=/nexus
   nexus.datastore.enabled=true
+  nexus.repository.content.migration.enabled=true
 EOF
 
   echo "Checking if repository sandboxing should be enabled..."
