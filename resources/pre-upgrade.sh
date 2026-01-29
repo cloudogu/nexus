@@ -9,7 +9,7 @@ set -o pipefail
 source /util.sh
 
 NEXUS_DATA_DIR=/var/lib/nexus
-MIGRATION_HELPER_JAR_NAME="nexus-db-migrator-3.70.3-01.jar"
+MIGRATION_HELPER_JAR_NAME="nexus-db-migrator-3.88.0-08.jar"
 MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/${MIGRATION_HELPER_JAR_NAME}"
 
 FROM_VERSION="${1}"
