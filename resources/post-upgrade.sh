@@ -59,19 +59,6 @@ if [[ ($FROM_VERSION == 3.70.2* && $TO_VERSION == 3.82.0*) || ($FROM_VERSION == 
     sleep 5
   done
 
-  echo "triggering password re-encryption"
-  curl --user "${ADMINUSER}:${ADMINPW}" \
-    -X 'PUT' \
-    "http://localhost:8081/nexus/service/rest/v1/secrets/encryption/re-encrypt" \
-    -H 'accept: application/json' \
-    -H 'Content-Type: application/json' \
-    -H 'X-Nexus-UI: true' \
-    -d '{ "secretKeyId": "nexus-dynamic-secret"}'
-  sleep 10
-  echo "waiting"
-  sleep 10
-  echo "done?"
-
   # execute the H2 database backup groovy script
   echo "Creating H2 database backup"
   NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="$(doguctl config -e admin_user)" NEXUS_PASSWORD="$(doguctl config -e admin_pw)" nexus-scripting execute "${NEXUS_WORKDIR}/resources/createH2DatabaseBackupTask.groovy"
