@@ -38,7 +38,7 @@ if [[ ($FROM_VERSION == 3.70.2* && $TO_VERSION == 3.82.0*) || ($FROM_VERSION == 
   # this follows the official guide from https://help.sonatype.com/en/migrating-to-a-new-database.html#migrating-from-h2-to-postgresql
   echo "Starting migration from H2 to postgresql."
   # copy the migrator jar to the location nexus expects it to be in
-  cp "$(find /jars -maxdepth 1 -name 'nexus-db-migrator-3.88*' | head -n1)" "${NEXUS_DATA_DIR}/db/${MIGRATION_HELPER_JAR_NAME}"
+  cp "$(find /jars -maxdepth 1 -name 'nexus-db-migrator-3.82*' | head -n1)" "${NEXUS_DATA_DIR}/db/${MIGRATION_HELPER_JAR_NAME}"
 
   # start nexus
   echo "Starting nexus"
