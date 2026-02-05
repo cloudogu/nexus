@@ -6,6 +6,10 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.82.0-4] - 2026-02-05
+### Fixed
+* Fixed a bug in the automatic migration of proxy repositories to postgresql
+
 ## [v3.82.0-3] - 2025-12-04
 ### Fixed
 * Fixed migration from [`once.lock` to `once.timestamp`](#v3750-4---2025-03-27)
