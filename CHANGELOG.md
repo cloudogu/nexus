@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.82.0-4] - 2026-02-05
+### Changed
+- [#184] replace old nexus migrator jar with nexus-db-migrator-3.82.0-05.jar
+
 ## [v3.82.0-3] - 2025-12-04
 ### Fixed
 - [#178] migration from `once.lock` to `once.timestamp`
