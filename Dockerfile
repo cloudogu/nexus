@@ -1,4 +1,4 @@
-FROM registry.cloudogu.com/official/java:17.0.13-1 AS builder
+FROM registry.cloudogu.com/official/java:17.0.18-3 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
     VERSION="3.82.0-4"
@@ -56,7 +56,7 @@ RUN set -o errexit \
   && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
   && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
 
-FROM registry.cloudogu.com/official/java:17.0.13-1
+FROM registry.cloudogu.com/official/java:17.0.18-3
 
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
@@ -79,7 +79,15 @@ RUN set -o errexit \
   && apk add --no-cache curl \
   # use psql14 client until the postgresql database gets updated to newest version \
   # ignore the warning in the logs until then
-  && apk add postgresql14-client \
+  # && apk add postgresql14-client \
+  # temporarily add old repo
+  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/main" > /tmp/old-repos \
+  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/community" >> /tmp/old-repos \
+  \
+  && apk add --no-cache --repositories-file=/tmp/old-repos postgresql14-client \
+  \
+  # cleanup
+  && rm -f /tmp/old-repos \
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
   && adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \
