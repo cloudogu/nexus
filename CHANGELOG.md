@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Security
+- [#185] Upgrade base image to java 17.0.18-4 to fix CVE-2025-68121 in doguctl
 
 ## [v3.82.0-4] - 2026-02-05
 ### Changed
