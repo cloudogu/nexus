@@ -6,6 +6,10 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.82.0-5] - 2026-02-18
+### Security
+* CVE-2025-68121 behoben
+
 ## [v3.82.0-4] - 2026-02-05
 ### Fixed
 * Ein Fehler bei der automatischen Migration von proxy-Repositories auf postgresql wurde behoben

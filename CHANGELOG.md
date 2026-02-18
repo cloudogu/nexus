@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.82.0-5] - 2026-02-18
+### Security
+- [#185] Upgrade base image to java 17.0.18-4 to fix CVE-2025-68121 in doguctl
+
 ## [v3.82.0-4] - 2026-02-05
 ### Changed
 - [#184] replace old nexus migrator jar with nexus-db-migrator-3.82.0-05.jar

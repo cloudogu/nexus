@@ -1,5 +1,7 @@
-MAKEFILES_VERSION=10.1.1
-VERSION=3.82.0-4
+MAKEFILES_VERSION=10.6.0
+VERSION=3.82.0-5
+BASE_VERSION=3.82.0
+GOTAG=1.26.0
 
 .DEFAULT_GOAL:=dogu-release
 
@@ -9,3 +11,4 @@ include build/make/release.mk
 include build/make/prerelease.mk
 include build/make/k8s-dogu.mk
 include build/make/bats.mk
+include build/make/trivyscan.mk

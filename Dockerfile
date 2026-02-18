@@ -1,24 +1,24 @@
-FROM registry.cloudogu.com/official/java:17.0.13-1 AS builder
+FROM registry.cloudogu.com/official/java:17.0.18-4 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.82.0-4"
+    VERSION="3.82.0-5"
 
 WORKDIR /build
 
 # The version of nexus to install
 ENV NEXUS_VERSION=3.82.0-08 \
     TINI_VERSION=0.19.0 \
-    NEXUS_CLAIM_VERSION=1.1.3 \
-    NEXUS_CARP_VERSION=1.6.0 \
-    NEXUS_SCRIPTING_VERSION=0.2.0 \
+    NEXUS_CLAIM_VERSION=1.1.4 \
+    NEXUS_CARP_VERSION=1.6.1 \
+    NEXUS_SCRIPTING_VERSION=0.3.2 \
     SHIRO_VERSION=1.11.0 \
     NEXUS_BUILD_DIR=/build/opt/sonatype/nexus \
     BUILD_BIN_DIR=/build/usr/bin \
     SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
     SHA256_NEXUS_TAR="697eacdda855e6f81a861465b7febaf190da12c4aa298268805b87d894302d35" \
-    SHA256_NEXUS_CLAIM="be278df02804240c5ba26f3e975b16fe89d0b4fbd56b2ee914094debcb3adab2" \
-    SHA256_NEXUS_SCRIPTING="60c7f3d8a0c97b1d90d954ebad9dc07dbeb7927934b618c874b2e72295cafb48" \
-    SHA256_NEXUS_CARP="d79d75bd54565029cd4ff2201494ac39342e7841f63676a64bf86f2e069dcdd3"
+    SHA256_NEXUS_CLAIM="59664145d8ea0dc95bfcd9c3a74861a30ba4266361ac1dbb2eb2bb847ea87963" \
+    SHA256_NEXUS_SCRIPTING="8dbe923534e14357b5adb0748d29f912109a57dbd983ea8c783a4037764cc955" \
+    SHA256_NEXUS_CARP="17c042711fecd8d4e20b5d8ec9b642508e7fe2255d304b86074a9c2eb09cb056"
 
 RUN set -o errexit \
   && set -o nounset \
@@ -56,7 +56,7 @@ RUN set -o errexit \
   && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
   && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
 
-FROM registry.cloudogu.com/official/java:17.0.13-1
+FROM registry.cloudogu.com/official/java:17.0.18-3
 
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
@@ -79,7 +79,15 @@ RUN set -o errexit \
   && apk add --no-cache curl \
   # use psql14 client until the postgresql database gets updated to newest version \
   # ignore the warning in the logs until then
-  && apk add postgresql14-client \
+  # && apk add postgresql14-client \
+  # temporarily add old repo
+  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/main" > /tmp/old-repos \
+  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/community" >> /tmp/old-repos \
+  \
+  && apk add --no-cache --repositories-file=/tmp/old-repos postgresql14-client \
+  \
+  # cleanup
+  && rm -f /tmp/old-repos \
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
   && adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \
