@@ -5,9 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Security
+- [#185] Upgrade base image to java 17.0.18-4 to fix CVE-2025-68121 in doguctl
+
+### Changed
+- Upgrade nexus-claim to1.1.4
+- Upgrade nexus-carp to 1.6.1
+- Upgrade nexus-scripting to 0.3.2
 
 ## [v3.86.2-2] - 2026-01-29
-
 ### Security
 - [#182] CVE fixed: [cve-2025-15467](https://avd.aquasec.com/nvd/2025/cve-2025-15467/)
 
