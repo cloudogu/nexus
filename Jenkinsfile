@@ -104,7 +104,9 @@ node('vagrant') {
                 String releaseVersion = git.getSimpleBranchName()
 
                 stage('Finish Release') {
-                    gitflow.finishRelease(releaseVersion)
+                    productionReleaseBranch = makefile.determineGitFlowMainBranch(productionReleaseBranch)
+                    developmentBranch = makefile.determineGitFlowDevelopBranch()
+                    gitflow.finishRelease(releaseVersion, productionReleaseBranch, developmentBranch)
                 }
 
                 stage('Push Dogu to registry') {
