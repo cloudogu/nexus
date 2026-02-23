@@ -61,11 +61,11 @@ setPostgresEnvVariables
 echo "Setting nexus.properties..."
 setNexusProperties
 
+echo "(Re-)creating truststore..."
+create_truststore.sh "${TRUSTSTORE}" >/dev/null
+
 if [[ "$(doguctl config successfulInitialConfiguration)" != "true" ]]; then
   doguctl state installing
-
-  # create truststore
-  create_truststore.sh "${TRUSTSTORE}" >/dev/null
 
   echo "Starting Nexus..."
   startNexus
