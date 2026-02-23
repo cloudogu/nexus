@@ -32,6 +32,20 @@ node('vagrant') {
             checkout scm
         }
 
+        stage('Lint') {
+            lintDockerfile()
+        }
+
+        stage('Check Markdown Links') {
+            Markdown markdown = new Markdown(this, "3.12.2")
+            markdown.check()
+        }
+
+        stage('Shellcheck'){
+            // TODO: Change this to shellCheck("./resources") as soon as https://github.com/cloudogu/dogu-build-lib/issues/8 is solved
+            shellCheck("./resources/pre-upgrade.sh ./resources/pre-startup.sh ./resources/startup.sh ./resources/upgrade-notification.sh ./resources/claim.sh ./resources/util.sh ./resources/create-sa.sh ./resources/remove-sa.sh ./resources/nexus_api.sh")
+        }
+
         try {
 
             stage('Provision') {
@@ -62,12 +76,6 @@ node('vagrant') {
                 ecoSystem.runCypressIntegrationTests([cypressImage     : "cypress/included:12.9.0",
                                                       enableVideo      : params.EnableVideoRecording,
                                                       enableScreenshots: params.EnableScreenshotRecording])
-            }
-
-            stage('Release') {
-                String releaseVersion = 'v3.70.2-6'
-                    ecoSystem.push('/dogu')
-                    github.createReleaseWithChangelog(releaseVersion, changelog, "main")
             }
 
             if (params.TestDoguUpgrade != null && params.TestDoguUpgrade){
