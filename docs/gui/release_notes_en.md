@@ -4,6 +4,12 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
+## [Unreleased]
+
+## [v3.70.2-7] - 2026-02-23
+### Changed
+- Updating the certificate truststore at every reboot instead of just the very first one; #188
+
 ## 3.70.2-5
 We have only made technical changes. You can find more details in the changelogs.
 

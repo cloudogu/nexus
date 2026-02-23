@@ -1,5 +1,8 @@
 MAKEFILES_VERSION=10.6.0
-VERSION=3.70.2-5
+VERSION=3.70.2-7
+
+# Backport base version
+BASE_VERSION=3.70.2
 
 .DEFAULT_GOAL:=dogu-release
 
