@@ -11,6 +11,7 @@ node('vagrant') {
     GitFlow gitflow = new GitFlow(this, git)
     GitHub github = new GitHub(this, git)
     Changelog changelog = new Changelog(this)
+    makefile = new Makefile(this)
     timestamps{
         properties([
                 // Keep only the last x builds to preserve space
@@ -112,7 +113,7 @@ node('vagrant') {
                 String releaseVersion = git.getSimpleBranchName()
 
                 stage('Finish Release') {
-                    productionReleaseBranch = makefile.determineGitFlowMainBranch(productionReleaseBranch)
+                    productionReleaseBranch = makefile.determineGitFlowMainBranch()
                     developmentBranch = makefile.determineGitFlowDevelopBranch()
                     gitflow.finishRelease(releaseVersion, productionReleaseBranch, developmentBranch)
                 }
