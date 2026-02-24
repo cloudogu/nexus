@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.86.2-4] - 2026-02-24
+### Changed
+- Recreating truststore at every boot to automatically import new certificates; #188
+
 ## [v3.86.2-3] - 2026-02-18
 ### Security
 - [#185] Upgrade base image to java 17.0.18-4 to fix CVE-2025-68121 in doguctl

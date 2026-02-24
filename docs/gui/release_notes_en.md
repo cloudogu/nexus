@@ -6,6 +6,10 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.86.2-4] - 2026-02-24
+### Changed
+- Updating the certificate truststore at every reboot instead of just the very first one; #188
+
 ## [v3.86.2-3] - 2026-02-18
 ### Security
 - [#185] Fixed CVE-2025-68121
