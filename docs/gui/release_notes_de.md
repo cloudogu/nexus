@@ -6,6 +6,11 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.86.2-5] - 2026-03-18
+### Fixed
+- [#193] Beim Erstellen eines Repos beim Hinzufügen einens Service-Accounts wird nun keine leere Cleanup-Policy mehr mitgegeben 
+  - Dies betrifft vorallem das Baseline-Dogu, da dort beim Anlegen des SA, zusätzlich ein Repository angelegt wird
+
 ## [v3.86.2-4] - 2026-02-24
 ### Changed
 - Aktualisierung des Zertifikats-Truststores bei jedem Dogu-Neustart statt nur beim allerersten Start; #188

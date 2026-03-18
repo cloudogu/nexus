@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.86.2-5] - 2026-03-18
+### Fixed
+- [#193] do not send empty cleanup policy while creating repo via nexus api
+
 ## [v3.86.2-4] - 2026-02-24
 ### Changed
 - Recreating truststore at every boot to automatically import new certificates; #188

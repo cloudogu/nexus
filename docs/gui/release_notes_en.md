@@ -6,6 +6,11 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.86.2-5] - 2026-03-18
+### Fixed
+- [#193] Do not send empty cleanup policy while creating repo via nexus api
+  - This mainly concerns the baseline dogu, since when creating the SA there, an additional repository is also created.
+
 ## [v3.86.2-4] - 2026-02-24
 ### Changed
 - Updating the certificate truststore at every reboot instead of just the very first one; #188
