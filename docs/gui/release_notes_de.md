@@ -5,6 +5,8 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Fixed
+- [#193] Beim Erstellen eines Repos beim Hinzufügen einens Service-Accounts wird nun keine leere Cleanup-Policy mehr mitgegeben 
 
 ## [v3.86.2-4] - 2026-02-24
 ### Changed
