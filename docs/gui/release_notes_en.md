@@ -5,6 +5,9 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Fixed
+- [#193] Do not send empty cleanup policy while creating repo via nexus api
+  - This mainly concerns the baseline dogu, since when creating the SA there, an additional repository is also created.
 
 ## [v3.86.2-4] - 2026-02-24
 ### Changed
