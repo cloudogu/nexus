@@ -31,10 +31,6 @@ com.cloudogu.ces.dogubuildlib.EcoSystem ecoSystem = pipe.ecoSystem
 pipe.setBuildProperties()
 pipe.addDefaultStages()
 
-pipe.insertStageAfter('MN-Verify', 'debug') {
-    echo "Debug stage: Check permissions of /var/lib/nexus"
-    sh "stat -c '%a' /var/lib/nexus"
-}
 pipe.overrideStage('Setup') {
     ecoSystem.loginBackend('cesmarvin-setup')
     ecoSystem.setup([ additionalDependencies: [ 'official/postgresql' ] ])
