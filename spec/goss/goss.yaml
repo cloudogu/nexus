@@ -19,7 +19,6 @@ file:
     contains: []
   /var/lib/nexus:
     exists: true
-    mode: "0755"
     owner: nexus
     group: nexus
     filetype: directory
@@ -65,3 +64,6 @@ port:
 package:
   maven:
     installed: false
+command:
+  stat -c '%a' /var/lib/nexus | sed 's/^.*\(.\{3\}\)$/\1/' | grep -q '^755$':
+    exit-status: 0
