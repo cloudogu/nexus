@@ -89,12 +89,13 @@ RUN set -o errexit \
   \
   # cleanup
   && rm -f /tmp/old-repos \
-  \  
+  \
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
   && adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \
   && chown -R nexus:nexus ${NEXUS_WORKDIR} \
   && chmod -R 770 ${NEXUS_WORKDIR} \
+  && chmod 755 /var/lib/nexus \
   && chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /*.tpl /create-sa.sh /util.sh /nexus_api.sh /remove-sa.sh /shiro-tools-hasher.jar
 
 RUN adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \ && chmod 755 /var/lib/nexus
