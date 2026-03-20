@@ -98,6 +98,7 @@ RUN set -o errexit \
   && chmod 755 /var/lib/nexus \
   && chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /*.tpl /create-sa.sh /util.sh /nexus_api.sh /remove-sa.sh /shiro-tools-hasher.jar
 
+VOLUME /var/lib/nexus
 EXPOSE 8082
 
 HEALTHCHECK CMD doguctl healthy nexus || exit 1
