@@ -64,7 +64,3 @@ port:
 package:
   maven:
     installed: false
-#Single node sets the permissions to 755, while Multi node sets it to a 775 because of scaling needs.
-command:
-  stat -c '%a' /var/lib/nexus | sed 's/^.*\(.\{3\}\)$/\1/' | grep -qE '^(775|755)$':
-    exit-status: 0
