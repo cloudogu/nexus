@@ -19,6 +19,7 @@ def pipe = new com.cloudogu.sos.pipebuildlib.DoguPipe(this, [
                             resources/nexus_api.sh
                           '''],
     dependedDogus       : ['cas', 'usermgt', 'postgresql'],
+    additionalDogus     : ['official/postgresql'],
     doBatsTests         : true,
     checkMarkdown       : true,
     runIntegrationTests : true,
@@ -29,6 +30,7 @@ com.cloudogu.ces.dogubuildlib.EcoSystem ecoSystem = pipe.ecoSystem
 
 pipe.setBuildProperties()
 pipe.addDefaultStages()
+
 pipe.overrideStage('Setup') {
     ecoSystem.loginBackend('cesmarvin-setup')
     ecoSystem.setup([ additionalDependencies: [ 'official/postgresql' ] ])

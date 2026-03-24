@@ -19,7 +19,6 @@ file:
     contains: []
   /var/lib/nexus:
     exists: true
-    mode: "0755"
     owner: nexus
     group: nexus
     filetype: directory

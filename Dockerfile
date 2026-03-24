@@ -89,7 +89,7 @@ RUN set -o errexit \
   \
   # cleanup
   && rm -f /tmp/old-repos \
-  \  
+  \
   # add nexus user and group
   && addgroup -S -g 1000 nexus \
   && adduser -S -h /var/lib/nexus -s /bin/bash -G nexus -u 1000 nexus \
@@ -98,7 +98,6 @@ RUN set -o errexit \
   && chown -R nexus:nexus /etc/carp /startup.sh /claim.sh /opt/sonatype /*.tpl /create-sa.sh /util.sh /nexus_api.sh /remove-sa.sh /shiro-tools-hasher.jar
 
 VOLUME /var/lib/nexus
-
 EXPOSE 8082
 
 HEALTHCHECK CMD doguctl healthy nexus || exit 1
