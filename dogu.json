@@ -387,10 +387,22 @@
       "Optional": true
     },
     {
-      "Name": "nexus/datastore/pool/maxConnections",
+      "Name": "database/maxConnections",
       "Description": "maxConnections configures how many connections to the postgresql database nexus occupies. Postgresql has 100 connections by default, the amount can be configured with key `config/postgresql/database_config/max_connections`",
       "Optional": true,
       "Default": "30"
+    },
+    {
+      "Name": "database/minIdle",
+      "Description": "Connections that are held in the pool and ready to be used. Default is 5 connections.",
+      "Optional": true,
+      "Default": "5"
+    },
+    {
+      "Name": "database/idleTimeout",
+      "Description": "idleTimeout is the maximum amount of time that a connection is allowed to sit idle in the pool. Default is 600 seconds.",
+      "Optional": true,
+      "Default": "600"
     }
   ],
   "HealthChecks": [
