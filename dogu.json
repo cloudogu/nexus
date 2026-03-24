@@ -400,9 +400,9 @@
     },
     {
       "Name": "database/idleTimeout",
-      "Description": "idleTimeout is the maximum amount of time that a connection is allowed to sit idle in the pool. Default is 600 seconds.",
+      "Description": "idleTimeout is the maximum amount of time that a connection is allowed to sit idle in the pool. Default is 5 minutes.",
       "Optional": true,
-      "Default": "600"
+      "Default": "300000"
     }
   ],
   "HealthChecks": [
