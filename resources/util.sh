@@ -386,3 +386,5 @@ function setPostgresEnvVariables() {
   export NEXUS_DATASTORE_NEXUS_USERNAME="${user}"
   export NEXUS_DATASTORE_NEXUS_PASSWORD="${pw}"
   export NEXUS_DATASTORE_NEXUS_ADVANCED="maximumPoolSize=${cons},minimumIdle=${minIdle},idleTimeout=${idleTimeout}"
+
+}
