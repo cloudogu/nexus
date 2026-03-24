@@ -19,7 +19,7 @@ def pipe = new com.cloudogu.sos.pipebuildlib.DoguPipe(this, [
                             resources/nexus_api.sh
                           '''],
     dependedDogus       : ['cas', 'usermgt', 'postgresql'],
-    additionalDogus   : ['official/postgresql'],
+    additionalDogus     : ['official/postgresql'],
     doBatsTests         : true,
     checkMarkdown       : true,
     runIntegrationTests : true,
