@@ -6,6 +6,9 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.86.2-6] - 2026-03-26
+- This release resolves an issue on setting the maximum ammount of open datebase connections
+
 ## [v3.86.2-5] - 2026-03-18
 ### Fixed
 - [#193] Do not send empty cleanup policy while creating repo via nexus api
