@@ -5,8 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Removed
 - Removed the goss permission check for /var/lib/nexus
+### Added
 - Added postgresql to jenkins pipeline to fix multinode run
+- Added new configuration key `database/minIdle` to configure the minimum amount of idle connections in the connection pool
+- Added new configuration key `database/idleTimeout` to configure the amount of time after which idle connections will be closed
 
 ## [v3.86.2-5] - 2026-03-18
 ### Fixed
