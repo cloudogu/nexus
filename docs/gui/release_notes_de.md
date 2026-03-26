@@ -6,6 +6,9 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.86.2-6] - 2026-03-26
+- Dieses Release behebt einen Fehler beim Setzen der maximal erlaubten Datenbankverbindungen
+
 ## [v3.86.2-5] - 2026-03-18
 ### Fixed
 - [#193] Beim Erstellen eines Repos beim Hinzufügen einens Service-Accounts wird nun keine leere Cleanup-Policy mehr mitgegeben 
