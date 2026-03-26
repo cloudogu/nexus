@@ -385,8 +385,10 @@ function setPostgresEnvVariables() {
   export NEXUS_DATASTORE_NEXUS_JDBCURL="jdbc:postgresql://postgresql:5432/${db}?user=${user}&password=${pw}&currentSchema=public"
   export NEXUS_DATASTORE_NEXUS_USERNAME="${user}"
   export NEXUS_DATASTORE_NEXUS_PASSWORD="${pw}"
-  export NEXUS_DATASTORE_NEXUS_ADVANCED="maximumPoolSize=${cons}
-  minimumIdle=${minIdle}
-  idleTimeout=${idleTimeout}"
+  export NEXUS_DATASTORE_NEXUS_ADVANCED="$(printf '%s\n' \
+  "maximumPoolSize=${cons}" \
+  "minimumIdle=${minIdle}" \
+  "idleTimeout=${idleTimeout}"
+  )"
 
 }
