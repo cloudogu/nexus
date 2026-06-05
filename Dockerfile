@@ -1,12 +1,12 @@
 FROM registry.cloudogu.com/official/java:17.0.18-7 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.86.2-6"
+    VERSION="3.92.3-0"
 
 WORKDIR /build
 
 # The version of nexus to install
-ENV NEXUS_VERSION=3.86.2-01 \
+ENV NEXUS_VERSION=3.92.3-01 \
     TINI_VERSION=0.19.0 \
     NEXUS_CLAIM_VERSION=1.1.4 \
     NEXUS_CARP_VERSION=1.6.1 \
