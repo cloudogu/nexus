@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- [#203] Upgrade Java base-image to 17.0.19-1
+- [#203] Upgrade Java base-image to 17.0.19-2
 
 ## [v3.86.2-6] - 2026-03-26
 ### Removed
