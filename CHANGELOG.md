@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- [#203] CVE fixed [CVE-2026-31789](https://avd.aquasec.com/nvd/cve-2026-31789/)
 - [#203] Upgrade Java base-image to 17.0.19-2
 
 ## [v3.86.2-6] - 2026-03-26
