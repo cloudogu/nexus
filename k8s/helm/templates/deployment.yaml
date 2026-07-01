@@ -1,0 +1,169 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nexus.fullname" . }}
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+    {{- include "nexus.backupLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas | default 1 }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "nexus.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: nexus
+        config/checksum: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+      labels:
+        {{- include "nexus.selectorLabels" . | nindent 8 }}
+    spec:
+      hostname: nexus
+      enableServiceLinks: false
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext: {{- toYaml .Values.securityContext | nindent 8 }}
+      initContainers:
+        - name: dogu-init
+          image: "{{ .Values.containers.nexus.image.registry }}/{{ .Values.containers.nexus.image.repository }}:{{ .Values.containers.nexus.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.containers.nexus.imagePullPolicy }}
+          command: ["bash", "/dogu_v3/init.sh"]
+          env:
+            - name: POSTGRESQL_HOST
+              value: {{ include "nexus.postgresqlServiceName" . | quote }}
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
+                - DAC_OVERRIDE
+                - FOWNER
+          volumeMounts:
+            - name: nexus-data
+              mountPath: /var/lib/nexus
+              subPath: data
+            - name: nexus-data
+              mountPath: /var/ces/config
+              subPath: localConfig
+            - name: nexus-dogu-json
+              mountPath: /etc/ces/dogu_json
+      containers:
+        - name: nexus
+          image: "{{ .Values.containers.nexus.image.registry }}/{{ .Values.containers.nexus.image.repository }}:{{ .Values.containers.nexus.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.containers.nexus.imagePullPolicy }}
+          securityContext: {{- toYaml .Values.containers.nexus.securityContext | nindent 12 }}
+          ports:
+            - name: nexus-http
+              containerPort: 8081
+              protocol: TCP
+            - name: web
+              containerPort: 8082
+              protocol: TCP
+          env:
+            # doguctl component mode: read config from /etc/ces/config instead of etcd.
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ECOSYSTEM_MULTINODE
+              value: "true"
+            - name: COMPONENT
+              value: "true"
+            - name: POSTGRESQL_HOST
+              value: {{ include "nexus.postgresqlServiceName" . | quote }}
+            {{- with .Values.containers.nexus.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: nexus-data
+              mountPath: /var/lib/nexus
+              subPath: data
+            # Writable local doguctl config store (successfulInitialConfiguration, admin_user, ...).
+            - name: nexus-data
+              mountPath: /var/ces/config
+              subPath: localConfig
+            # Ephemeral doguctl state (doguctl state ready).
+            - name: ces-state
+              mountPath: /var/ces/state
+            # Read-only platform config: global + normal + sensitive.
+            - name: ces-config
+              mountPath: /etc/ces/config
+              readOnly: true
+            # dogu.json for doguctl config-key validation.
+            - name: nexus-dogu-json
+              mountPath: /etc/ces/dogu_json
+              readOnly: true
+            {{- with .Values.containers.nexus.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          startupProbe:
+            # startup.sh ends with `doguctl state ready`; give first start plenty of time (incl. its restart).
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - '[ "$(doguctl state)" = "ready" ]'
+            periodSeconds: 10
+            failureThreshold: 180
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: nexus-http
+            periodSeconds: 15
+            failureThreshold: 5
+          readinessProbe:
+            tcpSocket:
+              port: web
+            periodSeconds: 10
+            failureThreshold: 5
+          resources:
+            requests: {{- toYaml .Values.resourceRequests | nindent 14 }}
+            limits: {{- toYaml .Values.resourceLimits | nindent 14 }}
+      volumes:
+        - name: nexus-data
+          persistentVolumeClaim:
+            claimName: {{ include "nexus.fullname" . }}-data
+        - name: ces-state
+          emptyDir: {}
+        - name: ces-config
+          projected:
+            sources:
+              - configMap:
+                  name: {{ .Values.configuration.meta.global.name }}
+                  items:
+                    - key: {{ .Values.configuration.meta.global.key }}
+                      path: global/config.yaml
+              - configMap:
+                  name: {{ include "nexus.fullname" . }}-config
+                  items:
+                    - key: {{ .Values.configuration.meta.normal.key }}
+                      path: normal/config.yaml
+              - secret:
+                  name: {{ include "nexus.fullname" . }}-postgresql
+                  items:
+                    - key: sensitive-config.yaml
+                      path: sensitive/config.yaml
+        - name: nexus-dogu-json
+          emptyDir: {}
+      {{- with .Values.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}

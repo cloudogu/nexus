@@ -1,0 +1,153 @@
+global:
+  imagePullSecrets:
+    - name: "ces-container-registries"
+
+networkPolicies:
+  enabled: true
+  gateway:
+    enabled: true
+    matchLabels:
+      k8s.cloudogu.com/component.name: k8s-ces-gateway
+
+replicas: 1
+
+# Nexus needs a generous amount of memory; keep request == limit (see container_config in dogu.json).
+resourceLimits:
+  memory: 2500Mi
+resourceRequests:
+  cpu: 350m
+  memory: 2500Mi
+
+# Pod-level security context. fsGroup lets the nexus user (1000) own the mounted data volume.
+# NOTE: no runAsNonRoot here — the unchanged nexus image runs pre-startup.sh as root
+# (installs the CES cert, then `su nexus`). See containers.nexus.securityContext.
+securityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
+
+persistence:
+  size: 10Gi
+  storageClassName: ""
+
+# carp listens on 8082 and proxies to nexus on 8081. Only carp is exposed.
+service:
+  ports:
+    web:
+      protocol: TCP
+      port: 8082
+      targetPort: 8082
+
+exposition:
+  enabled: true
+
+# ---------------------------------------------------------------------------
+# doguctl configuration (see Schritt 7): rendered into the <release>-config
+# ConfigMap and mounted at /etc/ces/config via a projected volume together with
+# the external global-config. Keys mirror dogu.json "Configuration" (slash = YAML nesting).
+# ---------------------------------------------------------------------------
+configuration:
+  meta:
+    global:
+      name: global-config
+      key: config.yaml
+    normal:
+      key: normal
+    sensitive:
+      key: sensitive
+  normal: # config.yaml style; slash-keys from dogu.json become nested keys
+    logging:
+      root: "WARN"
+    installDefaultDockerRegistry: "true"
+    disableOutreachManagement: "false"
+    # NOTE: dogu.json key "nexus.repository.sandbox.enable" is a dotted (not slash) key.
+    # TODO(Phase 2): verify how doguctl parses dotted keys in the mounted config before finalizing.
+    database:
+      maxConnections: "30"
+      minIdle: "5"
+      idleTimeout: "300000"
+    container_config:
+      memory_limit: "2500m"
+      memory_request: "2500m"
+      java_max_ram_percentage: "25.0"
+      java_min_ram_percentage: "50.0"
+      cpu_core_request: "0.35"
+    cleanup_policy:
+      policy_format: "maven2"
+      criteria:
+        regex: ".*SNAPSHOT"
+        release_type: "PRERELEASES"
+        days_till_recognition_for_delete: "14"
+    compact_blobstore_task:
+      enabled: "true"
+      blobstore: "default"
+      cron: "0 0 3 * * ?"
+    carp-limiter:
+      token-rate: "50"
+      burst-size: "150"
+      clean-interval: "30"
+  # Secret references injected as env into the nexus container (populated in later phases).
+  secretRefs: {}
+
+containers:
+  nexus:
+    image:
+      registry: registry.cloudogu.com
+      repository: official/nexus
+      tag: 3.86.2-6
+    imagePullPolicy: IfNotPresent
+    # Runs as root because the unchanged image's pre-startup.sh needs root (cert install + `su nexus`).
+    # SETUID/SETGID are required for `su`; the nexus process itself then runs as uid 1000.
+    # TODO(hardening): move to runAsNonRoot once the image provides a V3 entrypoint.
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+      runAsNonRoot: false
+      allowPrivilegeEscalation: true
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+          - ALL
+        add:
+          - SETUID
+          - SETGID
+          - CHOWN
+          - DAC_OVERRIDE
+          - FOWNER
+    extraVolumeMounts: []
+    extraEnv: []
+
+  # TODO(Phase 4): nexus-sa-manager sidecar (HTTP ServiceAccountProducer endpoint on :8090).
+  # saManager:
+  #   image:
+  #     registry: registry.cloudogu.com
+  #     repository: official/nexus        # image decision open (Offene Frage #1)
+  #     tag: 3.86.2-6
+
+# ---------------------------------------------------------------------------
+# Self-contained PostgreSQL (own StatefulSet, no external postgresql dogu).
+# ---------------------------------------------------------------------------
+postgresql:
+  image:
+    registry: docker.io
+    repository: library/postgres
+    tag: "14.18"
+  imagePullPolicy: IfNotPresent
+  auth:
+    username: nexus
+    database: nexus
+    # password is generated once and kept stable across upgrades via a lookup in the secret template.
+  persistence:
+    size: 5Gi
+    storageClassName: ""
+  resourceRequests:
+    cpu: 100m
+    memory: 256Mi
+  resourceLimits:
+    memory: 512Mi
+
+extraLabels: {}
+tolerations: []
+affinity: {}
+nodeSelector: {}
+extraVolumes: []
+extraInitContainers: []

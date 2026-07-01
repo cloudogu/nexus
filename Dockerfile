@@ -68,6 +68,9 @@ ENV SERVICE_TAGS=webapp \
 
 COPY --from=builder /build /
 COPY resources /
+# Add dogu.json to use in dogu v3 as a doguctl dependency.
+# Can be removed once doguctl is no longer needed
+COPY dogu.json /dogu.json
 
 WORKDIR ${NEXUS_WORKDIR}
 
