@@ -5,7 +5,6 @@ global:
 networkPolicies:
   enabled: true
   gateway:
-    enabled: true
     matchLabels:
       k8s.cloudogu.com/component.name: k8s-ces-gateway
 
@@ -26,7 +25,7 @@ securityContext:
   fsGroupChangePolicy: OnRootMismatch
 
 persistence:
-  size: 10Gi
+  size: 2Gi
   storageClassName: ""
 
 # carp listens on 8082 and proxies to nexus on 8081. Only carp is exposed.
@@ -36,9 +35,6 @@ service:
       protocol: TCP
       port: 8082
       targetPort: 8082
-
-exposition:
-  enabled: true
 
 # ---------------------------------------------------------------------------
 # doguctl configuration (see Schritt 7): rendered into the <release>-config

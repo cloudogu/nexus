@@ -1,9 +1,5 @@
 {{- if .Values.networkPolicies.enabled }}
-{{- /*
-The namespace enforces a default-deny-all-ingress policy, so every allowed ingress path needs an
-explicit NetworkPolicy. This one lets the nexus pod reach the self-contained PostgreSQL on 5432.
-(Gateway → nexus ingress for external access is added in a later phase together with the Exposition.)
-*/ -}}
+# Allow Nexus to reach PostgreSQL
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -13,8 +9,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      {{- include "nexus.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: postgresql
+      {{- include "nexus.postgresqlSelectorLabels" . | nindent 6 }}
   policyTypes:
     - Ingress
   ingress:
@@ -24,8 +19,30 @@ spec:
               kubernetes.io/metadata.name: {{ .Release.Namespace }}
           podSelector:
             matchLabels:
-              {{- include "nexus.selectorLabels" . | nindent 14 }}
+              {{- include "nexus.nexusSelectorLabels" . | nindent 14 }}
       ports:
         - protocol: TCP
           port: 5432
+---
+# Allow the CES gateway to reach nexus (carp :8082)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "nexus.fullname" . }}-gateway
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "nexus.nexusSelectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Release.Namespace }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicies.gateway.matchLabels | nindent 14 }}
 {{- end }}

@@ -22,10 +22,19 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 {{- end }}
 
-{{/* Selector labels */}}
 {{- define "nexus.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "nexus.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{- define "nexus.nexusSelectorLabels" -}}
+{{ include "nexus.selectorLabels" . }}
+app.kubernetes.io/component: nexus
+{{- end }}
+
+{{- define "nexus.postgresqlSelectorLabels" -}}
+{{ include "nexus.selectorLabels" . }}
+app.kubernetes.io/component: postgresql
 {{- end }}
 
 {{- define "nexus.backupLabels" -}}

@@ -10,13 +10,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "nexus.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: postgresql
+      {{- include "nexus.postgresqlSelectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "nexus.selectorLabels" . | nindent 8 }}
-        app.kubernetes.io/component: postgresql
+        {{- include "nexus.postgresqlSelectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:

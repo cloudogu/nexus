@@ -1,0 +1,9 @@
+apiVersion: k8s.cloudogu.com/v1
+kind: AuthRegistration
+metadata:
+  name: {{ include "nexus.fullname" . }}-authregistration
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+spec:
+  consumer: {{ include "nexus.name" . }}
+  protocol: CAS

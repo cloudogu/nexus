@@ -18,7 +18,7 @@ spec:
         kubectl.kubernetes.io/default-container: nexus
         config/checksum: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
       labels:
-        {{- include "nexus.selectorLabels" . | nindent 8 }}
+        {{- include "nexus.nexusSelectorLabels" . | nindent 8 }}
     spec:
       hostname: nexus
       enableServiceLinks: false

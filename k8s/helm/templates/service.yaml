@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nexus.name" . }}
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "nexus.nexusSelectorLabels" . | nindent 4 }}
+  ports:
+    {{- range $name, $value := .Values.service.ports }}
+    - name: {{ $name | quote }}
+      {{- toYaml $value | nindent 6 }}
+    {{- end }}
