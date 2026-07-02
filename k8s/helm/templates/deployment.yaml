@@ -6,7 +6,7 @@ metadata:
     {{- include "nexus.labels" . | nindent 4 }}
     {{- include "nexus.backupLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicas | default 1 }}
+  replicas: {{ .Values.nexus.replicas | default 1 }}
   strategy:
     type: Recreate
   selector:
@@ -26,11 +26,11 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      securityContext: {{- toYaml .Values.securityContext | nindent 8 }}
+      securityContext: {{- toYaml .Values.nexus.podSecurityContext | nindent 8 }}
       initContainers:
         - name: dogu-init
-          image: "{{ .Values.containers.nexus.image.registry }}/{{ .Values.containers.nexus.image.repository }}:{{ .Values.containers.nexus.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.containers.nexus.imagePullPolicy }}
+          image: "{{ .Values.nexus.image.registry }}/{{ .Values.nexus.image.repository }}:{{ .Values.nexus.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.nexus.imagePullPolicy }}
           command: ["bash", "/dogu_v3/init.sh"]
           env:
             - name: POSTGRESQL_HOST
@@ -56,11 +56,14 @@ spec:
               subPath: localConfig
             - name: nexus-dogu-json
               mountPath: /etc/ces/dogu_json
+        {{- with .Values.nexus.extraInitContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       containers:
         - name: nexus
-          image: "{{ .Values.containers.nexus.image.registry }}/{{ .Values.containers.nexus.image.repository }}:{{ .Values.containers.nexus.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.containers.nexus.imagePullPolicy }}
-          securityContext: {{- toYaml .Values.containers.nexus.securityContext | nindent 12 }}
+          image: "{{ .Values.nexus.image.registry }}/{{ .Values.nexus.image.repository }}:{{ .Values.nexus.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.nexus.imagePullPolicy }}
+          securityContext: {{- toYaml .Values.nexus.securityContext | nindent 12 }}
           ports:
             - name: nexus-http
               containerPort: 8081
@@ -84,7 +87,7 @@ spec:
               value: "true"
             - name: POSTGRESQL_HOST
               value: {{ include "nexus.postgresqlServiceName" . | quote }}
-            {{- with .Values.containers.nexus.extraEnv }}
+            {{- with .Values.nexus.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
           volumeMounts:
@@ -106,7 +109,7 @@ spec:
             - name: nexus-dogu-json
               mountPath: /etc/ces/dogu_json
               readOnly: true
-            {{- with .Values.containers.nexus.extraVolumeMounts }}
+            {{- with .Values.nexus.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
           startupProbe:
@@ -130,8 +133,8 @@ spec:
             periodSeconds: 10
             failureThreshold: 5
           resources:
-            requests: {{- toYaml .Values.resourceRequests | nindent 14 }}
-            limits: {{- toYaml .Values.resourceLimits | nindent 14 }}
+            requests: {{- toYaml .Values.nexus.resourceRequests | nindent 14 }}
+            limits: {{- toYaml .Values.nexus.resourceLimits | nindent 14 }}
       volumes:
         - name: nexus-data
           persistentVolumeClaim:
@@ -142,14 +145,14 @@ spec:
           projected:
             sources:
               - configMap:
-                  name: {{ .Values.configuration.meta.global.name }}
+                  name: {{ .Values.nexus.configuration.meta.global.name }}
                   items:
-                    - key: {{ .Values.configuration.meta.global.key }}
+                    - key: {{ .Values.nexus.configuration.meta.global.key }}
                       path: global/config.yaml
               - configMap:
                   name: {{ include "nexus.fullname" . }}-config
                   items:
-                    - key: {{ .Values.configuration.meta.normal.key }}
+                    - key: {{ .Values.nexus.configuration.meta.normal.key }}
                       path: normal/config.yaml
               - secret:
                   name: {{ include "nexus.fullname" . }}-postgresql
@@ -158,12 +161,15 @@ spec:
                       path: sensitive/config.yaml
         - name: nexus-dogu-json
           emptyDir: {}
-      {{- with .Values.tolerations }}
+        {{- with .Values.nexus.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nexus.tolerations }}
       tolerations: {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.nexus.affinity }}
       affinity: {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.nexus.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
       {{- end }}

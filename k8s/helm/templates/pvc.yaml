@@ -9,9 +9,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  {{- if .Values.persistence.storageClassName }}
-  storageClassName: {{ .Values.persistence.storageClassName | quote }}
+  {{- if .Values.nexus.persistence.storageClassName }}
+  storageClassName: {{ .Values.nexus.persistence.storageClassName | quote }}
   {{- end }}
   resources:
     requests:
-      storage: {{ .Values.persistence.size }}
+      storage: {{ .Values.nexus.persistence.size }}

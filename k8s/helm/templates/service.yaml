@@ -9,7 +9,7 @@ spec:
   selector:
     {{- include "nexus.nexusSelectorLabels" . | nindent 4 }}
   ports:
-    {{- range $name, $value := .Values.service.ports }}
+    {{- range $name, $value := .Values.nexus.service.ports }}
     - name: {{ $name | quote }}
       {{- toYaml $value | nindent 6 }}
     {{- end }}

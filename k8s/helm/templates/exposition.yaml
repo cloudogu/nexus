@@ -8,11 +8,11 @@ spec:
   http:
     - name: {{ include "nexus.name" . }}
       service: {{ include "nexus.name" . }}
-      port: {{ .Values.service.ports.web.port }}
+      port: {{ .Values.nexus.service.ports.web.port }}
       path: /{{ include "nexus.name" . }}
     - name: {{ include "nexus.name" . }}-docker-registry
       path: /v2
-      port: {{ .Values.service.ports.web.port }}
+      port: {{ .Values.nexus.service.ports.web.port }}
       rewrite:
         regex:
           pattern: ^/v2/?(.*)$

@@ -7,4 +7,4 @@ metadata:
     {{- include "nexus.labels" . | nindent 4 }}
 data:
   normal: |
-    {{- toYaml .Values.configuration.normal | nindent 4 }}
+    {{- toYaml .Values.nexus.configuration.normal | nindent 4 }}
