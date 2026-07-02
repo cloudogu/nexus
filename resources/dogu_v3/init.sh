@@ -4,19 +4,20 @@ set -o nounset
 set -o pipefail
 
 # DoguV3-only init-container:
-#   1. Fix ownership of the persistent volumes for the nexus user (uid/gid 1000)
-#   2. Materialize the /etc/ces/dogu_json/nexus/{current,<version>} layout that doguctl expects
+#   1. Materialize the /etc/ces/dogu_json/nexus/{current,<version>} layout that doguctl expects
+#   2. Fetch the CES server certificate for the non-root nexus container
 #   3. Wait until PostgreSQL accepts connections
+#   4. Fix ownership of the persistent volumes for the nexus user (uid/gid 1000)
+#
+# Ownership must be fixed LAST: every doguctl invocation above runs as root (this container)
+# and, as a side effect of just creating a registry client, eagerly creates
+# /var/ces/config/local.yaml if it doesn't exist yet (see cloudogu/doguctl
+# DoguFileConfigurationContext.checkLocalConfigFile) — owned by root. The later non-root
+# nexus container would then fail with "permission denied" writing to that file.
 
-# --- 1. persistence ownership -------------------------------------------------
-for dir in /var/lib/nexus /var/ces/config; do
-  mkdir -p "${dir}"
-  chown -R 1000:1000 "${dir}"
-done
+mkdir -p /var/lib/nexus /var/ces/config
 
-echo "set ownership for /var/lib/nexus and /var/ces/config"
-
-# --- 2. dogu_json layout ------------------------------------------------------
+# --- 1. dogu_json layout ------------------------------------------------------
 TARGET_DIR="/etc/ces/dogu_json/nexus"
 SOURCE_DOGU_JSON="/dogu.json"
 
@@ -32,6 +33,14 @@ printf '%s' "${DOGU_VERSION}" > "${TARGET_DIR}/current"
 cp "${SOURCE_DOGU_JSON}" "${TARGET_DIR}/${DOGU_VERSION}"
 
 echo "prepared dogu.json in ${TARGET_DIR} for to be used by doguctl"
+
+# --- 2. CES server certificate -------------------------------------------------
+# The main nexus container runs as the non-root nexus user and can't write into its own image-baked /etc/ssl/certs.
+CERT_DIR="/dogu_v3/ca-certs"
+mkdir -p "${CERT_DIR}"
+doguctl config --global certificate/server.crt > "${CERT_DIR}/server.crt"
+
+echo "wrote CES server certificate to ${CERT_DIR}/server.crt"
 
 # --- 3. wait for PostgreSQL ---------------------------------------------------
 DB_HOST="${POSTGRESQL_HOST:-postgresql}"
@@ -52,3 +61,9 @@ while ! pg_isready -h "${DB_HOST}" -p "${DB_PORT}" -t "${DB_WAIT_INTERVAL_SECOND
 done
 
 echo "PostgreSQL is accepting connections"
+
+# --- 4. persistence ownership -------------------------------------------------
+# Must run last (see header comment): fixes up anything doguctl created as root above.
+chown -R 1000:1000 /var/lib/nexus /var/ces/config
+
+echo "set ownership for /var/lib/nexus and /var/ces/config"

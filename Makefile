@@ -41,10 +41,10 @@ nexus-v3-install: image-import $(BINARY_HELM) ## DoguV3 dev: build+push the imag
 		--kube-context="$(KUBE_CONTEXT_NAME)" \
 		--namespace $(NAMESPACE) \
 		--set-string fullnameOverride=$(NEXUS_V3_RELEASE) \
-		--set-string containers.nexus.image.registry="$(CES_REGISTRY_HOST)" \
-		--set-string containers.nexus.image.repository="$(NEXUS_V3_IMAGE_REPOSITORY)" \
-		--set-string containers.nexus.image.tag="$(VERSION)" \
-		--set-string containers.nexus.imagePullPolicy=Always
+		--set-string nexus.image.registry="$(CES_REGISTRY_HOST)" \
+		--set-string nexus.image.repository="$(NEXUS_V3_IMAGE_REPOSITORY)" \
+		--set-string nexus.image.tag="$(VERSION)" \
+		--set-string nexus.imagePullPolicy=Always
 	@echo "Done. Watch rollout: kubectl -n $(NAMESPACE) get pods -w"
 
 .PHONY: nexus-v3-uninstall

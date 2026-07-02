@@ -19,30 +19,19 @@ nexus:
     tag: 3.86.2-6
   imagePullPolicy: IfNotPresent
 
-  # Pod-level securityContext.
   podSecurityContext:
     fsGroup: 1000
     fsGroupChangePolicy: OnRootMismatch
 
-  # Container-level securityContext.
-  # Runs as root because the unchanged image's pre-startup.sh needs root (cert install + `su nexus`).
-  # SETUID/SETGID are required for `su`; the nexus process itself then runs as uid 1000.
-  # TODO(hardening): move to runAsNonRoot once the image provides a V3 entrypoint.
   securityContext:
-    runAsUser: 0
-    runAsGroup: 0
-    runAsNonRoot: false
-    allowPrivilegeEscalation: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
     readOnlyRootFilesystem: false
     capabilities:
       drop:
         - ALL
-      add:
-        - SETUID
-        - SETGID
-        - CHOWN
-        - DAC_OVERRIDE
-        - FOWNER
 
   resourceLimits:
     memory: 2500Mi
