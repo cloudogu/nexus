@@ -79,11 +79,10 @@ nexus:
         minIdle: "5"
         idleTimeout: "300000"
       container_config:
-        memory_limit: "2500m"
-        memory_request: "2500m"
-        java_max_ram_percentage: "25.0"
+        # util.sh only checks presence of this key to switch the JVM from fixed to percentage-based sizing.
+        memory_limit: "true"
+        java_max_ram_percentage: "50.0"
         java_min_ram_percentage: "50.0"
-        cpu_core_request: "0.35"
       cleanup_policy:
         policy_format: "maven2"
         criteria:
