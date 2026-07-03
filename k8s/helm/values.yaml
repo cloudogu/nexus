@@ -7,6 +7,9 @@ networkPolicies:
   gateway:
     matchLabels:
       k8s.cloudogu.com/component.name: k8s-ces-gateway
+  serviceAccountOperator:
+    matchLabels:
+      k8s.cloudogu.com/component.name: service-account-operator
 
 extraLabels: {}
 
@@ -49,6 +52,13 @@ nexus:
         protocol: TCP
         port: 8082
         targetPort: 8082
+      # Note: lowercase-hyphenated (unlike the "saManager" values keys elsewhere) - this map key
+      # becomes the literal Service port name (see templates/service.yaml), and Kubernetes object
+      # names/port names must be valid RFC 1123 labels (lowercase alphanumeric + hyphens only).
+      sa-manager:
+        protocol: TCP
+        port: 8080
+        targetPort: 8080
 
   extraVolumeMounts: []
   extraEnv: []
@@ -98,12 +108,18 @@ nexus:
         burst-size: "150"
         clean-interval: "30"
 
-  # TODO(Phase 4): nexus-sa-manager sidecar (HTTP ServiceAccountProducer endpoint on :8090).
-  # saManager:
-  #   image:
-  #     registry: registry.cloudogu.com
-  #     repository: official/nexus        # image decision open (Offene Frage #1)
-  #     tag: 3.86.2-6
+  # nexus-sa-manager sidecar
+  saManager:
+    image:
+      registry: registry.cloudogu.com
+      repository: k8s/service-account-producer-sidecar
+      tag: "0.1.0"
+    imagePullPolicy: IfNotPresent
+    resourceRequests:
+      cpu: 50m
+      memory: 32Mi
+    resourceLimits:
+      memory: 64Mi
 
 # Self-contained PostgreSQL
 postgresql:

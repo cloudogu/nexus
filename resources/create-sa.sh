@@ -4,10 +4,10 @@ set -o nounset
 set -o pipefail
 
 {
+  # Resolved relative to this script's own location (not hardcoded to /) so create-sa.sh/nexus_api.sh
+  # keep working no matter which directory they're both copied/mounted into together.
   # shellcheck disable=SC1091
-  source /nexus_api.sh
-  # shellcheck disable=SC1091
-  source /util.sh
+  source "$(dirname "$0")/nexus_api.sh"
 
   USE_FULL_REPO_NAME=""
   USE_FULL_REPO_TYPE=""

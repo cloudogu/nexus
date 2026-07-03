@@ -64,6 +64,20 @@ spec:
             # Writable target for the CES server cert handed to the non-root nexus container.
             - name: nexus-ca-certs
               mountPath: /dogu_v3/ca-certs
+        - name: sa-manager-hooks-init
+          # Copies create-sa.sh/remove-sa.sh/nexus_api.sh, plus the sa-hook-*.sh adapters out of the nexus image so the nexus-sa-manager sidecar
+          image: "{{ .Values.nexus.image.registry }}/{{ .Values.nexus.image.repository }}:{{ .Values.nexus.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.nexus.imagePullPolicy }}
+          command: ["sh", "-c", "cp /create-sa.sh /remove-sa.sh /nexus_api.sh /dogu_v3/sa-hook-common.sh /dogu_v3/sa-hook-create.sh /dogu_v3/sa-hook-remove.sh /dogu_v3/sa-hook-exists.sh /shared/ && chmod 0555 /shared/*.sh"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: sa-manager-hooks
+              mountPath: /shared
         {{- with .Values.nexus.extraInitContainers }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -148,11 +162,84 @@ spec:
           resources:
             requests: {{- toYaml .Values.nexus.resourceRequests | nindent 14 }}
             limits: {{- toYaml .Values.nexus.resourceLimits | nindent 14 }}
+
+        - name: nexus-sa-manager
+          # Generic Go HTTP sidecar implementing the ServiceAccountProducer HTTP API
+          image: "{{ .Values.nexus.saManager.image.registry }}/{{ .Values.nexus.saManager.image.repository }}:{{ .Values.nexus.saManager.image.tag }}"
+          imagePullPolicy: {{ .Values.nexus.saManager.imagePullPolicy }}
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: sa-manager
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: ECOSYSTEM_MULTINODE
+              value: "true"
+            - name: CREATE_HOOK
+              value: /hooks/sa-hook-create.sh
+            - name: DELETE_HOOK
+              value: /hooks/sa-hook-remove.sh
+            - name: EXISTS_HOOK
+              value: /hooks/sa-hook-exists.sh
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nexus.fullname" . }}-sa-manager-auth
+                  key: apiKey
+          volumeMounts:
+            # Writable local doguctl config
+            - name: nexus-data
+              mountPath: /var/ces/config
+              subPath: localConfig
+            # Read-only platform config: global + normal + sensitive
+            - name: ces-config
+              mountPath: /etc/ces/config
+              readOnly: true
+            # dogu.json for doguctl's component-mode registry lookup.
+            - name: nexus-dogu-json
+              mountPath: /etc/ces/dogu_json
+              readOnly: true
+            # create-sa.sh/remove-sa.sh/nexus_api.sh and the sa-hook-*.sh adapters
+            - name: sa-manager-hooks
+              mountPath: /hooks
+              readOnly: true
+          # GET /serviceaccounts is the sidecar's unauthenticated readiness route (httpGet probes
+          # can only send GET, never HEAD - the method the real service-account-operator client
+          # uses for its own Ready() check).
+          readinessProbe:
+            httpGet:
+              path: /serviceaccounts
+              port: sa-manager
+            periodSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /serviceaccounts
+              port: sa-manager
+            periodSeconds: 15
+            failureThreshold: 5
+          resources:
+            requests: {{- toYaml .Values.nexus.saManager.resourceRequests | nindent 14 }}
+            limits: {{- toYaml .Values.nexus.saManager.resourceLimits | nindent 14 }}
       volumes:
         - name: nexus-data
           persistentVolumeClaim:
             claimName: {{ include "nexus.fullname" . }}-data
         - name: ces-state
+          emptyDir: {}
+        - name: sa-manager-hooks
           emptyDir: {}
         - name: ces-config
           projected:
