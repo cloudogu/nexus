@@ -1,0 +1,12 @@
+apiVersion: v1
+metavalues:
+  mainLogLevel:
+    name: Log-Level
+    description: Root log level for Nexus and nexus-carp
+    keys:
+      - path: nexus.configuration.normal.logging.root
+        mapping:
+          debug: DEBUG
+          info: INFO
+          warn: WARN
+          error: ERROR

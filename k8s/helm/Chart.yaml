@@ -5,3 +5,6 @@ type: application
 version: 0.0.1
 appVersion: "3.86.2-01"
 icon: https://cloudogu.com/images/dogus/nexus.png
+annotations:
+  dogu.cloudogu.com/api-version: v3
+  dogu.cloudogu.com/application.postgresql: "14.18"
