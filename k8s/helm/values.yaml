@@ -113,8 +113,9 @@ nexus:
     image:
       registry: registry.cloudogu.com
       repository: k8s/service-account-producer-sidecar
-      tag: "0.1.0"
+      tag: "0.1.1"
     imagePullPolicy: IfNotPresent
+    logLevel: INFO
     resourceRequests:
       cpu: 50m
       memory: 32Mi

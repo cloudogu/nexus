@@ -193,6 +193,8 @@ spec:
               value: /hooks/sa-hook-remove.sh
             - name: EXISTS_HOOK
               value: /hooks/sa-hook-exists.sh
+            - name: LOG_LEVEL
+              value: {{ .Values.nexus.saManager.logLevel | quote }}
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
