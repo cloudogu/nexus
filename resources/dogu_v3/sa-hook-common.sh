@@ -7,6 +7,9 @@
 # Reads named "--key=value" flags plus the trailing consumer argument, validates each flag's key
 # against an explicit, ordered allowlist, and builds the positional PLAIN_PARAMS array in that
 # fixed order - regardless of the order the flags actually arrived in.
+#
+# Flags of the form "--behavior-<key>=<value>" are ignored.
+#
 # GLOBALS:
 #   PLAIN_PARAMS (out)
 #   CONSUMER (out)
@@ -29,6 +32,10 @@ function readKnownParams() {
       key="${flag%%=*}"
       key="${key#--}"
       value="${flag#*=}"
+
+      if [[ "${key}" == behavior-* ]]; then
+        continue
+      fi
 
       if [[ " ${ordered_known_keys} " != *" ${key} "* ]]; then
         echo "unknown parameter: ${key}" >&2
