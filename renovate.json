@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "baseBranchPatterns": [
+    "develop"
+  ],
+  "ignorePaths": [
+    "build/**"
+  ],
+  "configMigration": true,
+  "minimumReleaseAge": "7 days",
+  "semanticCommits": "enabled",
+  "extends": [
+    "customManagers:makefileVersions"
+  ],
+  "packageRules": [
+    {
+      "description": "Keep build/ in sync",
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "matchDepNames": [
+        "cloudogu/makefiles"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "make update-makefiles"
+        ],
+        "fileFilters": [
+          "Makefile",
+          "build/**"
+        ],
+        "executionMode": "branch"
+      }
+    },
+    {
+      "description": "No delay for self-made deps",
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "matchDepNames": [
+        "cloudogu/**"
+      ],
+      "minimumReleaseAge": "0 days"
+    }
+  ]
+}

@@ -6,6 +6,10 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.86.2-7] - 2026-07-06
+### Security
+* [#203] Sicherheitslücke [CVE-2026-31789](https://avd.aquasec.com/nvd/cve-2026-31789/) behoben
+
 ## [v3.86.2-6] - 2026-03-26
 - Dieses Release behebt einen Fehler beim Setzen der maximal erlaubten Datenbankverbindungen
 
