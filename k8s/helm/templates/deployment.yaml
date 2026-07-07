@@ -65,10 +65,10 @@ spec:
             - name: nexus-ca-certs
               mountPath: /dogu_v3/ca-certs
         - name: sa-manager-hooks-init
-          # Copies create-sa.sh/remove-sa.sh/nexus_api.sh, plus the sa-hook-*.sh adapters out of the nexus image so the nexus-sa-manager sidecar
+          # Copies create-sa.sh/remove-sa.sh/nexus_api.sh, the sa-hook-*.sh adapters and doguctl out of the nexus image
           image: "{{ .Values.nexus.image.registry }}/{{ .Values.nexus.image.repository }}:{{ .Values.nexus.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.nexus.imagePullPolicy }}
-          command: ["sh", "-c", "cp /create-sa.sh /remove-sa.sh /nexus_api.sh /dogu_v3/sa-hook-common.sh /dogu_v3/sa-hook-create.sh /dogu_v3/sa-hook-remove.sh /dogu_v3/sa-hook-exists.sh /shared/ && chmod 0555 /shared/*.sh"]
+          command: ["sh", "-c", "cp /usr/local/bin/doguctl /create-sa.sh /remove-sa.sh /nexus_api.sh /dogu_v3/sa-hook-common.sh /dogu_v3/sa-hook-create.sh /dogu_v3/sa-hook-remove.sh /dogu_v3/sa-hook-exists.sh /shared/ && chmod 0555 /shared/*"]
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: false
@@ -200,6 +200,10 @@ spec:
                 secretKeyRef:
                   name: {{ include "nexus.fullname" . }}-sa-manager-auth
                   key: apiKey
+            # The hook scripts call bare "doguctl ..." - it's copied into /hooks by sa-manager-hooks-init,
+            # so it needs to be on PATH. The sidecar's own Alpine base image doesn't provide doguctl itself.
+            - name: PATH
+              value: "/hooks:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
           volumeMounts:
             # Writable local doguctl config
             - name: nexus-data
