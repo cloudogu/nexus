@@ -52,9 +52,6 @@ nexus:
         protocol: TCP
         port: 8082
         targetPort: 8082
-      # Note: lowercase-hyphenated (unlike the "saManager" values keys elsewhere) - this map key
-      # becomes the literal Service port name (see templates/service.yaml), and Kubernetes object
-      # names/port names must be valid RFC 1123 labels (lowercase alphanumeric + hyphens only).
       sa-manager:
         protocol: TCP
         port: 8080
@@ -132,7 +129,6 @@ postgresql:
   auth:
     username: nexus
     database: nexus
-    # password is generated once and kept stable across upgrades via a lookup in the secret template.
   persistence:
     size: 5Gi
     storageClassName: ""
