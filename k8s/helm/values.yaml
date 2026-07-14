@@ -45,6 +45,10 @@ nexus:
   persistence:
     size: 2Gi
     storageClassName: ""
+    # Use an existing PersistentVolumeClaim for the nexus data volume instead of
+    # letting the chart create one. When set, no PVC is created and its size/
+    # storageClassName above are ignored.
+    existingClaim: ""
 
   service:
     ports:

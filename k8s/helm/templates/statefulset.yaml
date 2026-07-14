@@ -1,14 +1,13 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "nexus.fullname" . }}
   labels:
     {{- include "nexus.labels" . | nindent 4 }}
     {{- include "nexus.backupLabels" . | nindent 4 }}
 spec:
+  serviceName: {{ include "nexus.name" . }}
   replicas: {{ .Values.nexus.replicas | default 1 }}
-  strategy:
-    type: Recreate
   selector:
     matchLabels:
       {{- include "nexus.selectorLabels" . | nindent 6 }}
@@ -20,7 +19,9 @@ spec:
       labels:
         {{- include "nexus.nexusSelectorLabels" . | nindent 8 }}
     spec:
-      hostname: nexus
+      # No spec.hostname: the StatefulSet controller sets it to the pod name (e.g. nexus-0)
+      # and overrides any value here. doguctl's descriptor lookup follows ${HOSTNAME} accordingly
+      # (see dogu_v3/init.sh).
       enableServiceLinks: false
       {{- with .Values.global.imagePullSecrets }}
       imagePullSecrets:
@@ -240,9 +241,12 @@ spec:
             requests: {{- toYaml .Values.nexus.saManager.resourceRequests | nindent 14 }}
             limits: {{- toYaml .Values.nexus.saManager.resourceLimits | nindent 14 }}
       volumes:
+        {{- if .Values.nexus.persistence.existingClaim }}
+        # Bring-your-own PVC; when unset the volume is provided by volumeClaimTemplates below.
         - name: nexus-data
           persistentVolumeClaim:
-            claimName: {{ include "nexus.fullname" . }}-data
+            claimName: {{ .Values.nexus.persistence.existingClaim }}
+        {{- end }}
         - name: ces-state
           emptyDir: {}
         - name: sa-manager-hooks
@@ -281,3 +285,21 @@ spec:
       {{- with .Values.nexus.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
       {{- end }}
+  {{- if not .Values.nexus.persistence.existingClaim }}
+  volumeClaimTemplates:
+    # Holds the Nexus work dir (/var/lib/nexus) and the writable doguctl local config (/var/ces/config).
+    - metadata:
+        name: nexus-data
+        labels:
+          {{- include "nexus.labels" . | nindent 10 }}
+          {{- include "nexus.backupLabels" . | nindent 10 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        {{- if .Values.nexus.persistence.storageClassName }}
+        storageClassName: {{ .Values.nexus.persistence.storageClassName | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.nexus.persistence.size }}
+  {{- end }}

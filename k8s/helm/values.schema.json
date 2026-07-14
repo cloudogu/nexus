@@ -123,6 +123,11 @@
               "title": "Storage class",
               "description": "StorageClass for the data PVC. Empty string uses the cluster default.",
               "type": "string"
+            },
+            "existingClaim": {
+              "title": "Existing data PVC",
+              "description": "Name of an existing PersistentVolumeClaim to use for the nexus data volume. When set, the chart does not create a PVC and the size/storageClassName settings are ignored. Empty string lets the chart manage the PVC.",
+              "type": "string"
             }
           }
         },
