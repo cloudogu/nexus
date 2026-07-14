@@ -121,6 +121,7 @@ nexus:
 
 # Self-contained PostgreSQL
 postgresql:
+  replicas: 1
   image:
     registry: docker.io
     repository: library/postgres

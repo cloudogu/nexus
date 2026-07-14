@@ -5,9 +5,12 @@ metadata:
   labels:
     {{- include "nexus.labels" . | nindent 4 }}
     app.kubernetes.io/component: postgresql
+{{- if gt (int .Values.postgresql.replicas) 1 }}
+{{- fail "postgresql.replicas must not exceed 1: the bundled PostgreSQL runs as a single instance." }}
+{{- end }}
 spec:
   serviceName: {{ include "nexus.postgresqlServiceName" . }}
-  replicas: 1
+  replicas: {{ .Values.postgresql.replicas }}
   selector:
     matchLabels:
       {{- include "nexus.postgresqlSelectorLabels" . | nindent 6 }}

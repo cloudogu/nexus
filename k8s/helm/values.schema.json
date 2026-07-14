@@ -344,6 +344,13 @@
       "title": "Self-contained PostgreSQL",
       "type": "object",
       "properties": {
+        "replicas": {
+          "title": "Replica count",
+          "description": "Number of PostgreSQL Pod replicas. The bundled PostgreSQL runs as a single instance and does not support replication - only 0 or 1 is meaningful.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
         "image": {
           "type": "object",
           "properties": {
