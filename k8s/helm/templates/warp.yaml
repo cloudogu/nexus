@@ -1,0 +1,12 @@
+apiVersion: k8s.cloudogu.com/v1
+kind: WarpMenuEntry
+metadata:
+  name: {{ include "nexus.name" . }}
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+spec:
+  category: Development Apps
+  displayName:
+    de: Sonatype Nexus
+    en: Sonatype Nexus
+  path: /{{ include "nexus.name" . }}

@@ -1,0 +1,73 @@
+{{- if .Values.networkPolicies.enabled }}
+# Allow Nexus to reach PostgreSQL
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "nexus.postgresqlServiceName" . }}-allow-nexus
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "nexus.postgresqlSelectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Release.Namespace }}
+          podSelector:
+            matchLabels:
+              {{- include "nexus.nexusSelectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: 5432
+---
+# Allow the CES gateway to reach nexus (carp :8082)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "nexus.fullname" . }}-gateway
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "nexus.nexusSelectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Release.Namespace }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicies.gateway.matchLabels | nindent 14 }}
+---
+# Allow the service-account-operator to reach the nexus-sa-manager sidecar (:8080).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "nexus.fullname" . }}-sa-manager
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "nexus.nexusSelectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Release.Namespace }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicies.serviceAccountOperator.matchLabels | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: {{ (index .Values.nexus.service.ports "sa-manager").port }}
+{{- end }}

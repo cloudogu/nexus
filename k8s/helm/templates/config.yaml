@@ -1,0 +1,10 @@
+# Non-sensitive doguctl config. Rendered into the "normal" key and mounted at /etc/ces/config/normal/config.yaml via the projected ces-config volume (see deployment).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "nexus.fullname" . }}-config
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+data:
+  normal: |
+    {{- toYaml .Values.nexus.configuration.normal | nindent 4 }}

@@ -1,0 +1,144 @@
+global:
+  imagePullSecrets:
+    - name: "ces-container-registries"
+
+networkPolicies:
+  enabled: true
+  gateway:
+    matchLabels:
+      k8s.cloudogu.com/component.name: k8s-ces-gateway
+  serviceAccountOperator:
+    matchLabels:
+      k8s.cloudogu.com/component.name: service-account-operator
+
+extraLabels: {}
+
+nexus:
+  replicas: 1
+
+  image:
+    registry: registry.cloudogu.com
+    repository: official/nexus
+    tag: 3.86.2-6
+  imagePullPolicy: IfNotPresent
+
+  podSecurityContext:
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false
+    capabilities:
+      drop:
+        - ALL
+
+  resourceLimits:
+    memory: 2500Mi
+  resourceRequests:
+    cpu: 350m
+    memory: 2500Mi
+
+  persistence:
+    size: 2Gi
+    storageClassName: ""
+    # Use an existing PersistentVolumeClaim for the nexus data volume instead of
+    # letting the chart create one. When set, no PVC is created and its size/
+    # storageClassName above are ignored.
+    existingClaim: ""
+
+  service:
+    ports:
+      web:
+        protocol: TCP
+        port: 8082
+        targetPort: 8082
+      sa-manager:
+        protocol: TCP
+        port: 8080
+        targetPort: 8080
+
+  extraVolumeMounts: []
+  extraEnv: []
+  extraVolumes: []
+  extraInitContainers: []
+
+  tolerations: []
+  affinity: {}
+  nodeSelector: {}
+
+  # Dogu-Configuration
+  configuration:
+    meta:
+      global:
+        name: global-config
+        key: config.yaml
+      normal:
+        key: normal
+      sensitive:
+        key: sensitive
+    normal: # config.yaml style; slash-keys from dogu.json become nested keys
+      logging:
+        root: "WARN"
+      installDefaultDockerRegistry: "true"
+      disableOutreachManagement: "false"
+      database:
+        maxConnections: "30"
+        minIdle: "5"
+        idleTimeout: "300000"
+      container_config:
+        # util.sh only checks presence of this key to switch the JVM from fixed to percentage-based sizing.
+        memory_limit: "true"
+        java_max_ram_percentage: "50.0"
+        java_min_ram_percentage: "50.0"
+      cleanup_policy:
+        policy_format: "maven2"
+        criteria:
+          regex: ".*SNAPSHOT"
+          release_type: "PRERELEASES"
+          days_till_recognition_for_delete: "14"
+      compact_blobstore_task:
+        enabled: "true"
+        blobstore: "default"
+        cron: "0 0 3 * * ?"
+      carp-limiter:
+        token-rate: "50"
+        burst-size: "150"
+        clean-interval: "30"
+
+  # nexus-sa-manager sidecar
+  saManager:
+    image:
+      registry: registry.cloudogu.com
+      repository: k8s/service-account-producer-sidecar
+      tag: "0.1.3"
+    imagePullPolicy: IfNotPresent
+    logLevel: INFO
+    resourceRequests:
+      cpu: 50m
+      memory: 32Mi
+    resourceLimits:
+      memory: 64Mi
+
+# Self-contained PostgreSQL
+postgresql:
+  replicas: 1
+  image:
+    registry: docker.io
+    repository: library/postgres
+    tag: "14.18"
+  imagePullPolicy: IfNotPresent
+  auth:
+    username: nexus
+    database: nexus
+  persistence:
+    size: 5Gi
+    storageClassName: ""
+  resourceRequests:
+    cpu: 100m
+    memory: 256Mi
+  resourceLimits:
+    memory: 512Mi

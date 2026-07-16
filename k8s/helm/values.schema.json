@@ -1,0 +1,431 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema#",
+  "$id": "https://cloudogu.com/dogus/official/nexus/values.schema.json",
+  "title": "Nexus Dogu V3 values schema",
+  "description": "Validates the configurable parts of this chart's values.yaml (ADR-0058). This is a first, pragmatic pass: it constrains the values that are meant to be admin-facing configuration (log level, sizes, resource quantities, pull policies) and deliberately leaves additionalProperties open almost everywhere else, so it doesn't reject legitimate advanced overrides it doesn't yet know about.",
+  "type": "object",
+  "properties": {
+    "global": {
+      "type": "object",
+      "properties": {
+        "imagePullSecrets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "title": "Image pull secret",
+                "description": "Reference to a K8s secret containing image pull credentials for a configured OCI registry.",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "networkPolicies": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "title": "Enable NetworkPolicies",
+          "description": "Whether to create the NetworkPolicies that allow ingress to nexus (from the gateway), to nexus-sa-manager (from the service-account-operator) and to the bundled PostgreSQL (from nexus). Defaults to true.",
+          "type": "boolean"
+        },
+        "gateway": {
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "title": "Gateway pod selector labels",
+              "description": "Labels identifying the k8s-ces-gateway pods, used as the NetworkPolicy ingress selector for reaching nexus-carp.",
+              "type": "object"
+            }
+          }
+        },
+        "serviceAccountOperator": {
+          "type": "object",
+          "properties": {
+            "matchLabels": {
+              "title": "service-account-operator pod selector labels",
+              "description": "Labels identifying the service-account-operator pods, used as the NetworkPolicy ingress selector for reaching the nexus-sa-manager sidecar.",
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "extraLabels": {
+      "title": "Extra labels",
+      "description": "Additional labels applied to chart-managed resources.",
+      "type": "object"
+    },
+    "nexus": {
+      "type": "object",
+      "properties": {
+        "replicas": {
+          "title": "Replica count",
+          "description": "Number of nexus Pod replicas. Nexus is not designed for horizontal scaling - only 0 or 1 is meaningful.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "registry": { "type": "string" },
+            "repository": { "type": "string" },
+            "tag": { "type": "string" }
+          }
+        },
+        "imagePullPolicy": {
+          "title": "Image pull policy",
+          "description": "Kubernetes imagePullPolicy for the nexus and dogu-init/sa-manager-hooks-init containers.",
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"]
+        },
+        "resourceRequests": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "title": "CPU request",
+              "description": "Guaranteed CPU for the nexus container, e.g. 350m or 1.",
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?m?$"
+            },
+            "memory": {
+              "title": "Memory request",
+              "description": "Guaranteed memory for the nexus container, e.g. 2500Mi.",
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?[KMGT]i$"
+            }
+          }
+        },
+        "resourceLimits": {
+          "type": "object",
+          "properties": {
+            "memory": {
+              "title": "Memory limit",
+              "description": "Memory limit for the nexus container, e.g. 2500Mi. Keep in sync with config.container_config.java_max_ram_percentage so the JVM heap fits.",
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?[KMGT]i$"
+            }
+          }
+        },
+        "persistence": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "title": "Data volume size",
+              "description": "Size of the PersistentVolumeClaim holding /var/lib/nexus, e.g. 10Gi.",
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?[KMGT]i$"
+            },
+            "storageClassName": {
+              "title": "Storage class",
+              "description": "StorageClass for the data PVC. Empty string uses the cluster default.",
+              "type": "string"
+            },
+            "existingClaim": {
+              "title": "Existing data PVC",
+              "description": "Name of an existing PersistentVolumeClaim to use for the nexus data volume. When set, the chart does not create a PVC and the size/storageClassName settings are ignored. Empty string lets the chart manage the PVC.",
+              "type": "string"
+            }
+          }
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "ports": {
+              "title": "Service ports",
+              "description": "Named ports exposed by the nexus Service (web/carp and sa-manager). Advanced - only change if you know what you're doing.",
+              "type": "object"
+            }
+          }
+        },
+        "configuration": {
+          "type": "object",
+          "description": "doguctl component-mode configuration wiring (ConfigMap/Secret keys). Advanced - only change if you know what you're doing.",
+          "properties": {
+            "normal": {
+              "title": "Nexus/carp configuration",
+              "description": "Rendered into the doguctl-readable normal-config ConfigMap. These are the admin-facing Nexus/carp settings.",
+              "type": "object",
+              "properties": {
+                "logging": {
+                  "type": "object",
+                  "properties": {
+                    "root": {
+                      "title": "Root log level",
+                      "description": "Log verbosity for Nexus and nexus-carp. Also settable generically via the Dogu-CR's mappedValues.mainLogLevel (see dogu-values-metadata.yaml).",
+                      "type": "string",
+                      "enum": ["DEBUG", "INFO", "WARN", "ERROR"]
+                    }
+                  }
+                },
+                "installDefaultDockerRegistry": {
+                  "title": "Install default Docker registry",
+                  "description": "Whether to configure a default Docker registry repository on first start.",
+                  "type": "string",
+                  "enum": ["true", "false"]
+                },
+                "disableOutreachManagement": {
+                  "title": "Disable outreach management",
+                  "description": "Disables Nexus' outreach/onboarding UI capability.",
+                  "type": "string",
+                  "enum": ["true", "false"]
+                },
+                "database": {
+                  "type": "object",
+                  "properties": {
+                    "maxConnections": {
+                      "title": "DB max connections",
+                      "description": "Maximum number of PostgreSQL connections in the pool.",
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "minIdle": {
+                      "title": "DB min idle connections",
+                      "description": "Minimum number of idle PostgreSQL connections kept open.",
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "idleTimeout": {
+                      "title": "DB idle timeout (ms)",
+                      "description": "Idle connection timeout in milliseconds.",
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    }
+                  }
+                },
+                "container_config": {
+                  "type": "object",
+                  "properties": {
+                    "java_max_ram_percentage": {
+                      "title": "JVM max RAM percentage",
+                      "description": "Upper bound of the container memory limit the JVM heap may use, in percent. Keep well under 100 so auxiliary processes (carp, claim, scripting) have headroom.",
+                      "type": "string",
+                      "pattern": "^\\d+(\\.\\d+)?$"
+                    },
+                    "java_min_ram_percentage": {
+                      "title": "JVM min RAM percentage",
+                      "description": "Lower bound of the container memory limit the JVM heap may use, in percent.",
+                      "type": "string",
+                      "pattern": "^\\d+(\\.\\d+)?$"
+                    }
+                  }
+                },
+                "cleanup_policy": {
+                  "type": "object",
+                  "properties": {
+                    "policy_format": {
+                      "title": "Cleanup policy repository format",
+                      "description": "Repository format the default cleanup policy applies to, e.g. maven2.",
+                      "type": "string"
+                    },
+                    "criteria": {
+                      "type": "object",
+                      "properties": {
+                        "regex": {
+                          "title": "Cleanup criteria regex",
+                          "description": "Component name/version regex matched for cleanup, e.g. .*SNAPSHOT.",
+                          "type": "string"
+                        },
+                        "release_type": {
+                          "title": "Cleanup release type",
+                          "description": "Whether the policy targets PRERELEASES or RELEASES.",
+                          "type": "string",
+                          "enum": ["PRERELEASES", "RELEASES"]
+                        },
+                        "days_till_recognition_for_delete": {
+                          "title": "Cleanup age (days)",
+                          "description": "Minimum component age in days before it becomes eligible for cleanup.",
+                          "type": "string",
+                          "pattern": "^\\d+$"
+                        }
+                      }
+                    }
+                  }
+                },
+                "compact_blobstore_task": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "title": "Enable compact blobstore task",
+                      "description": "Whether to schedule the periodic blobstore-compaction task.",
+                      "type": "string",
+                      "enum": ["true", "false"]
+                    },
+                    "blobstore": {
+                      "title": "Blobstore name",
+                      "description": "Name of the blobstore the compaction task targets.",
+                      "type": "string"
+                    },
+                    "cron": {
+                      "title": "Compaction schedule",
+                      "description": "Quartz cron expression for when the compaction task runs.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "carp-limiter": {
+                  "type": "object",
+                  "properties": {
+                    "token-rate": {
+                      "title": "carp rate limiter: token rate",
+                      "description": "Tokens (requests) per second nexus-carp's rate limiter refills.",
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "burst-size": {
+                      "title": "carp rate limiter: burst size",
+                      "description": "Maximum burst of requests nexus-carp's rate limiter allows.",
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    },
+                    "clean-interval": {
+                      "title": "carp rate limiter: cleanup interval (s)",
+                      "description": "Interval in seconds at which nexus-carp evicts stale rate-limiter buckets.",
+                      "type": "string",
+                      "pattern": "^\\d+$"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "saManager": {
+          "title": "nexus-sa-manager sidecar",
+          "type": "object",
+          "properties": {
+            "image": {
+              "type": "object",
+              "properties": {
+                "registry": { "type": "string" },
+                "repository": { "type": "string" },
+                "tag": { "type": "string" }
+              }
+            },
+            "imagePullPolicy": {
+              "title": "sa-manager image pull policy",
+              "type": "string",
+              "enum": ["Always", "IfNotPresent", "Never"]
+            },
+            "logLevel": {
+              "title": "sa-manager log level",
+              "description": "Log level of the service-account-producer-sidecar's own slog logger. Independent of nexus.configuration.normal.logging.root, which only controls Nexus/carp logging.",
+              "type": "string",
+              "enum": ["DEBUG", "INFO", "WARN", "ERROR"]
+            },
+            "resourceRequests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "title": "sa-manager CPU request",
+                  "type": "string",
+                  "pattern": "^\\d+(\\.\\d+)?m?$"
+                },
+                "memory": {
+                  "title": "sa-manager memory request",
+                  "type": "string",
+                  "pattern": "^\\d+(\\.\\d+)?[KMGT]i$"
+                }
+              }
+            },
+            "resourceLimits": {
+              "type": "object",
+              "properties": {
+                "memory": {
+                  "title": "sa-manager memory limit",
+                  "type": "string",
+                  "pattern": "^\\d+(\\.\\d+)?[KMGT]i$"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "postgresql": {
+      "title": "Self-contained PostgreSQL",
+      "type": "object",
+      "properties": {
+        "replicas": {
+          "title": "Replica count",
+          "description": "Number of PostgreSQL Pod replicas. The bundled PostgreSQL runs as a single instance and does not support replication - only 0 or 1 is meaningful.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "registry": { "type": "string" },
+            "repository": { "type": "string" },
+            "tag": { "type": "string" }
+          }
+        },
+        "imagePullPolicy": {
+          "title": "postgresql image pull policy",
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"]
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "title": "PostgreSQL username",
+              "description": "Database user nexus connects with. Changing this on an existing installation requires a manual DB migration.",
+              "type": "string"
+            },
+            "database": {
+              "title": "PostgreSQL database name",
+              "description": "Database name nexus connects to. Changing this on an existing installation requires a manual DB migration.",
+              "type": "string"
+            }
+          }
+        },
+        "persistence": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "title": "PostgreSQL data volume size",
+              "description": "Size of the PersistentVolumeClaim holding the PostgreSQL data directory, e.g. 5Gi.",
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?[KMGT]i$"
+            },
+            "storageClassName": {
+              "title": "PostgreSQL storage class",
+              "description": "StorageClass for the PostgreSQL data PVC. Empty string uses the cluster default.",
+              "type": "string"
+            }
+          }
+        },
+        "resourceRequests": {
+          "type": "object",
+          "properties": {
+            "cpu": {
+              "title": "PostgreSQL CPU request",
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?m?$"
+            },
+            "memory": {
+              "title": "PostgreSQL memory request",
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?[KMGT]i$"
+            }
+          }
+        },
+        "resourceLimits": {
+          "type": "object",
+          "properties": {
+            "memory": {
+              "title": "PostgreSQL memory limit",
+              "type": "string",
+              "pattern": "^\\d+(\\.\\d+)?[KMGT]i$"
+            }
+          }
+        }
+      }
+    }
+  }
+}

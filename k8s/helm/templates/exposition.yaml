@@ -1,0 +1,20 @@
+apiVersion: k8s.cloudogu.com/v1
+kind: Exposition
+metadata:
+  name: {{ include "nexus.name" . }}
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+spec:
+  http:
+    - name: {{ include "nexus.name" . }}
+      service: {{ include "nexus.name" . }}
+      port: {{ .Values.nexus.service.ports.web.port }}
+      path: /{{ include "nexus.name" . }}
+    - name: {{ include "nexus.name" . }}-docker-registry
+      path: /v2
+      port: {{ .Values.nexus.service.ports.web.port }}
+      rewrite:
+        regex:
+          pattern: ^/v2/?(.*)$
+          replacement: /{{ include "nexus.name" . }}/repository/docker-registry/v2/$1
+      service: {{ include "nexus.name" . }}

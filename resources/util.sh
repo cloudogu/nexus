@@ -7,6 +7,10 @@ set -o pipefail
 ADMINUSER="dogu-tool-admin-$(doguctl random)"
 ADMINPW="$(doguctl random)"
 NEXUS_DATA_DIR=/var/lib/nexus
+# PostgreSQL host/port. Default matches the DoguV2 postgresql dogu service name
+# DoguV3 overrides these via the POSTGRESQL_HOST/POSTGRESQL_PORT env vars to avoid colliding with an installed postgresql dogu.
+POSTGRESQL_HOST="${POSTGRESQL_HOST:-postgresql}"
+POSTGRESQL_PORT="${POSTGRESQL_PORT:-5432}"
 LOGBACK_CONF_DIR="${NEXUS_WORKDIR}/etc/logback"
 LOGBACK_FILE="${LOGBACK_CONF_DIR}/logback.xml"
 LOGBACK_TEMPLATE_FILE=/logback.xml.tpl
@@ -331,7 +335,7 @@ function validateDoguLogLevel() {
 # execution of sql function will only work when nexus process is not running, as it blocks the db
 function sql() {
   SQL="${1}"
-  psql -d "postgresql://$(doguctl config -e sa-postgresql/username):$(doguctl config -e sa-postgresql/password)@postgresql:5432/$(doguctl config -e sa-postgresql/database)" -c "${SQL}"
+  psql -d "postgresql://$(doguctl config -e sa-postgresql/username):$(doguctl config -e sa-postgresql/password)@${POSTGRESQL_HOST}:${POSTGRESQL_PORT}/$(doguctl config -e sa-postgresql/database)" -c "${SQL}"
 }
 
 function createPasswordHash() {
@@ -387,7 +391,7 @@ function setPostgresEnvVariables() {
   "idleTimeout=${idleTimeout}"
 )"
 
-  export NEXUS_DATASTORE_NEXUS_JDBCURL="jdbc:postgresql://postgresql:5432/${db}?user=${user}&password=${pw}&currentSchema=public"
+  export NEXUS_DATASTORE_NEXUS_JDBCURL="jdbc:postgresql://${POSTGRESQL_HOST}:${POSTGRESQL_PORT}/${db}?user=${user}&password=${pw}&currentSchema=public"
   export NEXUS_DATASTORE_NEXUS_USERNAME="${user}"
   export NEXUS_DATASTORE_NEXUS_PASSWORD="${pw}"
   export NEXUS_DATASTORE_NEXUS_ADVANCED

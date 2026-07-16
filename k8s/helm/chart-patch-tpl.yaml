@@ -1,0 +1,23 @@
+apiVersion: v1
+values:
+  images:
+    nexus: registry.cloudogu.com/official/nexus:3.86.2-6
+    nexusSaManager: registry.cloudogu.com/k8s/service-account-producer-sidecar:0.1.2
+    postgresql: docker.io/library/postgres:14.18
+patches:
+  values.yaml:
+    nexus:
+      image:
+        registry: "{{ registryFrom .images.nexus }}"
+        repository: "{{ repositoryFrom .images.nexus }}"
+        tag: "{{ tagFrom .images.nexus }}"
+      saManager:
+        image:
+          registry: "{{ registryFrom .images.nexusSaManager }}"
+          repository: "{{ repositoryFrom .images.nexusSaManager }}"
+          tag: "{{ tagFrom .images.nexusSaManager }}"
+    postgresql:
+      image:
+        registry: "{{ registryFrom .images.postgresql }}"
+        repository: "{{ repositoryFrom .images.postgresql }}"
+        tag: "{{ tagFrom .images.postgresql }}"

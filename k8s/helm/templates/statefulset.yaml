@@ -1,0 +1,305 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "nexus.fullname" . }}
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+    {{- include "nexus.backupLabels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "nexus.name" . }}
+  replicas: {{ .Values.nexus.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "nexus.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: nexus
+        config/checksum: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+      labels:
+        {{- include "nexus.nexusSelectorLabels" . | nindent 8 }}
+    spec:
+      # No spec.hostname: the StatefulSet controller sets it to the pod name (e.g. nexus-0)
+      # and overrides any value here. doguctl's descriptor lookup follows ${HOSTNAME} accordingly
+      # (see dogu_v3/init.sh).
+      enableServiceLinks: false
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext: {{- toYaml .Values.nexus.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: dogu-init
+          image: "{{ .Values.nexus.image.registry }}/{{ .Values.nexus.image.repository }}:{{ .Values.nexus.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.nexus.imagePullPolicy }}
+          command: ["bash", "/dogu_v3/init.sh"]
+          env:
+            - name: ECOSYSTEM_MULTINODE
+              value: "true"
+            - name: POSTGRESQL_HOST
+              value: {{ include "nexus.postgresqlServiceName" . | quote }}
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
+                - DAC_OVERRIDE
+                - FOWNER
+          volumeMounts:
+            - name: nexus-data
+              mountPath: /var/lib/nexus
+              subPath: data
+            - name: nexus-data
+              mountPath: /var/ces/config
+              subPath: localConfig
+            - name: nexus-dogu-json
+              mountPath: /etc/ces/dogu_json
+            - name: ces-config
+              mountPath: /etc/ces/config
+              readOnly: true
+            # Writable target for the CES server cert handed to the non-root nexus container.
+            - name: nexus-ca-certs
+              mountPath: /dogu_v3/ca-certs
+        - name: sa-manager-hooks-init
+          # Copies create-sa.sh/remove-sa.sh/nexus_api.sh, the sa-hook-*.sh adapters and doguctl out of the nexus image
+          image: "{{ .Values.nexus.image.registry }}/{{ .Values.nexus.image.repository }}:{{ .Values.nexus.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.nexus.imagePullPolicy }}
+          command: ["sh", "-c", "cp /usr/local/bin/doguctl /create-sa.sh /remove-sa.sh /nexus_api.sh /dogu_v3/sa-hook-common.sh /dogu_v3/sa-hook-create.sh /dogu_v3/sa-hook-remove.sh /dogu_v3/sa-hook-exists.sh /shared/ && chmod 0555 /shared/*"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: sa-manager-hooks
+              mountPath: /shared
+        {{- with .Values.nexus.extraInitContainers }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: nexus
+          image: "{{ .Values.nexus.image.registry }}/{{ .Values.nexus.image.repository }}:{{ .Values.nexus.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.nexus.imagePullPolicy }}
+          args: ["/startup.sh"]
+          securityContext: {{- toYaml .Values.nexus.securityContext | nindent 12 }}
+          ports:
+            - name: nexus-http
+              containerPort: 8081
+              protocol: TCP
+            - name: web
+              containerPort: 8082
+              protocol: TCP
+          env:
+            - name: HOME
+              value: /var/lib/nexus
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ECOSYSTEM_MULTINODE
+              value: "true"
+            - name: POSTGRESQL_HOST
+              value: {{ include "nexus.postgresqlServiceName" . | quote }}
+            {{- with .Values.nexus.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+            - name: nexus-data
+              mountPath: /var/lib/nexus
+              subPath: data
+            # Writable local doguctl config store (successfulInitialConfiguration, admin_user, ...).
+            - name: nexus-data
+              mountPath: /var/ces/config
+              subPath: localConfig
+            # Ephemeral doguctl state (doguctl state ready).
+            - name: ces-state
+              mountPath: /var/ces/state
+            # Read-only platform config: global + normal + sensitive.
+            - name: ces-config
+              mountPath: /etc/ces/config
+              readOnly: true
+            # dogu.json for doguctl config-key validation.
+            - name: nexus-dogu-json
+              mountPath: /etc/ces/dogu_json
+              readOnly: true
+            # CES server cert; fetched by dogu-init
+            - name: nexus-ca-certs
+              mountPath: /etc/ssl/certs/server.crt
+              subPath: server.crt
+              readOnly: true
+            {{- with .Values.nexus.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          startupProbe:
+            # startup.sh ends with `doguctl state ready`; give first start plenty of time (incl. its restart).
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - '[ "$(doguctl state)" = "ready" ]'
+            periodSeconds: 10
+            failureThreshold: 180
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: nexus-http
+            periodSeconds: 15
+            failureThreshold: 5
+          readinessProbe:
+            tcpSocket:
+              port: web
+            periodSeconds: 10
+            failureThreshold: 5
+          resources:
+            requests: {{- toYaml .Values.nexus.resourceRequests | nindent 14 }}
+            limits: {{- toYaml .Values.nexus.resourceLimits | nindent 14 }}
+
+        - name: nexus-sa-manager
+          # Generic Go HTTP sidecar implementing the ServiceAccountProducer HTTP API
+          image: "{{ .Values.nexus.saManager.image.registry }}/{{ .Values.nexus.saManager.image.repository }}:{{ .Values.nexus.saManager.image.tag }}"
+          imagePullPolicy: {{ .Values.nexus.saManager.imagePullPolicy }}
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: sa-manager
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: ECOSYSTEM_MULTINODE
+              value: "true"
+            - name: CREATE_HOOK
+              value: /hooks/sa-hook-create.sh
+            - name: DELETE_HOOK
+              value: /hooks/sa-hook-remove.sh
+            - name: EXISTS_HOOK
+              value: /hooks/sa-hook-exists.sh
+            - name: LOG_LEVEL
+              value: {{ .Values.nexus.saManager.logLevel | quote }}
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nexus.fullname" . }}-sa-manager-auth
+                  key: apiKey
+            # The hook scripts call bare "doguctl ..." - it's copied into /hooks by sa-manager-hooks-init,
+            # so it needs to be on PATH. The sidecar's own Alpine base image doesn't provide doguctl itself.
+            - name: PATH
+              value: "/hooks:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+          volumeMounts:
+            # Writable local doguctl config
+            - name: nexus-data
+              mountPath: /var/ces/config
+              subPath: localConfig
+            # Read-only platform config: global + normal + sensitive
+            - name: ces-config
+              mountPath: /etc/ces/config
+              readOnly: true
+            # dogu.json for doguctl's component-mode registry lookup.
+            - name: nexus-dogu-json
+              mountPath: /etc/ces/dogu_json
+              readOnly: true
+            # create-sa.sh/remove-sa.sh/nexus_api.sh and the sa-hook-*.sh adapters
+            - name: sa-manager-hooks
+              mountPath: /hooks
+              readOnly: true
+          # GET /serviceaccounts is the sidecar's unauthenticated readiness route (httpGet probes
+          # can only send GET, never HEAD - the method the real service-account-operator client
+          # uses for its own Ready() check).
+          readinessProbe:
+            httpGet:
+              path: /serviceaccounts
+              port: sa-manager
+            periodSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /serviceaccounts
+              port: sa-manager
+            periodSeconds: 15
+            failureThreshold: 5
+          resources:
+            requests: {{- toYaml .Values.nexus.saManager.resourceRequests | nindent 14 }}
+            limits: {{- toYaml .Values.nexus.saManager.resourceLimits | nindent 14 }}
+      volumes:
+        {{- if .Values.nexus.persistence.existingClaim }}
+        # Bring-your-own PVC; when unset the volume is provided by volumeClaimTemplates below.
+        - name: nexus-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.nexus.persistence.existingClaim }}
+        {{- end }}
+        - name: ces-state
+          emptyDir: {}
+        - name: sa-manager-hooks
+          emptyDir: {}
+        - name: ces-config
+          projected:
+            sources:
+              - configMap:
+                  name: {{ .Values.nexus.configuration.meta.global.name }}
+                  items:
+                    - key: {{ .Values.nexus.configuration.meta.global.key }}
+                      path: global/config.yaml
+              - configMap:
+                  name: {{ include "nexus.fullname" . }}-config
+                  items:
+                    - key: {{ .Values.nexus.configuration.meta.normal.key }}
+                      path: normal/config.yaml
+              - secret:
+                  name: {{ include "nexus.fullname" . }}-postgresql
+                  items:
+                    - key: sensitive-config.yaml
+                      path: sensitive/config.yaml
+        - name: nexus-dogu-json
+          emptyDir: {}
+        - name: nexus-ca-certs
+          emptyDir: {}
+        {{- with .Values.nexus.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nexus.tolerations }}
+      tolerations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nexus.affinity }}
+      affinity: {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nexus.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if not .Values.nexus.persistence.existingClaim }}
+  volumeClaimTemplates:
+    # Holds the Nexus work dir (/var/lib/nexus) and the writable doguctl local config (/var/ces/config).
+    - metadata:
+        name: nexus-data
+        labels:
+          {{- include "nexus.labels" . | nindent 10 }}
+          {{- include "nexus.backupLabels" . | nindent 10 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        {{- if .Values.nexus.persistence.storageClassName }}
+        storageClassName: {{ .Values.nexus.persistence.storageClassName | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.nexus.persistence.size }}
+  {{- end }}

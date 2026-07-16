@@ -3,10 +3,10 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# Resolved relative to this script's own location (not hardcoded to /) so remove-sa.sh/nexus_api.sh
+# keep working no matter which directory they're both copied/mounted into together.
 # shellcheck disable=SC1091
-source /nexus_api.sh
-# shellcheck disable=SC1091
-source /util.sh
+source "$(dirname "$0")/nexus_api.sh"
 
 REPO_TO_BE_DELETED=""
 NUMBER_OF_PARAMS=$#
