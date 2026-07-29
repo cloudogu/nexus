@@ -5,6 +5,8 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Changed
+- Die Migration zu h2 geht robuster mit defekten Backups um.
 
 ## [v3.70.2-7] - 2026-02-23
 ### Changed
