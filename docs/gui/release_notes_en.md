@@ -5,7 +5,8 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
-
+### Changed
+- The migration to h2 and postgresql was improved
 ## [v3.82.0-6] - 2026-02-24
 ### Changed
 - Updating the certificate truststore at every reboot instead of just the very first one; #188

@@ -5,6 +5,8 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Changed
+- Die Migration zu h2 und postgresql wurde verbessert.
 
 ## [v3.82.0-6] - 2026-02-24
 ### Changed

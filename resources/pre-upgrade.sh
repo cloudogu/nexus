@@ -100,21 +100,36 @@ if [[ $FROM_VERSION == 3.70.2* ]] && [[ $TO_VERSION == 3.82.0* ]]; then
   NEXUS_PASSWORD="$(doguctl config -e admin_pw)"
 
   # remove any old backup artifacts
-  rm -rf '*.bak'
+  rm -f "${NEXUS_WORKDIR}"/*.bak
 
   writeDatabaseBackupScriptToFile
 
   NEXUS_URL="http://localhost:8081/nexus" NEXUS_USER="${NEXUS_USER}" NEXUS_PASSWORD="${NEXUS_PASSWORD}" nexus-scripting execute "${NEXUS_WORKDIR}/resources/nexusBackupOrientDBTask.groovy"
   # wait for backup files to appear
+  # and check that the backup files are written correctly
   echo "Creating database backup. Depending on the size of the database this process may take a while.."
-  spin='-\|/'
-  i=0
-  AMOUNT_OF_BACKUP_FILES="4"
-  until [[ $(find "${NEXUS_WORKDIR}" -name '*.bak*' |  wc -l | grep "${AMOUNT_OF_BACKUP_FILES}") == "${AMOUNT_OF_BACKUP_FILES}" ]]; do
-    i=$(( (i+1) %4 ))
-    printf "\r%s" "${spin:$i:1}"
-    sleep .3
+  while true; do
+    echo "Waiting for backup to be created..."
+    backups=("${NEXUS_WORKDIR}"/*.bak)
+
+    if [[ ${#backups[@]} -eq 4 ]]; then
+      valid=true
+
+      for backup in "${backups[@]}"; do
+        # check that the file is a valid zip archive
+        # the backup isn't done if the file is not valid
+        if ! unzip -tqq "${backup}"; then
+          valid=false
+          break
+        fi
+      done
+
+      "${valid}" && break
+    fi
+    echo "The backups are not finished yet"
+    sleep 30
   done
+
   echo "Database backup created"
   cp -fr /jars/* "${NEXUS_DATA_DIR}"
 
