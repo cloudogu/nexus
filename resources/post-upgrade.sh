@@ -20,16 +20,27 @@ FROM_VERSION="${1}"
 TO_VERSION="${2}"
 
 waitForDatabaseBackup() {
+  local -a backups
+
   echo "Creating database backup. Depending on the size of the database this process may take a while.."
-  spin='-\|/'
-  i=0
-  AMOUNT_OF_BACKUP_FILES="1"
-  until [[ $(find "${NEXUS_DATA_DIR}/db" -name 'nexus-*.zip' |  wc -l | grep "${AMOUNT_OF_BACKUP_FILES}") == "${AMOUNT_OF_BACKUP_FILES}" ]]; do
-    i=$(( (i+1) %4 ))
-    printf "\r%s" "${spin:$i:1}"
-    sleep .3
+
+  while true; do
+    echo "Waiting for backup to be created..."
+    mapfile -d '' -t backups < <(
+      find "${NEXUS_DATA_DIR}/db" -name 'nexus-*.zip' -print0
+    )
+
+    if [[ ${#backups[@]} -eq 1 ]] &&
+       # check that the file is a valid zip archive
+       # the backup isn't done if the file is not valid
+       unzip -tqq "${backups[0]}" 2>/dev/null; then
+      printf "\rDatabase backup created\n"
+      return 0
+    fi
+
+    echo "The backup is not finished yet"
+    sleep 30
   done
-  echo "Database backup created"
 }
 
 echo "executing post upgrade"
