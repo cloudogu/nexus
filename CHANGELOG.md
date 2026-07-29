@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.70.2-8] - 2026-07-29
+### Changed
+* patched the migrator jar with a more robust zip reader
+
 ## [v3.70.2-7] - 2026-02-23
 ### Changed
 - Recreating truststore at every boot to automatically import new certificates; #188

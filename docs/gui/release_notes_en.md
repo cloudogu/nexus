@@ -6,6 +6,10 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.70.2-8] - 2026-07-29
+### Changed
+- The migration to h2 works better with defective backups.
+
 ## [v3.70.2-7] - 2026-02-23
 ### Changed
 - Updating the certificate truststore at every reboot instead of just the very first one; #188
