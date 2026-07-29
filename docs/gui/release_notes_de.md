@@ -6,6 +6,10 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.82.0-7] - 2026-07-29
+### Changed
+- Die Migration zu h2 und postgresql wurde verbessert.
+
 ## [v3.82.0-6] - 2026-02-24
 ### Changed
 - Aktualisierung des Zertifikats-Truststores bei jedem Dogu-Neustart statt nur beim allerersten Start; #188
