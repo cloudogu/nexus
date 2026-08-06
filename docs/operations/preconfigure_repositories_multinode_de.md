@@ -1,0 +1,28 @@
+## Verwenden Sie nexus-claim, um die Repositories vorzukonfigurieren
+
+Die vorkonfigurierten Nexus-Repositories können mit [nexus-claim](https://github.com/cloudogu/nexus-claim) geändert werden.
+Zuerst müssen wir ein Model für unsere Änderungen erstellen, z.B.: [sample](https://raw.githubusercontent.com/cloudogu/nexus-claim/develop/resources/nexus3/nexus3-initial-example.hcl). 
+Wir können unser Model testen, indem wir den Befehl plan gegen eine laufende Instanz von Nexus verwenden (Hinweis: Vergessen Sie nicht, die Anmeldedaten zu setzen):
+
+```bash
+nexus-claim plan -i nexus3-initial-example.hcl
+```
+
+Wenn die Ausgabe gut aussieht, können wir unser Model in der Registry speichern. 
+Wenn wir unser Model nur einmal anwenden wollen:
+
+`kubectl edit configmap -n ecosystem nexus-config`
+````yaml
+    data:
+      config.yaml: |
+        claim.once: "<Inhalt von myModel.hcl>"
+````
+
+Oder wir könnten unser Model bei jedem Start von Nexus anwenden:
+
+`kubectl edit configmap -n ecosystem nexus-config`
+````yaml
+    data:
+      config.yaml: |
+        claim.always: "<Inhalt von myModel.hcl>"
+````
