@@ -5,8 +5,9 @@ HELM_ARTIFACT_ID=$(ARTIFACT_ID)
 # IMAGE_IMPORT_TARGET contains pre-helm apply make targets, specifically one that imports all things OCI into a local system.
 IMAGE_IMPORT_TARGET=image-import
 
-ifeq (${K8S_MK_INCLUDE_MARKER}, )
-	include ${BUILD_DIR}/make/k8s.mk
+ifeq (${K8S_HELM_COMMON_MK_INCLUDE_MARKER}, )
+# note: Some variables may be imported indirectly from k8s.mk
+	include ${BUILD_DIR}/make/k8s-helm-common.mk
 endif
 
 DOGU_V3_PRE_APPLY_TARGETS?=

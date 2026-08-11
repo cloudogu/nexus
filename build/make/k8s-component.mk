@@ -2,8 +2,8 @@ COMPONENT_ARTIFACT_ID?=$(ARTIFACT_ID)
 COMPONENT_BUILD_VERSION := $(shell date +%s)
 COMPONENT_DEV_VERSION?=${VERSION}-dev.${COMPONENT_BUILD_VERSION}
 
-ifeq (${K8S_MK_INCLUDE_MARKER}, )
-	include ${BUILD_DIR}/make/k8s.mk
+ifeq (${K8S_HELM_COMMON_MK_INCLUDE_MARKER}, )
+	include ${BUILD_DIR}/make/k8s-helm-common.mk
 endif
 
 ifeq (${RUNTIME_ENV}, local)
