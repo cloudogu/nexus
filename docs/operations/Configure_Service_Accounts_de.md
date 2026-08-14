@@ -29,12 +29,12 @@ wird dem Service Account die Nexus-Permission: `nx-repository-admin-maven2-maven
 
 ## Verwendung
 
-Die Benutzerdaten des Service Accounts werden für das Dogu unter dem Pfad `/config/<dogu>/sa-nexus` verschlüsselt im Etcd gespeichert.
+Die Benutzerdaten des Service Accounts werden für das Dogu im Secret ``<dogu>-config`` verschlüsselt gespeichert.
 Folgende Schlüssel werden angelegt:
 
-**/config/<dogu>/sa-nexus/username** – der Benutzername des Service Accounts. Dieser Schlüssel wird immer angelegt.
+**sa-nexus/username** – der Benutzername des Service Accounts. Dieser Schlüssel wird immer angelegt.
 
-**/config/<dogu>/sa-nexus/password** – das Passwort des Service Accounts. Dieser Schlüssel wird immer angelegt.
+**sa-nexus/password** – das Passwort des Service Accounts. Dieser Schlüssel wird immer angelegt.
 
-**/config/<dogu>/sa-nexus/repository** – der Name des Repositories, welches durch den Parameter `fullAccessRepository=repoName` konfiguriert wurde. 
+**sa-nexus/repository** – der Name des Repositories, welches durch den Parameter `fullAccessRepository=repoName` konfiguriert wurde. 
 Dieser Schlüssel wird nur angelegt wenn der SA mit dem Parameter `fullAccessRepository` konfiguriert wurde.
