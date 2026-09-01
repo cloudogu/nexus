@@ -5,6 +5,8 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Changed
+- The documentation of old version was removed. References to Classic CES were replaced by MN CES.
 
 ## [v3.86.2-7] - 2026-07-06
 ### Security

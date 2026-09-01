@@ -29,7 +29,7 @@ the service account will be given the Nexus permission: `nx-repository-admin-mav
 
 ## Usage
 
-The service account user data is stored in the ``<dogu>-config`` secret.
+The service account user data is stored in the `<dogu>-config` secret.
 The following keys are created:
 
 **sa-nexus/username** - the username of the service account. This key is always created.
