@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.86.2-8] - 2026-09-01
+### Fixed
+- [#216] prevent dogu upgrades without a database migration
+
 ## [v3.86.2-7] - 2026-07-06
 ### Changed
 - [#203] Upgrade Java base-image to 17.0.19-2

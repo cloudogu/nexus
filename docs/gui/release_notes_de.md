@@ -6,6 +6,9 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.86.2-8] - 2026-09-01
+- Wir haben nur technische Änderungen vorgenommen. Näheres finden Sie in den Changelogs.
+
 ## [v3.86.2-7] - 2026-07-06
 ### Security
 * [#203] Sicherheitslücke [CVE-2026-31789](https://avd.aquasec.com/nvd/cve-2026-31789/) behoben
