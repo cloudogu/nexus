@@ -4,7 +4,7 @@ Nexus offers the possibility to create service accounts.
 
 ## Configuration
 
-To do this, an entry must be made in the `ServiceAccount` section of `dogu.json` in the target logu:
+To do this, an entry must be made in the `ServiceAccount` section of `dogu.json` in the target dogu:
 
 ```json
 {
@@ -29,12 +29,12 @@ the service account will be given the Nexus permission: `nx-repository-admin-mav
 
 ## Usage
 
-The service account user data is stored for the dogu under the path `/config/<dogu>/sa-nexus` encrypted in the etcd.
+The service account user data is stored in the `<dogu>-config` secret.
 The following keys are created:
 
-**/config/<dogu>/sa-nexus/username** - the username of the service account. This key is always created.
+**sa-nexus/username** - the username of the service account. This key is always created.
 
-**/config/<dogu>/sa-nexus/password** - the password of the service account. This key is always created.
+**sa-nexus/password** - the password of the service account. This key is always created.
 
-**/config/<dogu>/sa-nexus/repository** - the name of the repository configured by the `fullAccessRepository=repoName` parameter. 
+**sa-nexus/repository** - the name of the repository configured by the `fullAccessRepository=repoName` parameter. 
 This key is created only if the SA was configured with the `fullAccessRepository` parameter.

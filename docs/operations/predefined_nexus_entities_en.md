@@ -7,8 +7,14 @@ The final deletion of the data from the Blobstore is done by a *Compact Blobstor
 which is not configured in the default Nexus configuration.
 This task is created by the script `nexusSetupCompactBlobstoreTask.groovy` when the application is started.
 The task deletes data daily (in its standard configuration) from the _default_ blobstore. If you want to configure a different blobstore, you can do this by 
-modifying the etcd key `config/nexus/compact_blobstore_task/blobstore`.
-The easiest way to do this is to use the cesapp command `cesapp edit-config nexus`.
+modifying the etcd key `compact_blobstore_task/blobstore`.
+The easiest way to do this is to use:
+`kubectl edit configmap -n ecosystem nexus-config`
+````yaml
+    data:
+      config.yaml: |
+        compact_blobstore_task/blobstore: "<blobstore name>"
+````
 
 More information about tasks can be found in the [official task-documentation](https://help.sonatype.com/repomanager3/nexus-repository-administration/tasks).
 
@@ -32,5 +38,5 @@ repository "public" {
   }
 ```
 
-The policy can be configured via `cesapp edit-config nexus` command. The default intervall for the cleanup policy is 14 days.
+The policy can be configured via `kubectl edit configmap -n ecosystem nexus-config` command. The default intervall for the cleanup policy is 14 days.
 More information about cleanup policies can be found in the [official cleanup-policy-documentation](https://help.sonatype.com/repomanager3/nexus-repository-administration/repository-management/cleanup-policies).
