@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.86.2-9] - 2026-09-02
+### Addded
+- [#214] update docs for multinode
+
 ## [v3.86.2-8] - 2026-09-01
 ### Fixed
 - [#216] prevent dogu upgrades without a database migration

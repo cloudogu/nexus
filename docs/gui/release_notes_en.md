@@ -6,6 +6,10 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.86.2-9] - 2026-09-02
+### Changed
+- The documentation of old version was removed. References to Classic CES were replaced by MN CES.
+
 ## [v3.86.2-8] - 2026-09-01
 - We have only made technical changes. You can find more details in the changelogs.
 
