@@ -27,7 +27,7 @@
   ```
 - `dogu.json` kommt aus dem Image (`Dockerfile: COPY dogu.json /`), ein Init-Container extrahiert die Version und schreibt `/etc/ces/dogu_json/{current,<version>}` in ein gemeinsames `emptyDir`.
 - doguctl löst den Deskriptor über `${HOSTNAME}` auf, nicht über den Dogu-Namen. Pod braucht `spec.hostname: <doguname>`.
-- Schreibbarer `/var/ces/config` (PVC-Subpath) für `doguctl config <k> <v>`-Writes, und ein flüchtiges (ephemral) Volume `/var/ces/state` für `doguctl state ready`.
+- Schreibbarer `$LOCAL_CONFIG_DIR` (PVC-Subpath) für `doguctl config <k> <v>`-Writes, und ein flüchtiges (ephemral) Volume `/var/ces/state` für `doguctl state ready`.
 
 ### 3. Non-root-Härtung (optional)
 

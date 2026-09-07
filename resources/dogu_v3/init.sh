@@ -11,11 +11,11 @@ set -o pipefail
 #
 # Ownership must be fixed LAST: every doguctl invocation above runs as root (this container)
 # and, as a side effect of just creating a registry client, eagerly creates
-# /var/ces/config/local.yaml if it doesn't exist yet (see cloudogu/doguctl
+# ${LOCAL_CONFIG_DIR}/local.yaml if it doesn't exist yet (see cloudogu/doguctl
 # DoguFileConfigurationContext.checkLocalConfigFile) — owned by root. The later non-root
 # nexus container would then fail with "permission denied" writing to that file.
 
-mkdir -p /var/lib/nexus /var/ces/config
+mkdir -p /var/lib/nexus ${LOCAL_CONFIG_DIR}
 
 # --- 1. dogu_json layout ------------------------------------------------------
 # doguctl resolves the descriptor from /etc/ces/dogu_json/${HOSTNAME}/.
@@ -67,6 +67,6 @@ echo "PostgreSQL is accepting connections"
 
 # --- 4. persistence ownership -------------------------------------------------
 # Must run last (see header comment): fixes up anything doguctl created as root above.
-chown -R 1000:1000 /var/lib/nexus /var/ces/config
+chown -R 1000:1000 /var/lib/nexus ${LOCAL_CONFIG_DIR}
 
-echo "set ownership for /var/lib/nexus and /var/ces/config"
+echo "set ownership for /var/lib/nexus and ${LOCAL_CONFIG_DIR}"

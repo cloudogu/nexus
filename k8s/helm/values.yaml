@@ -14,16 +14,6 @@ networkPolicies:
 extraLabels: {}
 
 
-dogu:
-  name:
-    env:
-      name: "DOGU_NAME"
-      value: "nexus"
-  registry:
-    env:
-      name: "DOGU_REGISTRY_DIR"
-      value: "/doguregistry/configuration"
-
 nexus:
   replicas: 1
   image:
@@ -82,6 +72,13 @@ nexus:
 
   # Dogu-Configuration
   configuration:
+    configEnv:
+      doguName: "nexus"
+      doguRegistryDir: "/nexus/doguregistry"
+      globalConfigDir: "/nexus/configuration/global"
+      doguConfigDir: "/nexus/configuration/normal"
+      sensitiveConfigDir: "/nexus/configuration/sensitive"
+      localConfigDir: "/nexus/configuration/local"
     meta:
       global:
         name: global-config

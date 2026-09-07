@@ -56,3 +56,50 @@ k8s.cloudogu.com/backup-scope: nexus
 {{- end -}}
 {{- end -}}
 {{- end -}}
+
+
+{{/*
+Common environment variables shared across all needed containers
+*/}}
+{{- define "nexus.configEnv" -}}
+- name: DOGU_NAME
+  value: {{ .Values.nexus.configuration.configEnv.doguName | quote }}
+- name: DOGU_REGISTRY_DIR
+  value: {{ .Values.nexus.configuration.configEnv.doguRegistryDir  | quote }}
+- name: GLOBAL_CONFIG_DIR
+  value: {{ .Values.nexus.configuration.configEnv.globalConfigDir  | quote }}
+- name: DOGU_CONFIG_DIR
+  value: {{ .Values.nexus.configuration.configEnv.doguConfigDir | quote }}
+- name: SENSITIVE_CONFIG_DIR
+  value: {{ .Values.nexus.configuration.configEnv.sensitiveConfigDir | quote }}
+- name: LOCAL_CONFIG_DIR
+  value: {{ .Values.nexus.configuration.configEnv.localConfigDir | quote }}
+{{- end }}
+
+
+{{/*
+Common volumes shared across all needed containers
+*/}}
+{{- define "nexus.configVolumeMounts" -}}
+{{- $root := .root | default . -}}
+- name: nexus-dogu-json
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.doguRegistryDir | quote }}
+  {{- if hasKey . "doguRegistryReadOnly" }}
+  readOnly: true
+  {{- end }}
+- name: global-config
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.globalConfigDir  | quote }}
+  readOnly: true
+- name: normal-config
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.doguConfigDir  | quote }}
+  readOnly: true
+- name: secret-config
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.sensitiveConfigDir | quote }}
+  readOnly: true
+{{/*
+    Writable local doguctl config store (successfulInitialConfiguration, admin_user, ...).
+*/}}
+- name: nexus-data
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.localConfigDir | quote }}
+  subPath: localConfig
+{{- end }}
