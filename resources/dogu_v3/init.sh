@@ -21,7 +21,7 @@ mkdir -p /var/lib/nexus /var/ces/config
 # doguctl resolves the descriptor from /etc/ces/dogu_json/${HOSTNAME}/.
 # As a StatefulSet the pod hostname is the pod name (e.g. nexus-0), NOT a fixed "nexus"
 # (the controller overrides spec.hostname), so the descriptor dir must follow ${HOSTNAME}.
-TARGET_DIR="/etc/ces/dogu_json/${HOSTNAME}"
+TARGET_DIR="${DOGU_REGISTRY_DIR}/${DOGU_NAME}"
 SOURCE_DOGU_JSON="/dogu.json"
 
 # Take the first "Version" line

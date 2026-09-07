@@ -13,9 +13,19 @@ networkPolicies:
 
 extraLabels: {}
 
+
+dogu:
+  name:
+    env:
+      name: "DOGU_NAME"
+      value: "nexus"
+  registry:
+    env:
+      name: "DOGU_REGISTRY_DIR"
+      value: "/doguregistry/configuration"
+
 nexus:
   replicas: 1
-
   image:
     registry: registry.cloudogu.com
     repository: official/nexus

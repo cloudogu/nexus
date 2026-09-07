@@ -34,6 +34,10 @@ spec:
           imagePullPolicy: {{ .Values.nexus.imagePullPolicy }}
           command: ["bash", "/dogu_v3/init.sh"]
           env:
+            - name: {{ .Values.dogu.name.env.name }}
+              value: {{ .Values.dogu.name.env.value }}
+            - name: {{ .Values.dogu.registry.env.name }}
+              value: {{ .Values.dogu.registry.env.value }}
             - name: ECOSYSTEM_MULTINODE
               value: "true"
             - name: POSTGRESQL_HOST
@@ -58,7 +62,7 @@ spec:
               mountPath: /var/ces/config
               subPath: localConfig
             - name: nexus-dogu-json
-              mountPath: /etc/ces/dogu_json
+              mountPath: {{ .Values.dogu.registry.env.value }}
             - name: ces-config
               mountPath: /etc/ces/config
               readOnly: true
@@ -96,6 +100,10 @@ spec:
               containerPort: 8082
               protocol: TCP
           env:
+            - name: {{ .Values.dogu.name.env.name }}
+              value: {{ .Values.dogu.name.env.value }}
+            - name: {{ .Values.dogu.registry.env.name }}
+              value: {{ .Values.dogu.registry.env.value }}
             - name: HOME
               value: /var/lib/nexus
             - name: POD_NAMESPACE
@@ -130,7 +138,7 @@ spec:
               readOnly: true
             # dogu.json for doguctl config-key validation.
             - name: nexus-dogu-json
-              mountPath: /etc/ces/dogu_json
+              mountPath: {{ .Values.dogu.registry.env.value }}
               readOnly: true
             # CES server cert; fetched by dogu-init
             - name: nexus-ca-certs
@@ -182,6 +190,10 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
+            - name: {{ .Values.dogu.name.env.name }}
+              value: {{ .Values.dogu.name.env.value }}
+            - name: {{ .Values.dogu.registry.env.name }}
+              value: {{ .Values.dogu.registry.env.value }}
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -216,7 +228,7 @@ spec:
               readOnly: true
             # dogu.json for doguctl's component-mode registry lookup.
             - name: nexus-dogu-json
-              mountPath: /etc/ces/dogu_json
+              mountPath: {{ .Values.dogu.registry.env.value }}
               readOnly: true
             # create-sa.sh/remove-sa.sh/nexus_api.sh and the sa-hook-*.sh adapters
             - name: sa-manager-hooks
