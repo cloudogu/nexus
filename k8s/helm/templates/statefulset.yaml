@@ -55,8 +55,6 @@ spec:
             - name: nexus-data
               mountPath: /var/lib/nexus
               subPath: data
-            # Read-only platform config: global + normal + sensitive and
-            # writable folder for doguctl's component-mode registry lookup.
             {{- include "nexus.configVolumeMounts" (dict "root" . ) | nindent 12 }}
             # Writable target for the CES server cert handed to the non-root nexus container.
             - name: nexus-ca-certs
@@ -121,7 +119,6 @@ spec:
             # Ephemeral doguctl state (doguctl state ready).
             - name: ces-state
               mountPath: /var/ces/state
-            # Read-only platform config: global + normal + sensitive + dogu.json for doguctl's component-mode registry lookup.
             {{- include "nexus.configVolumeMounts" (dict "root" . "doguRegistryReadOnly" true) | nindent 12 }}
             # CES server cert; fetched by dogu-init
             - name: nexus-ca-certs
@@ -198,11 +195,6 @@ spec:
             - name: PATH
               value: "/hooks:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
           volumeMounts:
-            # Writable local doguctl config
-            - name: nexus-data
-              mountPath: /var/ces/config
-              subPath: localConfig
-            # Read-only platform config: global + normal + sensitive + dogu.json for doguctl's component-mode registry lookup.
             {{- include "nexus.configVolumeMounts" (dict "root" . "doguRegistryReadOnly" true) | nindent 12 }}
             # create-sa.sh/remove-sa.sh/nexus_api.sh and the sa-hook-*.sh adapters
             - name: sa-manager-hooks

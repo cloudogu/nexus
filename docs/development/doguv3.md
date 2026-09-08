@@ -18,14 +18,18 @@
 ### 2. doguctl-Config-Mount (Component-Mode)
 
 - Env `ECOSYSTEM_MULTINODE=true` auf jedem Container/Init-Container setzen, der `doguctl` aufruft.
-- Projected Volume `ces-config` nach `/etc/ces/config`: `global/config.yaml` (externe ConfigMap, **nicht** vom Chart erzeugt) + `normal/config.yaml` + `sensitive/config.yaml` (chart-eigene ConfigMap/Secret). Ergebnis im Container:
-  ```
-  /etc/ces/config/
-  ├── global/config.yaml       # externe ConfigMap
-  ├── normal/config.yaml       # chart-eigene ConfigMap
-  └── sensitive/config.yaml    # chart-eigenes Secret
-  ```
-- `dogu.json` kommt aus dem Image (`Dockerfile: COPY dogu.json /`), ein Init-Container extrahiert die Version und schreibt `/etc/ces/dogu_json/{current,<version>}` in ein gemeinsames `emptyDir`.
+  - Volume in `${GLOBAL_CONFIG_DIR}` hast `config.yaml` (externe ConfigMap, **nicht** vom Chart erzeugt)
+  - Volume in `${DOGU_CONFIG_DIR}` hast `config.yaml` (chart-eigene ConfigMap)
+  - Volume in `${SENSITIVE_CONFIG_DIR}` hast `config.yaml` (chart-eigene Secret)
+  - Volume in `${LOCAL_CONFIG_DIR}` hast `local.yaml` (beschreibbare lokale Konfiguration)
+  - Ergebnis im Container:
+    ```
+    ├── ${GLOBAL_CONFIG_DIR}/config.yaml       # externe ConfigMap
+    ├── ${DOGU_CONFIG_DIR}/config.yaml         # chart-eigene ConfigMap
+    └── ${SENSITIVE_CONFIG_DIR}/config.yaml    # chart-eigenes Secret
+    └── ${LOCAL_CONFIG_DIR}/local.yaml         # beschreibbare lokale Konfiguratio
+    ```
+- `dogu.json` kommt aus dem Image (`Dockerfile: COPY dogu.json /`), ein Init-Container extrahiert die Version und schreibt `${DOGU_REGISTRY_DIR}/{current,<version>}` in ein gemeinsames `emptyDir`.
 - doguctl löst den Deskriptor über `${HOSTNAME}` auf, nicht über den Dogu-Namen. Pod braucht `spec.hostname: <doguname>`.
 - Schreibbarer `$LOCAL_CONFIG_DIR` (PVC-Subpath) für `doguctl config <k> <v>`-Writes, und ein flüchtiges (ephemral) Volume `/var/ces/state` für `doguctl state ready`.
 

@@ -4,7 +4,7 @@ set -o nounset
 set -o pipefail
 
 # DoguV3-only init-container:
-#   1. Materialize the /etc/ces/dogu_json/${HOSTNAME}/{current,<version>} layout that doguctl expects
+#   1. Materialize the ${DOGU_REGISTRY_DIR}/${DOGU_NAME}/{current,<version>} layout that doguctl expects
 #   2. Fetch the CES server certificate for the non-root nexus container
 #   3. Wait until PostgreSQL accepts connections
 #   4. Fix ownership of the persistent volumes for the nexus user (uid/gid 1000)
@@ -18,9 +18,7 @@ set -o pipefail
 mkdir -p /var/lib/nexus ${LOCAL_CONFIG_DIR}
 
 # --- 1. dogu_json layout ------------------------------------------------------
-# doguctl resolves the descriptor from /etc/ces/dogu_json/${HOSTNAME}/.
-# As a StatefulSet the pod hostname is the pod name (e.g. nexus-0), NOT a fixed "nexus"
-# (the controller overrides spec.hostname), so the descriptor dir must follow ${HOSTNAME}.
+# doguctl resolves the descriptor from ${DOGU_REGISTRY_DIR}/${DOGU_NAME}/
 TARGET_DIR="${DOGU_REGISTRY_DIR}/${DOGU_NAME}"
 SOURCE_DOGU_JSON="/dogu.json"
 

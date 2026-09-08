@@ -79,6 +79,9 @@ Common environment variables shared across all needed containers
 
 {{/*
 Common volumes shared across all needed containers
+- dogu registry folder (dogu.json) for doguctl config-key validation.
+- Read-only platform config: global + normal + sensitive.Read-only platform config: global + normal + sensitive.
+- Writable local doguctl config store (successfulInitialConfiguration, admin_user, ...).
 */}}
 {{- define "nexus.configVolumeMounts" -}}
 {{- $root := .root | default . -}}
@@ -96,9 +99,6 @@ Common volumes shared across all needed containers
 - name: secret-config
   mountPath: {{ $root.Values.nexus.configuration.configEnv.sensitiveConfigDir | quote }}
   readOnly: true
-{{/*
-    Writable local doguctl config store (successfulInitialConfiguration, admin_user, ...).
-*/}}
 - name: nexus-data
   mountPath: {{ $root.Values.nexus.configuration.configEnv.localConfigDir | quote }}
   subPath: localConfig
