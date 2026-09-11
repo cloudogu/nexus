@@ -59,6 +59,10 @@ k8s.cloudogu.com/backup-scope: nexus
 
 
 {{/*
+Note: The 2 templates nexus.configEnv and nexus.configVolumeMounts are used for doguctl and should be removed when doguctl is no longer used.
+*/}}
+
+{{/*
 Common environment variables shared across all needed containers
 */}}
 {{- define "nexus.configEnv" -}}
