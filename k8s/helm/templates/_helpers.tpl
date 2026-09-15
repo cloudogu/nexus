@@ -56,3 +56,54 @@ k8s.cloudogu.com/backup-scope: nexus
 {{- end -}}
 {{- end -}}
 {{- end -}}
+
+
+{{/*
+Note: The 2 templates nexus.configEnv and nexus.configVolumeMounts are used for doguctl and should be removed when doguctl is no longer used.
+*/}}
+
+{{/*
+Common environment variables shared across all needed containers
+*/}}
+{{- define "nexus.configEnv" -}}
+- name: DOGU_NAME
+  value: {{ .Values.nexus.configuration.configEnv.doguName | quote }}
+- name: DOGU_REGISTRY_DIR
+  value: {{ .Values.nexus.configuration.configEnv.doguRegistryDir  | quote }}
+- name: GLOBAL_CONFIG_DIR
+  value: {{ .Values.nexus.configuration.configEnv.globalConfigDir  | quote }}
+- name: DOGU_CONFIG_DIR
+  value: {{ .Values.nexus.configuration.configEnv.doguConfigDir | quote }}
+- name: SENSITIVE_CONFIG_DIR
+  value: {{ .Values.nexus.configuration.configEnv.sensitiveConfigDir | quote }}
+- name: LOCAL_CONFIG_DIR
+  value: {{ .Values.nexus.configuration.configEnv.localConfigDir | quote }}
+{{- end }}
+
+
+{{/*
+Common volumes shared across all needed containers
+- dogu registry folder (dogu.json) for doguctl config-key validation.
+- Read-only platform config: global + normal + sensitive.Read-only platform config: global + normal + sensitive.
+- Writable local doguctl config store (successfulInitialConfiguration, admin_user, ...).
+*/}}
+{{- define "nexus.configVolumeMounts" -}}
+{{- $root := .root | default . -}}
+- name: nexus-dogu-json
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.doguRegistryDir | quote }}
+  {{- if hasKey . "doguRegistryReadOnly" }}
+  readOnly: true
+  {{- end }}
+- name: global-config
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.globalConfigDir  | quote }}
+  readOnly: true
+- name: normal-config
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.doguConfigDir  | quote }}
+  readOnly: true
+- name: secret-config
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.sensitiveConfigDir | quote }}
+  readOnly: true
+- name: nexus-data
+  mountPath: {{ $root.Values.nexus.configuration.configEnv.localConfigDir | quote }}
+  subPath: localConfig
+{{- end }}

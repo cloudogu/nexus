@@ -4,24 +4,22 @@ set -o nounset
 set -o pipefail
 
 # DoguV3-only init-container:
-#   1. Materialize the /etc/ces/dogu_json/${HOSTNAME}/{current,<version>} layout that doguctl expects
+#   1. Materialize the ${DOGU_REGISTRY_DIR}/${DOGU_NAME}/{current,<version>} layout that doguctl expects
 #   2. Fetch the CES server certificate for the non-root nexus container
 #   3. Wait until PostgreSQL accepts connections
 #   4. Fix ownership of the persistent volumes for the nexus user (uid/gid 1000)
 #
 # Ownership must be fixed LAST: every doguctl invocation above runs as root (this container)
 # and, as a side effect of just creating a registry client, eagerly creates
-# /var/ces/config/local.yaml if it doesn't exist yet (see cloudogu/doguctl
+# ${LOCAL_CONFIG_DIR}/local.yaml if it doesn't exist yet (see cloudogu/doguctl
 # DoguFileConfigurationContext.checkLocalConfigFile) — owned by root. The later non-root
 # nexus container would then fail with "permission denied" writing to that file.
 
-mkdir -p /var/lib/nexus /var/ces/config
+mkdir -p /var/lib/nexus ${LOCAL_CONFIG_DIR}
 
 # --- 1. dogu_json layout ------------------------------------------------------
-# doguctl resolves the descriptor from /etc/ces/dogu_json/${HOSTNAME}/.
-# As a StatefulSet the pod hostname is the pod name (e.g. nexus-0), NOT a fixed "nexus"
-# (the controller overrides spec.hostname), so the descriptor dir must follow ${HOSTNAME}.
-TARGET_DIR="/etc/ces/dogu_json/${HOSTNAME}"
+# doguctl resolves the descriptor from ${DOGU_REGISTRY_DIR}/${DOGU_NAME}/
+TARGET_DIR="${DOGU_REGISTRY_DIR}/${DOGU_NAME}"
 SOURCE_DOGU_JSON="/dogu.json"
 
 # Take the first "Version" line
@@ -67,6 +65,6 @@ echo "PostgreSQL is accepting connections"
 
 # --- 4. persistence ownership -------------------------------------------------
 # Must run last (see header comment): fixes up anything doguctl created as root above.
-chown -R 1000:1000 /var/lib/nexus /var/ces/config
+chown -R 1000:1000 /var/lib/nexus ${LOCAL_CONFIG_DIR}
 
-echo "set ownership for /var/lib/nexus and /var/ces/config"
+echo "set ownership for /var/lib/nexus and ${LOCAL_CONFIG_DIR}"

@@ -34,6 +34,7 @@ spec:
           imagePullPolicy: {{ .Values.nexus.imagePullPolicy }}
           command: ["bash", "/dogu_v3/init.sh"]
           env:
+            {{- include "nexus.configEnv" . | nindent 12 }}
             - name: ECOSYSTEM_MULTINODE
               value: "true"
             - name: POSTGRESQL_HOST
@@ -54,14 +55,7 @@ spec:
             - name: nexus-data
               mountPath: /var/lib/nexus
               subPath: data
-            - name: nexus-data
-              mountPath: /var/ces/config
-              subPath: localConfig
-            - name: nexus-dogu-json
-              mountPath: /etc/ces/dogu_json
-            - name: ces-config
-              mountPath: /etc/ces/config
-              readOnly: true
+            {{- include "nexus.configVolumeMounts" (dict "root" . ) | nindent 12 }}
             # Writable target for the CES server cert handed to the non-root nexus container.
             - name: nexus-ca-certs
               mountPath: /dogu_v3/ca-certs
@@ -96,6 +90,7 @@ spec:
               containerPort: 8082
               protocol: TCP
           env:
+            {{- include "nexus.configEnv" . | nindent 12 }}
             - name: HOME
               value: /var/lib/nexus
             - name: POD_NAMESPACE
@@ -124,14 +119,7 @@ spec:
             # Ephemeral doguctl state (doguctl state ready).
             - name: ces-state
               mountPath: /var/ces/state
-            # Read-only platform config: global + normal + sensitive.
-            - name: ces-config
-              mountPath: /etc/ces/config
-              readOnly: true
-            # dogu.json for doguctl config-key validation.
-            - name: nexus-dogu-json
-              mountPath: /etc/ces/dogu_json
-              readOnly: true
+            {{- include "nexus.configVolumeMounts" (dict "root" . "doguRegistryReadOnly" true) | nindent 12 }}
             # CES server cert; fetched by dogu-init
             - name: nexus-ca-certs
               mountPath: /etc/ssl/certs/server.crt
@@ -182,6 +170,7 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
+            {{- include "nexus.configEnv" . | nindent 12 }}
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -206,18 +195,7 @@ spec:
             - name: PATH
               value: "/hooks:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
           volumeMounts:
-            # Writable local doguctl config
-            - name: nexus-data
-              mountPath: /var/ces/config
-              subPath: localConfig
-            # Read-only platform config: global + normal + sensitive
-            - name: ces-config
-              mountPath: /etc/ces/config
-              readOnly: true
-            # dogu.json for doguctl's component-mode registry lookup.
-            - name: nexus-dogu-json
-              mountPath: /etc/ces/dogu_json
-              readOnly: true
+            {{- include "nexus.configVolumeMounts" (dict "root" . "doguRegistryReadOnly" true) | nindent 12 }}
             # create-sa.sh/remove-sa.sh/nexus_api.sh and the sa-hook-*.sh adapters
             - name: sa-manager-hooks
               mountPath: /hooks
@@ -251,24 +229,24 @@ spec:
           emptyDir: {}
         - name: sa-manager-hooks
           emptyDir: {}
-        - name: ces-config
-          projected:
-            sources:
-              - configMap:
-                  name: {{ .Values.nexus.configuration.meta.global.name }}
-                  items:
-                    - key: {{ .Values.nexus.configuration.meta.global.key }}
-                      path: global/config.yaml
-              - configMap:
-                  name: {{ include "nexus.fullname" . }}-config
-                  items:
-                    - key: {{ .Values.nexus.configuration.meta.normal.key }}
-                      path: normal/config.yaml
-              - secret:
-                  name: {{ include "nexus.fullname" . }}-postgresql
-                  items:
-                    - key: sensitive-config.yaml
-                      path: sensitive/config.yaml
+        - name: global-config
+          configMap:
+            name:  {{ .Values.nexus.configuration.meta.global.name }}
+            items:
+              - key: {{ .Values.nexus.configuration.meta.global.key }}
+                path: config.yaml
+        - name: normal-config
+          configMap:
+            name: {{ include "nexus.fullname" . }}-config
+            items:
+              - key: {{ .Values.nexus.configuration.meta.normal.key }}
+                path: config.yaml
+        - name: secret-config
+          secret:
+            secretName: {{ include "nexus.fullname" . }}-postgresql
+            items:
+              - key: sensitive-config.yaml
+                path: config.yaml
         - name: nexus-dogu-json
           emptyDir: {}
         - name: nexus-ca-certs

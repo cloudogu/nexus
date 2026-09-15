@@ -13,9 +13,9 @@ networkPolicies:
 
 extraLabels: {}
 
+
 nexus:
   replicas: 1
-
   image:
     registry: registry.cloudogu.com
     repository: official/nexus
@@ -72,6 +72,13 @@ nexus:
 
   # Dogu-Configuration
   configuration:
+    configEnv:
+      doguName: "nexus"
+      doguRegistryDir: "/nexus/doguregistry"
+      globalConfigDir: "/nexus/configuration/global"
+      doguConfigDir: "/nexus/configuration/normal"
+      sensitiveConfigDir: "/nexus/configuration/sensitive"
+      localConfigDir: "/nexus/configuration/local"
     meta:
       global:
         name: global-config
