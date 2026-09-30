@@ -1,12 +1,12 @@
-FROM registry.cloudogu.com/official/java:17.0.19-2 AS builder
+FROM registry.cloudogu.com/official/java:21.0.12-2 AS builder
 LABEL maintainer="hello@cloudogu.com" \
     NAME="official/nexus" \
-    VERSION="3.86.2-9"
+    VERSION="3.96.3-0"
 
 WORKDIR /build
 
 # The version of nexus to install
-ENV NEXUS_VERSION=3.86.2-01 \
+ENV NEXUS_VERSION=3.96.3-01 \
     TINI_VERSION=0.19.0 \
     NEXUS_CLAIM_VERSION=1.1.4 \
     NEXUS_CARP_VERSION=1.6.1 \
@@ -15,7 +15,7 @@ ENV NEXUS_VERSION=3.86.2-01 \
     NEXUS_BUILD_DIR=/build/opt/sonatype/nexus \
     BUILD_BIN_DIR=/build/usr/bin \
     SHA256_TINI="c5b0666b4cb676901f90dfcb37106783c5fe2077b04590973b885950611b30ee" \
-    SHA256_NEXUS_TAR="ecbc6b52ecf9126dddf76fc9cb04cf7c28ace21ceed50a6c0bf7d446e7a319cb" \
+    SHA256_NEXUS_TAR="628d54d06a00d0b73af03977a08bbcbb56193b195b8d594eecfe4c312b88e6f1" \
     SHA256_NEXUS_CLAIM="59664145d8ea0dc95bfcd9c3a74861a30ba4266361ac1dbb2eb2bb847ea87963" \
     SHA256_NEXUS_SCRIPTING="8dbe923534e14357b5adb0748d29f912109a57dbd983ea8c783a4037764cc955" \
     SHA256_NEXUS_CARP="17c042711fecd8d4e20b5d8ec9b642508e7fe2255d304b86074a9c2eb09cb056"
@@ -30,23 +30,23 @@ RUN set -o errexit \
   # install tini
   && curl --fail --silent --location --retry 3 -o ${BUILD_BIN_DIR}/tini \
     https://github.com/krallin/tini/releases/download/v${TINI_VERSION}/tini-static-amd64 \
-  && echo "${SHA256_TINI} *${BUILD_BIN_DIR}/tini" |sha256sum -c - \
+  && echo "${SHA256_TINI} *${BUILD_BIN_DIR}/tini" | sha256sum -c - \
   && chmod +x ${BUILD_BIN_DIR}/tini \
   # install nexus
   && mkdir -p ${NEXUS_BUILD_DIR} \
   && curl --fail --silent --location --retry 3 -o nexus.tar.gz \
     https://download.sonatype.com/nexus/3/nexus-${NEXUS_VERSION}-linux-x86_64.tar.gz \
-  && echo "${SHA256_NEXUS_TAR} *nexus.tar.gz" |sha256sum -c - \
+  && echo "${SHA256_NEXUS_TAR} *nexus.tar.gz" | sha256sum -c - \
   && tar -xf nexus.tar.gz -C /tmp nexus-${NEXUS_VERSION} \
   && mv /tmp/nexus-${NEXUS_VERSION}/* ${NEXUS_BUILD_DIR}/ \
   # install nexus-claim
   && curl --fail --silent --location --retry 3 -o nexus-claim.tar.gz \
     https://github.com/cloudogu/nexus-claim/releases/download/v${NEXUS_CLAIM_VERSION}/nexus-claim-${NEXUS_CLAIM_VERSION}.tar.gz \
-  && echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" |sha256sum -c - \
+  && echo "${SHA256_NEXUS_CLAIM} *nexus-claim.tar.gz" | sha256sum -c - \
   && tar -xf nexus-claim.tar.gz -C ${BUILD_BIN_DIR} \
   && curl --fail --silent --location --retry 3 -o nexus-scripting.tar.gz \
     https://github.com/cloudogu/nexus-scripting/releases/download/v${NEXUS_SCRIPTING_VERSION}/nexus-scripting-${NEXUS_SCRIPTING_VERSION}.tar.gz \
-  && echo "${SHA256_NEXUS_SCRIPTING} *nexus-scripting.tar.gz" |sha256sum -c - \
+  && echo "${SHA256_NEXUS_SCRIPTING} *nexus-scripting.tar.gz" | sha256sum -c - \
   && tar -xf nexus-scripting.tar.gz -C ${BUILD_BIN_DIR} \
   && curl --fail --silent --location --retry 3 -o nexus-carp.tar.gz \
     https://github.com/cloudogu/nexus-carp/releases/download/v${NEXUS_CARP_VERSION}/nexus-carp-${NEXUS_CARP_VERSION}.tar.gz \
@@ -56,7 +56,7 @@ RUN set -o errexit \
   && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
   && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
 
-FROM registry.cloudogu.com/official/java:17.0.19-2
+FROM registry.cloudogu.com/official/java:21.0.12-2
 
 ENV SERVICE_TAGS=webapp \
     SERVICE_ADDITIONAL_SERVICES='[{"name": "docker-registry", "port": 8082, "location": "v2", "pass": "nexus/repository/docker-registry/v2/"}]' \
@@ -64,7 +64,7 @@ ENV SERVICE_TAGS=webapp \
     NEXUS_SERVER="http://localhost:8081/nexus" \
     DOGU_RESOURCE_DIR="/" \
     # Nexus uses their own jdk by default
-    INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-17-openjdk
+    INSTALL4J_JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-21-openjdk
 
 COPY --from=builder /build /
 COPY resources /
