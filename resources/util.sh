@@ -336,7 +336,8 @@ function sql() {
 
 function createPasswordHash() {
   local PW="${1}"
-  java -jar "/shiro-tools-hasher.jar" -a SHA-512 -i 1024 -f shiro1 "${PW}"
+  # Nexus 3.96 rejects shiro1 hashes without a salt, so -gs is required
+  java -jar "/shiro-tools-hasher.jar" -a SHA-512 -i 1024 -gs -f shiro1 "${PW}"
 }
 
 function createTemporaryAdminUser() {
