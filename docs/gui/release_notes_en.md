@@ -5,6 +5,14 @@ Below you will find the release notes for the Sonatype Nexus Dogu.
 Technical details on a release can be found in the corresponding [Changelog](https://docs.cloudogu.com/en/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Changed
+- This update contains reworked Nexus user interfaces, which changed the navigation and the appearance of some pages.
+
+### Known Issues
+- This Nexus version contains an error in the limiting of login attempts. After too many failed logins, access can stay blocked for up to 15 minutes. Further attempts restart this period, even with correct credentials. If you have login problems, wait 15 minutes before you make another attempt. Sonatype is working on a fix.
+
+### Security
+- [#202] Fixed [CVE-2026-84939](https://avd.aquasec.com/nvd/cve-2026-84939/)
 
 ## [v3.86.2-9] - 2026-09-02
 ### Changed

@@ -34,20 +34,6 @@
         <filter class="org.sonatype.nexus.logging.NexusLogFilter" />
     </appender>
 
-    <appender name="clusterlogfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${karaf.data}/log/nexus_cluster.log</File>
-        <Append>true</Append>
-        <encoder class="org.sonatype.nexus.logging.NexusLayoutEncoder">
-            <pattern>%d{"yyyy-MM-dd HH:mm:ss,SSSZ"} %-5p [%thread] %node %mdc{userId:-*SYSTEM} %c - %m%n</pattern>
-        </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${karaf.data}/log/nexus_cluster-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-            <maxHistory>14</maxHistory>
-            <totalSizeCap>20MB</totalSizeCap>
-        </rollingPolicy>
-        <filter class="org.sonatype.nexus.logging.ClusterLogFilter" />
-    </appender>
-
     <appender name="tasklogfile" class="ch.qos.logback.classic.sift.SiftingAppender">
         <filter class="org.sonatype.nexus.logging.TaskLogsFilter" />
         <discriminator>
@@ -82,7 +68,7 @@
         <appender-ref ref="auditlogfile"/>
     </logger>
 
-    <appender name="metrics" class="org.sonatype.nexus.logging.InstrumentedAppender"/>
+    <appender name="metrics" class="org.sonatype.nexus.common.log.InstrumentedAppender"/>
 
     <logger name="org.eclipse.jetty.webapp" level="${root.level:-{{ .Config.GetOrDefault "logging/root" "WARN"}}}"/>
     <logger name="org.eclipse.jetty.webapp.StandardDescriptorProcessor" level="${root.level:-{{ .Config.GetOrDefault "logging/root" "WARN"}}}"/>
@@ -97,7 +83,6 @@
         <appender-ref ref="osgi"/>
         <appender-ref ref="console"/>
         <appender-ref ref="logfile"/>
-        <appender-ref ref="clusterlogfile"/>
         <appender-ref ref="tasklogfile"/>
         <appender-ref ref="metrics"/>
     </root>
