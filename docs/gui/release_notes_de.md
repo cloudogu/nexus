@@ -5,6 +5,8 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+
+## [v3.96.4-1] - 2026-10-01
 ### Changed
 - Diese Aktualisierung enthält überarbeitete Nexus-Oberflächen, wodurch sich die Navigation und das Aussehen einiger Seiten geändert haben.
 
