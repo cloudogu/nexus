@@ -11,6 +11,9 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 ### Known Issues
 - Diese Nexus-Version enthält einen Fehler in der Begrenzung der Anmeldeversuche. Nach zu vielen fehlgeschlagenen Anmeldungen kann der Zugang bis zu 15 Minuten gesperrt bleiben. Weitere Versuche starten diesen Zeitraum neu, auch mit korrekten Zugangsdaten. Bei Anmeldeproblemen, warten Sie 15 Minuten bevor Sie einen weiteren Versuch unternehmen. Sonatype arbeitet an einer Lösung.
 
+### Security
+* [#202] Sicherheitslücke [CVE-2026-84939](https://avd.aquasec.com/nvd/cve-2026-84939/) behoben
+
 ## [v3.86.2-9] - 2026-09-02
 ### Changed
 - Die Dokumentation veralteter Versionen wurde entfernt. Referenzen auf Classic-CES wurden durch MN-CES ersetzt.
