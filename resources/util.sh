@@ -250,7 +250,7 @@ function waitForHealthEndpoint() {
 
   echo "Waiting until Nexus health endpoint is available (max. ${max_attempts} seconds)..."
 
-  until curl --user "${username}":"${password}" --silent --output /dev/null http://localhost:8081/nexus/service/metrics/healthcheck; do
+  until curl --user "${username}":"${password}" --silent --output /dev/null http://localhost:8081/nexus/service/rest/v1/status/check; do
     if [ ${attempt_counter} -eq ${max_attempts} ]; then
       echo "Max attempts reached; exiting..."
       exit 1
@@ -261,7 +261,7 @@ function waitForHealthEndpoint() {
 
   local health_endpoint_response
   local unhealthy_checks
-  health_endpoint_response=$(curl --user "${username}":"${password}" --silent http://localhost:8081/nexus/service/metrics/healthcheck)
+  health_endpoint_response=$(curl --user "${username}":"${password}" --silent http://localhost:8081/nexus/service/rest/v1/status/check)
   unhealthy_checks=$(echo "${health_endpoint_response}" | jq -c 'to_entries[] | select(.value.healthy==false) | [.key, .value.message]')
   if [[ ${unhealthy_checks} != "" ]]; then
     echo "WARNING! Some of the Sonatype Nexus health checks have failed:"
@@ -336,7 +336,8 @@ function sql() {
 
 function createPasswordHash() {
   local PW="${1}"
-  java -jar "/shiro-tools-hasher.jar" -a SHA-512 -i 1024 -f shiro1 "${PW}"
+  # Nexus 3.96 rejects shiro1 hashes without a salt, so -gs is required
+  java -jar "/shiro-tools-hasher.jar" -a SHA-512 -i 1024 -gs -f shiro1 "${PW}"
 }
 
 function createTemporaryAdminUser() {

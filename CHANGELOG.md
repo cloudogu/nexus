@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.96.4-1] - 2026-10-01
+### Changed
+- [#202] Update Nexus to v3.96.4
+- [#202] Update Java base image to v21.0.12-2
+- [#202] Update nexus-carp to v1.7.0
+
+### Security
+- [#202] Fixed [CVE-2026-84939](https://avd.aquasec.com/nvd/cve-2026-84939/) in the FreeMarker library bundled with Nexus
+
 ## [v3.86.2-9] - 2026-09-02
 ### Addded
 - [#214] update docs for multinode

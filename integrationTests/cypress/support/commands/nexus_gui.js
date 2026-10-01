@@ -1,18 +1,23 @@
 /**
- * Checks if the setup popup exists. If exists, finishes the setup process.
+ * Reloads the page and finishes the onboarding wizard if Nexus shows it.
  */
 const fullyLoadPageAndClosePopups = () => {
     cy.reload(true)
-    cy.contains("User signed in", {timeout: 10000}).should("be.visible");
+    cy.get('[data-analytics-id="nxrm-header-user-menu"]', {timeout: 30000}).should("exist");
+
+    // the wizard mounts after the header, so it is not there yet when the header appears
+    cy.wait(2000)
 
     cy.get("body").then(body => {
-        if (body.children("div[role='presentation'].x-css-shadow").length > 0){
-            cy.get("span").contains("Next").click({force: true});
-            cy.get("span").contains("Next").click({force: true});
-            cy.get("span").contains("Agree").click({force: true});
-            cy.wait(1000)
-            cy.get("span").contains("Finish").click({force: true});
+        if (body.find('[data-testid="onboarding-wizard__root"]').length === 0) {
+            return
         }
+        cy.get('[data-testid="onboarding-wizard__action"]').click(); // Get Started
+        cy.get('[data-testid="onboarding-wizard__action"]').click(); // Next
+        // the EULA has to be accepted before the wizard lets us finish
+        cy.get('[data-testid="eula-step__accept-checkbox"]').click();
+        cy.get('[data-testid="onboarding-wizard__action"]').click(); // Finish
+        cy.get('[data-testid="onboarding-wizard__root"]').should("not.exist");
     });
 
 };
