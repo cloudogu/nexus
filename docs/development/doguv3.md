@@ -87,8 +87,9 @@
   `values.yaml` und `chart-patch-tpl.yaml` genau das gepushte Image. Voraussetzung: `docker login <registry>`.
   Konfigurierbar per Make-Variablen (Defaults):
   - `NEXUS_V3_PUBLISH_REGISTRY` (`staging-registry.cloudogu.com`)
-  - `NEXUS_V3_PUBLISH_IMAGE_REPOSITORY` (`testing/dogu/v3/images/nexus`), `NEXUS_V3_PUBLISH_IMAGE_TAG` (`$(VERSION)`)
-  - `NEXUS_V3_PUBLISH_CHART_NAMESPACE` (`testing/dogu/v3/charts`), `NEXUS_V3_PUBLISH_CHART_VERSION` (`$(VERSION)`)
+  - `NEXUS_V3_PUBLISH_IMAGE_REPOSITORY` (`testing/dogu/v3/images/nexus`)
+  - `NEXUS_V3_PUBLISH_CHART_NAMESPACE` (`testing/dogu/v3/charts`)
+  - `NEXUS_V3_PUBLISH_VERSION`: Image-Tag und Chart-Version (`$(VERSION)`, bei `STAGE=development` siehe unten)
 
   Einzeln: `make nexus-v3-publish-image` bzw. `make nexus-v3-publish-chart`.
 
@@ -98,4 +99,4 @@
   make nexus-v3-publish STAGE=development
   ```
   Der Timestamp wird einmal pro Make-Aufruf bestimmt. Werden Image und Chart in getrennten Aufrufen
-  veröffentlicht, in beiden denselben `NEXUS_V3_PUBLISH_DEV_TIMESTAMP=<ts>` mitgeben.
+  veröffentlicht, in beiden dieselbe `NEXUS_V3_PUBLISH_VERSION=<version>` mitgeben.
