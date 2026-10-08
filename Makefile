@@ -52,3 +52,72 @@ nexus-v3-uninstall: $(BINARY_HELM) ## DoguV3 dev: uninstall the chart (keeps PVC
 	@$(BINARY_HELM) --kube-context="$(KUBE_CONTEXT_NAME)" uninstall $(NEXUS_V3_RELEASE) --namespace $(NAMESPACE) || true
 	@echo "Note: PVCs are retained. Delete them manually to reset data:"
 	@echo "  kubectl -n $(NAMESPACE) delete pvc -l app.kubernetes.io/name=nexus"
+
+# -----------------------------------------------------------------------------
+# TEMPORARY DoguV3 publish helper
+#
+# Builds the nexus image and the Helm chart under k8s/helm and pushes both to an OCI registry.
+# The packaged chart references exactly the pushed image (values.yaml and chart-patch-tpl.yaml are patched).
+#
+#   make nexus-v3-publish         # image + chart
+#   make nexus-v3-publish-image   # image only
+#   make nexus-v3-publish-chart   # chart only (references the image ref below)
+#
+# dev version for image tag and chart: $(VERSION)-dev.<unix-timestamp>
+#   make nexus-v3-publish STAGE=development                                #
+#
+# Resulting artifacts (with defaults):
+#   image: staging-registry.cloudogu.com/testing/dogu/v3/images/nexus:$(VERSION)
+#   chart: oci://staging-registry.cloudogu.com/testing/dogu/v3/charts/nexus --version $(VERSION)
+#
+# -----------------------------------------------------------------------------
+
+NEXUS_V3_PUBLISH_REGISTRY         ?= staging-registry.cloudogu.com
+NEXUS_V3_PUBLISH_IMAGE_REPOSITORY ?= testing/dogu/v3/images/nexus
+NEXUS_V3_PUBLISH_DEV_TIMESTAMP    ?= $(shell date +%s)
+ifeq ($(STAGE),development)
+# ":=" evaluates the timestamp once, so image tag and chart version are identical
+NEXUS_V3_PUBLISH_VERSION          := $(VERSION)-dev.$(NEXUS_V3_PUBLISH_DEV_TIMESTAMP)
+else
+NEXUS_V3_PUBLISH_VERSION          := $(VERSION)
+endif
+NEXUS_V3_PUBLISH_IMAGE_TAG        ?= $(NEXUS_V3_PUBLISH_VERSION)
+# OCI namespace for the chart; helm appends the chart name ("nexus") itself
+NEXUS_V3_PUBLISH_CHART_NAMESPACE  ?= testing/dogu/v3/charts
+NEXUS_V3_PUBLISH_CHART_VERSION    ?= $(NEXUS_V3_PUBLISH_VERSION)
+NEXUS_V3_PUBLISH_DIR              ?= $(TARGET_DIR)/nexus-v3-publish
+
+NEXUS_V3_PUBLISH_IMAGE = $(NEXUS_V3_PUBLISH_REGISTRY)/$(NEXUS_V3_PUBLISH_IMAGE_REPOSITORY):$(NEXUS_V3_PUBLISH_IMAGE_TAG)
+NEXUS_V3_PUBLISH_CHART_DIR = $(NEXUS_V3_PUBLISH_DIR)/nexus
+
+.PHONY: nexus-v3-publish
+nexus-v3-publish: nexus-v3-publish-image nexus-v3-publish-chart ## DoguV3: build+push image and chart to NEXUS_V3_PUBLISH_REGISTRY.
+
+.PHONY: nexus-v3-publish-image
+nexus-v3-publish-image: ## DoguV3: build+push the nexus image to NEXUS_V3_PUBLISH_REGISTRY.
+	@echo "Building and pushing image $(NEXUS_V3_PUBLISH_IMAGE)..."
+	@DOCKER_BUILDKIT=1 docker build . -t $(NEXUS_V3_PUBLISH_IMAGE)
+	@docker push $(NEXUS_V3_PUBLISH_IMAGE)
+
+.PHONY: nexus-v3-publish-chart
+nexus-v3-publish-chart: $(BINARY_HELM) $(BINARY_YQ) ## DoguV3: package the chart (pinned to the published image) and push it.
+	@echo "Packaging chart nexus:$(NEXUS_V3_PUBLISH_CHART_VERSION) with image $(NEXUS_V3_PUBLISH_IMAGE)..."
+	@rm -rf $(NEXUS_V3_PUBLISH_DIR)
+	@mkdir -p $(NEXUS_V3_PUBLISH_DIR)
+	@cp -r $(NEXUS_V3_HELM_SOURCE) $(NEXUS_V3_PUBLISH_CHART_DIR)
+	@REGISTRY="$(NEXUS_V3_PUBLISH_REGISTRY)" REPOSITORY="$(NEXUS_V3_PUBLISH_IMAGE_REPOSITORY)" TAG="$(NEXUS_V3_PUBLISH_IMAGE_TAG)" \
+		$(BINARY_YQ) -i '.nexus.image.registry = strenv(REGISTRY) | .nexus.image.repository = strenv(REPOSITORY) | .nexus.image.tag = strenv(TAG)' \
+		$(NEXUS_V3_PUBLISH_CHART_DIR)/values.yaml
+	@IMAGE="$(NEXUS_V3_PUBLISH_IMAGE)" \
+		$(BINARY_YQ) -i '.values.images.nexus = strenv(IMAGE)' $(NEXUS_V3_PUBLISH_CHART_DIR)/chart-patch-tpl.yaml
+	@CHART_VERSION="$(NEXUS_V3_PUBLISH_CHART_VERSION)" APP_VERSION="$(NEXUS_V3_PUBLISH_IMAGE_TAG)" \
+		$(BINARY_YQ) -i '.version = strenv(CHART_VERSION) | .appVersion = strenv(APP_VERSION)' \
+		$(NEXUS_V3_PUBLISH_CHART_DIR)/Chart.yaml
+	@$(BINARY_HELM) lint $(NEXUS_V3_PUBLISH_CHART_DIR)
+	@$(BINARY_HELM) package $(NEXUS_V3_PUBLISH_CHART_DIR) -d $(NEXUS_V3_PUBLISH_DIR)
+	@echo "Pushing chart to oci://$(NEXUS_V3_PUBLISH_REGISTRY)/$(NEXUS_V3_PUBLISH_CHART_NAMESPACE)..."
+	@$(BINARY_HELM) push $(NEXUS_V3_PUBLISH_DIR)/nexus-$(NEXUS_V3_PUBLISH_CHART_VERSION).tgz \
+		oci://$(NEXUS_V3_PUBLISH_REGISTRY)/$(NEXUS_V3_PUBLISH_CHART_NAMESPACE)
+	@echo "Done."
+	@echo "  image: $(NEXUS_V3_PUBLISH_IMAGE)"
+	@echo "  chart: oci://$(NEXUS_V3_PUBLISH_REGISTRY)/$(NEXUS_V3_PUBLISH_CHART_NAMESPACE)/nexus --version $(NEXUS_V3_PUBLISH_CHART_VERSION)"
