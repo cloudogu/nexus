@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Security
+- [#224] The key that Nexus uses to encrypt its own secrets is now stored encrypted in the dogu
+  config. Existing plain text values are re-encrypted in place on the next start, unchanged.
+  This applies to a single node CES
 
 ## [v3.96.4-1] - 2026-10-01
 ### Changed

@@ -5,6 +5,8 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+### Security
+* [#224] Der Schlüssel, mit dem Nexus seine eigenen Geheimnisse verschlüsselt, liegt im Single-Node-CES nicht mehr im Klartext in der Dogu-Konfiguration. Bestehende Instanzen stellen den Wert beim nächsten Start selbsttätig um; die Geheimnisse selbst bleiben unverändert.
 
 ## [v3.96.4-1] - 2026-10-01
 ### Changed
