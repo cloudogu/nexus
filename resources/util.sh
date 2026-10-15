@@ -96,12 +96,38 @@ EOF
 
 }
 
+# Earlier versions stored secret_encryption/key in plain text. This re-encrypts such a value in
+# place without changing it: Nexus cannot decrypt the secrets in its database without this key.
+# A failure is logged but does not stop the startup, because the plain text value still works.
+function encryptSecretEncryptionKey() {
+  local key="secret_encryption/key"
+  local plainValue
+
+  if ! plainValue="$(doguctl config "${key}" 2>/dev/null)"; then
+    # no key configured, nothing to migrate
+    return
+  fi
+
+  if doguctl config -e "${key}" >/dev/null 2>&1; then
+    # already encrypted
+    return
+  fi
+
+  echo "Re-encrypting ${key}..."
+  if doguctl config -e "${key}" "${plainValue}"; then
+    echo " - ${key} is now stored encrypted"
+  else
+    echo "WARNING: could not re-encrypt ${key}, it remains stored in plain text"
+  fi
+}
+
 function setupSecretFile() {
   # See https://help.sonatype.com/en/re-encryption-in-nexus-repository.html
   # for further instructions
   SECRET_FILE="${NEXUS_DATA_DIR}/etc/nexus.secrets.json"
   if [[ -f "${SECRET_FILE}" ]] && [[ -f "${NEXUS_WORKDIR}/resources/nexus.secrets.json.tpl" ]]; then
     echo "Secret-File ${SECRET_FILE} already exists"
+    encryptSecretEncryptionKey
     echo "nexus.secrets.file=${SECRET_FILE}" >>${NEXUS_DATA_DIR}/etc/nexus.properties
     return
   fi
@@ -118,7 +144,7 @@ function setupSecretFile() {
 
   # to activate match "active" with "id"
   doguctl config "secret_encryption/id" "${SECRET_ID}"
-  doguctl config "secret_encryption/key" "${SECRET_KEY}"
+  doguctl config -e "secret_encryption/key" "${SECRET_KEY}"
 
   # create secret file via template
   doguctl template "${NEXUS_WORKDIR}/resources/nexus.secrets.json.tpl" "${SECRET_FILE}"
