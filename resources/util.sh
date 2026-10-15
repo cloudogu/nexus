@@ -373,7 +373,6 @@ function createTemporaryAdminUser() {
   sql "INSERT INTO security_user (status, id, first_name, last_name, email, password) VALUES ('active', '${ADMINUSER}', '${ADMINUSER}', '${ADMINUSER}', 'dogu-tool-admin@cloudogu.com', '${hashed}');"
   sql "INSERT INTO user_role_mapping (user_id, user_lo, source, roles) VALUES ('${ADMINUSER}', '${ADMINUSER}', 'default', '[\"nx-admin\"]');"
   doguctl config last_tmp_admin "${ADMINUSER}"
-  doguctl config last_tmp_admin_pw "${ADMINPW}"
 }
 
 function removeLastTemporaryAdminUser() {
@@ -388,6 +387,8 @@ function removeLastTemporaryAdminUser() {
   sql "DELETE FROM user_role_mapping WHERE user_id='${userid}';"
   sql "DELETE FROM security_user WHERE id='${userid}';"
   doguctl config --rm last_tmp_admin
+  # last_tmp_admin_pw is no longer written. This removal clears the plain text value
+  # left behind by earlier versions and can be dropped in a future release.
   doguctl config --rm last_tmp_admin_pw
 }
 
