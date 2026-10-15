@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.96.4-2] - 2026-10-15
+### Security
+- [#223] The password of the temporary admin account is no longer stored in plain text in the dogu config.
+  The value was never read back; the account is removed via SQL by its user id.
+- [#224] The key that Nexus uses to encrypt its own secrets is now stored encrypted in the dogu
+  config. Existing plain text values are re-encrypted in place on the next start, unchanged.
+  This applies to a single node CES
+
 ## [v3.96.4-1] - 2026-10-01
 ### Changed
 - [#202] Update Nexus to v3.96.4
