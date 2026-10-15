@@ -5,6 +5,8 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+
+## [v3.96.4-2] - 2026-10-15
 ### Security
 * [#223] Das Nexus-Dogu legt das Passwort seines temporären Wartungskontos nicht mehr im Klartext in der Dogu-Konfiguration ab. Bestehende Instanzen entfernen den gespeicherten Wert beim nächsten Start.
 * [#224] Der Schlüssel, mit dem Nexus seine eigenen Geheimnisse verschlüsselt, liegt im Single-Node-CES nicht mehr im Klartext in der Dogu-Konfiguration. Bestehende Instanzen stellen den Wert beim nächsten Start selbsttätig um; die Geheimnisse selbst bleiben unverändert.
