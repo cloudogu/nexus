@@ -8,6 +8,28 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 ### Added
 - The support for personal access tokens (PATs) was enabled.
 
+## [v3.96.4-2] - 2026-10-15
+### Security
+* [#223] The Nexus dogu no longer stores the password of its temporary maintenance account in plain text in the dogu configuration. Existing instances remove the stored value on their next start.
+* [#224] In a single node CES, the key that Nexus uses to encrypt its own secrets is no longer kept in plain text in the dogu configuration. Existing instances convert the value on their next start; the secrets themselves stay untouched.
+
+## [v3.96.4-1] - 2026-10-01
+### Changed
+- This update contains reworked Nexus user interfaces, which changed the navigation and the appearance of some pages.
+
+### Known Issues
+- This Nexus version contains an error in the limiting of login attempts. After too many failed logins, access can stay blocked for up to 15 minutes. Further attempts restart this period, even with correct credentials. If you have login problems, wait 15 minutes before you make another attempt. Sonatype is working on a fix.
+
+### Security
+- [#202] Fixed [CVE-2026-84939](https://avd.aquasec.com/nvd/cve-2026-84939/)
+
+## [v3.86.2-9] - 2026-09-02
+### Changed
+- The documentation of old version was removed. References to Classic CES were replaced by MN CES.
+
+## [v3.86.2-8] - 2026-09-01
+- We have only made technical changes. You can find more details in the changelogs.
+
 ## [v3.86.2-7] - 2026-07-06
 ### Security
 - [#203] Fixed [CVE-2026-31789](https://avd.aquasec.com/nvd/cve-2026-31789/)
