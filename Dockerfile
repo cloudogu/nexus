@@ -82,10 +82,10 @@ RUN set -o errexit \
   # && apk add postgresql14-client \
   \
   # temporarily add old repo
-  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/main" > /tmp/old-repos \
-  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.20/community" >> /tmp/old-repos \
+  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.23/main" > /tmp/old-repos \
+  && echo "https://dl-cdn.alpinelinux.org/alpine/v3.23/community" >> /tmp/old-repos \
   \
-  && apk add --no-cache --repositories-file=/tmp/old-repos postgresql14-client \
+  && apk add --no-cache --repositories-file=/tmp/old-repos postgresql17-client \
   \
   # cleanup
   && rm -f /tmp/old-repos \
