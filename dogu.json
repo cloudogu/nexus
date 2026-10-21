@@ -10,7 +10,8 @@
     "warp",
     "build",
     "artifact",
-    "maven"
+    "maven",
+    "pat"
   ],
   "Image": "registry.cloudogu.com/official/nexus",
   "Dependencies": [
