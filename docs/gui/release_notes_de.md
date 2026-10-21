@@ -6,6 +6,10 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.96.4-3] - 2026-10-21
+### Added
+- Die Unterstützung für Persönliche Zugriffsschlüssel (PATs) wurde aktiviert.
+
 ## [v3.96.4-2] - 2026-10-15
 ### Security
 * [#223] Das Nexus-Dogu legt das Passwort seines temporären Wartungskontos nicht mehr im Klartext in der Dogu-Konfiguration ab. Bestehende Instanzen entfernen den gespeicherten Wert beim nächsten Start.

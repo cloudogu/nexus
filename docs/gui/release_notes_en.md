@@ -6,6 +6,10 @@ Technical details on a release can be found in the corresponding [Changelog](htt
 
 ## [Unreleased]
 
+## [v3.96.4-3] - 2026-10-21
+### Added
+- The support for personal access tokens (PATs) was enabled.
+
 ## [v3.96.4-2] - 2026-10-15
 ### Security
 * [#223] The Nexus dogu no longer stores the password of its temporary maintenance account in plain text in the dogu configuration. Existing instances remove the stored value on their next start.

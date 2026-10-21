@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v3.96.4-3] - 2026-10-21
+### Added
+- Support for Personal Access Tokens
+
 ## [v3.96.4-2] - 2026-10-15
 ### Security
 - [#223] The password of the temporary admin account is no longer stored in plain text in the dogu config.
