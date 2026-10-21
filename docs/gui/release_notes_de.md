@@ -5,6 +5,8 @@ Im Folgenden finden Sie die Release Notes für das Sonatype Nexus-Dogu.
 Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https://docs.cloudogu.com/de/docs/dogus/nexus/CHANGELOG/).
 
 ## [Unreleased]
+
+## [v3.96.4-3] - 2026-10-21
 ### Added
 - Die Unterstützung für Persönliche Zugriffsschlüssel (PATs) wurde aktiviert.
 
