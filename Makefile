@@ -1,6 +1,6 @@
 # renovate: datasource=github-tags depName=cloudogu/makefiles extractVersion=^v(?<version>.*)$
 MAKEFILES_VERSION=10.11.1
-VERSION=3.86.2-7
+VERSION=3.96.4-3
 
 .DEFAULT_GOAL:=dogu-release
 

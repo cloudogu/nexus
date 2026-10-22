@@ -43,31 +43,45 @@ versionXLaterEQY() {
   versionXEarlierEQY "$2" "$1"
 }
 
-echo "${FROM_VERSION}" "${TO_VERSION}"
-if [[ "${FROM_VERSION}" == 3.70.2* ]] && [[ "${TO_VERSION}" == 3.75.0* ]]; then
+getCoreVersion() {
+    printf "%s\n" "${1%%-*}"
+}
+
+FROM_CORE_VERSION="$(getCoreVersion "${FROM_VERSION}")"
+TO_CORE_VERSION="$(getCoreVersion "${TO_VERSION}")"
+
+if [[ "${FROM_CORE_VERSION}" == 3.70.2 ]] && [[ "${TO_CORE_VERSION}" == 3.75.0 ]]; then
     printf "~~~~Warning~~~~\n"
-    printf "Going from Nexus 3.70.2 to 3.75.0 requires a migration of the existing OrientDB to a H2 database\n"
+    printf "Going from Nexus 3.70.2 to 3.75.0 requires a migration of the existing OrientDB to an H2 database\n"
     printf "This migration will be performed automatically by the upgrade script\n"
     printf "It is not necessary to perform a manual backup of the database, all Nexus data will be transfered to the new database\n"
     printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
-fi
-
-if versionXEarlierEQY "${FROM_VERSION}" "3.68.1-6" && versionXLaterEQY "${TO_VERSION}" "3.75.0-1"; then
-    printf "~~~~Warning~~~~\n"
-    printf "This update requires a database migration!\n"
-    printf "Migration options:"
-    printf "1) 3.70.2 -> 3.75.0: migrates Nexus from an OrientDB to an H2 database."
-    printf "2) 3.70.2 -> 3.82.0: migrates Nexus from an OrientDB to a postgresql database."
-    printf "3) 3.70.2 -> 3.75.0 -> 3.82.0: migrates Nexus from an OrientDB to a postgresql database."
-    printf "The upgrade process will exit now\n"
-    printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
-    exit 2
-fi
-
-if [[ "${FROM_VERSION}" == 3.70.2* ]] && [[ "${TO_VERSION}" == 3.82.0* ]]; then
+elif [[ "${FROM_CORE_VERSION}" == 3.70.2 ]] && [[ "${TO_CORE_VERSION}" == 3.82.0 ]]; then
     printf "~~~~Warning~~~~\n"
     printf "Going from Nexus 3.70.2 to 3.82.0 requires a migration of the existing OrientDB to a postgresql database\n"
     printf "This migration will be performed automatically by the upgrade script\n"
     printf "It is not necessary to perform a manual backup of the database, all Nexus data will be transfered to the new database\n"
     printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
+elif [[ "${FROM_CORE_VERSION}" == 3.75.0 ]] && [[ "${TO_CORE_VERSION}" == 3.82.0 ]]; then
+    printf "~~~~Warning~~~~\n"
+    printf "Going from Nexus 3.75.0 to 3.82.0 requires a migration of the existing H2 database to a postgresql database\n"
+    printf "This migration will be performed automatically by the upgrade script\n"
+    printf "It is not necessary to perform a manual backup of the database, all Nexus data will be transfered to the new database\n"
+    printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
+elif {
+    versionXEarlierEQY "${FROM_CORE_VERSION}" "3.70.2" &&
+    versionXLaterEQY "${TO_CORE_VERSION}" "3.75.0"
+} || {
+    versionXEarlierEQY "${FROM_CORE_VERSION}" "3.75.0" &&
+    versionXLaterEQY "${TO_CORE_VERSION}" "3.82.0"
+}; then
+    printf "~~~~Warning~~~~\n"
+    printf "This update requires a database migration!\n"
+    printf "Only the following migration paths are supported:\n"
+    printf "1) 3.70.2 -> 3.75.0: migrates Nexus from an OrientDB to an H2 database.\n"
+    printf "2) 3.70.2 -> 3.82.0: migrates Nexus from an OrientDB to a postgresql database.\n"
+    printf "3) 3.70.2 -> 3.75.0 -> 3.82.0: migrates Nexus from an OrientDB to a postgresql database.\n"
+    printf "The upgrade process will exit now.\n"
+    printf "\nFor additional support or questions, feel free to contact hello@cloudogu.com.\n"
+    exit 2
 fi
