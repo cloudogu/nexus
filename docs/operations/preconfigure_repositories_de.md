@@ -11,12 +11,18 @@ nexus-claim plan -i nexus3-initial-example.hcl
 Wenn die Ausgabe gut aussieht, können wir unser Model in der Registry speichern. 
 Wenn wir unser Model nur einmal anwenden wollen:
 
-```bash
-cat mymodel.hcl | etcdctl set /config/nexus/claim/once
-```
+`kubectl edit configmap -n ecosystem nexus-config`
+````yaml
+    data:
+      config.yaml: |
+        claim.once: "<Inhalt von myModel.hcl>"
+````
 
 Oder wir könnten unser Model bei jedem Start von Nexus anwenden:
 
-```bash
-cat mymodel.hcl | etcdctl set /config/nexus/claim/always
-```
+`kubectl edit configmap -n ecosystem nexus-config`
+````yaml
+    data:
+      config.yaml: |
+        claim.always: "<Inhalt von myModel.hcl>"
+````

@@ -1,6 +1,6 @@
 # renovate: datasource=github-tags depName=cloudogu/makefiles extractVersion=^v(?<version>.*)$
 MAKEFILES_VERSION=10.11.1
-VERSION=3.86.2-7
+VERSION=3.96.4-3
 
 .DEFAULT_GOAL:=dogu-release
 
@@ -57,7 +57,7 @@ nexus-v3-uninstall: $(BINARY_HELM) ## DoguV3 dev: uninstall the chart (keeps PVC
 # TEMPORARY DoguV3 publish helper
 #
 # Builds the nexus image and the Helm chart under k8s/helm and pushes both to an OCI registry.
-# The packaged chart references exactly the pushed image (values.yaml and chart-patch-tpl.yaml are patched).
+# The packaged chart references exactly the pushed image (values.yaml and mirror-patch-tpl.yaml are patched).
 #
 #   make nexus-v3-publish         # image + chart
 #   make nexus-v3-publish-image   # image only
@@ -109,7 +109,7 @@ nexus-v3-publish-chart: $(BINARY_HELM) $(BINARY_YQ) ## DoguV3: package the chart
 		$(BINARY_YQ) -i '.nexus.image.registry = strenv(REGISTRY) | .nexus.image.repository = strenv(REPOSITORY) | .nexus.image.tag = strenv(TAG)' \
 		$(NEXUS_V3_PUBLISH_CHART_DIR)/values.yaml
 	@IMAGE="$(NEXUS_V3_PUBLISH_IMAGE)" \
-		$(BINARY_YQ) -i '.values.images.nexus = strenv(IMAGE)' $(NEXUS_V3_PUBLISH_CHART_DIR)/chart-patch-tpl.yaml
+		$(BINARY_YQ) -i '.values.images.nexus = strenv(IMAGE)' $(NEXUS_V3_PUBLISH_CHART_DIR)/mirror-patch-tpl.yaml
 	@CHART_VERSION="$(NEXUS_V3_PUBLISH_VERSION)" \
 		$(BINARY_YQ) -i '.version = strenv(CHART_VERSION)' $(NEXUS_V3_PUBLISH_CHART_DIR)/Chart.yaml
 	@$(BINARY_HELM) lint $(NEXUS_V3_PUBLISH_CHART_DIR)

@@ -7,8 +7,14 @@ Artefakt nur zum Löschen markiert. Das endgültige Löschen der Daten aus dem B
 welcher aber nicht in der standardkonfiguration von Nexus konfiguriert ist.
 Dieser Task wird beim Start der Applikation von dem Skript `nexusSetupCompactBlobstoreTask.groovy` angelegt.
 Der Task löscht hierbei Daten (täglich, wenn die standard Konfiguration verwendet wird) aus dem _default_ Blobstore. Falls ein anderer Blobstore konfiguriert werden soll, kann hierfür 
-der etcd-Schlüssel `config/nexus/compact_blobstore_task/blobstore` angepasst werden. 
-Dies geht am einfachsten über den cesapp Befehl  `cesapp edit-config nexus`.
+der Konfigurationsschlüssel `compact_blobstore_task/blobstore` angepasst werden. 
+Dies geht am einfachsten über den Befehl:
+`kubectl edit configmap -n ecosystem nexus-config`
+````yaml
+    data:
+      config.yaml: |
+        compact_blobstore_task/blobstore: "<Name des Blobstores>"
+````
 Mehr Informationen über Tasks sind in der [offiziellen Tasks-Dokumentation](https://help.sonatype.com/repomanager3/nexus-repository-administration/tasks) zu finden.
 
 
@@ -31,6 +37,6 @@ repository "public" {
   }
 ```
 
-Die Policy kann in per `cesapp edit-config nexus` konfiguriert werden. Das Standardintervall für die Policy beträgt 14 Tage.
+Die Policy kann in per `kubectl edit configmap -n ecosystem nexus-config` konfiguriert werden. Das Standardintervall für die Policy beträgt 14 Tage.
 Mehr Informationen über Cleanup Policies können der [offiziellen Cleanup-Policy-Dokumentation](https://help.sonatype.com/repomanager3/nexus-repository-administration/repository-management/cleanup-policies) entnommen werden.
 
