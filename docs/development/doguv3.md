@@ -64,7 +64,7 @@
 
 - `dogu-values-metadata.yaml` (ADR-0058): Mapping für die Dogu-CR (`mappedValues`, z. B. Log-Level).
 - `values.schema.json` (ADR-0058): JSON-Schema für `values.yaml` 
-- `chart-patch-tpl.yaml` (ADR-0060): Image-Referenzen für `ces-mirror`
+- `mirror-patch-tpl.yaml` (ADR-0060): Image-Referenzen für `ces-mirror`
 
 ## Entwicklung
 
@@ -84,7 +84,7 @@
   make nexus-v3-publish
   ```
   Baut und pusht das Image und packt/pusht das Helm-Chart in dieselbe Registry. Das Chart referenziert in
-  `values.yaml` und `chart-patch-tpl.yaml` genau das gepushte Image. Voraussetzung: `docker login <registry>`.
+  `values.yaml` und `mirror-patch-tpl.yaml` genau das gepushte Image. Voraussetzung: `docker login <registry>`.
   Konfigurierbar per Make-Variablen (Defaults):
   - `NEXUS_V3_PUBLISH_REGISTRY` (`staging-registry.cloudogu.com`)
   - `NEXUS_V3_PUBLISH_IMAGE_REPOSITORY` (`testing/dogu/v3/images/nexus`)
