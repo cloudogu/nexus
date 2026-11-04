@@ -1,0 +1,53 @@
+{{- if .Values.migrationJob.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "nexus.fullname" . }}-postgres-migration
+  labels:
+    k8s.cloudogu.com/migration-postgresql: "true"
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: postgres-migration
+          image: "postgres:14-alpine"
+          env:
+            - name: SOURCE_POSTGRESQL_HOST
+              value: {{ printf "postgresql.%s.svc.cluster.local" .Release.Namespace | quote }}
+            - name: SOURCE_POSTGRESQL_PORT
+              value: "5432"
+            - name: SOURCE_POSTGRESQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: nexus-migration
+                  key: postgresql_database
+            - name: SOURCE_POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nexus-migration
+                  key: postgresql_password
+            - name: SOURCE_POSTGRESQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: nexus-migration
+                  key: postgresql_username
+            - name: TARGET_POSTGRESQL_HOST
+              value: {{ include "nexus.postgresqlServiceName" . | quote }}
+            - name: TARGET_POSTGRESQL_PORT
+              value: "5432"
+            - name: TARGET_POSTGRESQL_DATABASE
+              value: {{ .Values.postgresql.auth.database | quote }}
+            - name: TARGET_POSTGRESQL_USERNAME
+              value: {{ .Values.postgresql.auth.username | quote }}
+            - name: TARGET_POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "nexus.fullname" . }}-postgresql
+                  key: password
+          command: ["sh", "-ec"]
+          args:
+            - |
+{{ .Files.Get "files/postgres-migration.sh" | indent 14 }}
+{{- end }}
