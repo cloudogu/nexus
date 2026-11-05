@@ -28,7 +28,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: pvc-migration
+  name: {{ include "nexus.fullname" . }}-pvc-migration
 spec:
   backoffLimit: 3
   template:
