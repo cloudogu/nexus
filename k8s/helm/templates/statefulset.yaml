@@ -7,7 +7,7 @@ metadata:
     {{- include "nexus.backupLabels" . | nindent 4 }}
 spec:
   serviceName: {{ include "nexus.name" . }}
-  replicas: {{ .Values.nexus.replicas | default 1 }}
+  replicas: {{ if .Values.migrationJob.enabled }} 0 {{ else }} {{ .Values.nexus.replicas | default 1 }} {{ end }}
   selector:
     matchLabels:
       {{- include "nexus.selectorLabels" . | nindent 6 }}

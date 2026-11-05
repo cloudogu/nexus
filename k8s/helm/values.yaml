@@ -149,3 +149,8 @@ postgresql:
     memory: 256Mi
   resourceLimits:
     memory: 512Mi
+
+# Migration from dogu v2
+migrationJob:
+  enabled: false
+  busyboxVersion: "1.38"
