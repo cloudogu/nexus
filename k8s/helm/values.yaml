@@ -13,6 +13,8 @@ networkPolicies:
 
 extraLabels: {}
 
+migrationJob:
+  enabled: false
 
 nexus:
   replicas: 1
