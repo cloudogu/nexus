@@ -12,7 +12,8 @@ spec:
       restartPolicy: Never
       containers:
         - name: postgres-migration
-          image: "postgres:14-alpine"
+          image: "{{ .Values.postgresql.image.registry }}/{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}"
+          imagePullPolicy: {{ .Values.postgresql.imagePullPolicy }}
           env:
             - name: SOURCE_POSTGRESQL_HOST
               value: {{ printf "postgresql.%s.svc.cluster.local" .Release.Namespace | quote }}
@@ -46,7 +47,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "nexus.fullname" . }}-postgresql
                   key: password
-          command: ["sh", "-ec"]
+          command: ["bash", "-ec"]
           args:
             - |
 {{ .Files.Get "files/postgres-migration.sh" | indent 14 }}
