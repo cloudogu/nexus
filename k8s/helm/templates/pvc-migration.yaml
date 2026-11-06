@@ -8,6 +8,7 @@
 {{- $pvcName = printf "%s-%s-0" "nexus-data" (include "nexus.fullname" .) }}
 {{- end }}
 
+{{- if not .Values.nexus.persistence.existingClaim }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -24,6 +25,7 @@ spec:
   {{- if .Values.nexus.persistence.storageClassName }}
   storageClassName: {{ .Values.nexus.persistence.storageClassName | quote }}
   {{- end }}
+{{- end }}
 ---
 apiVersion: batch/v1
 kind: Job
