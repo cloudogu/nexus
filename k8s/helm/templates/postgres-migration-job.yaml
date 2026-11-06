@@ -5,6 +5,8 @@ metadata:
   name: {{ include "nexus.fullname" . }}-postgres-migration
   labels:
     k8s.cloudogu.com/migration-postgresql: "true"
+    k8s.cloudogu.com/migration-job: "true"
+    k8s.cloudogu.com/dogu.name: nexus
 spec:
   backoffLimit: 3
   template:
