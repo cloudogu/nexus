@@ -25,6 +25,23 @@ else
   echo "TARGET_POSTGRESQL_PASSWORD="
 fi
 
+echo "Waiting for target PostgreSQL to accept connections"
+for ((attempt = 1; attempt <= 60; attempt++)); do
+  if pg_isready \
+    -h "${TARGET_POSTGRESQL_HOST}" \
+    -p "${TARGET_POSTGRESQL_PORT}" \
+    -U "${TARGET_POSTGRESQL_USERNAME}" \
+    -d "${TARGET_POSTGRESQL_DATABASE}" \
+    -t 2; then
+    break
+  fi
+  if ((attempt == 60)); then
+    echo "Target PostgreSQL did not become ready after 60 attempts" >&2
+    exit 1
+  fi
+  sleep 5
+done
+
 dump_file=$(mktemp /tmp/nexus-postgres-migration.XXXXXX)
 trap 'rm -f "$dump_file"' EXIT
 
