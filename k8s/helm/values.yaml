@@ -153,4 +153,7 @@ postgresql:
 # Migration from dogu v2
 migrationJob:
   enabled: false
-  busyboxVersion: "1.38"
+  image:
+    registry: docker.io
+    repository: library/busybox
+    tag: "1.38"
