@@ -10,7 +10,8 @@ metadata:
   annotations:
     helm.sh/resource-policy: keep
   labels:
-    {{ include "nexus.labels" . }}
+    {{- include "nexus.labels" . | nindent 4 }}
+    {{- include "nexus.backupLabels" . | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce
