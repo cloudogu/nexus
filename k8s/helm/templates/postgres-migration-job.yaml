@@ -9,6 +9,7 @@ spec:
     metadata:
       labels:
         k8s.cloudogu.com/migration-postgresql: "true"
+        k8s.cloudogu.com/dogu.name: nexus
     spec:
       restartPolicy: Never
       containers:
