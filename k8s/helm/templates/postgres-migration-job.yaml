@@ -10,6 +10,7 @@ spec:
   template:
     metadata:
       labels:
+        {{- include "nexus.nexusSelectorLabels" . | nindent 8 }}
         k8s.cloudogu.com/migration-postgresql: "true"
         k8s.cloudogu.com/dogu.name: nexus
     spec:
