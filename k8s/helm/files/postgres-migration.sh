@@ -58,6 +58,8 @@ PGPASSWORD="${SOURCE_POSTGRESQL_PASSWORD}" pg_dump \
 echo "Importing dump into target database"
 PGPASSWORD="${TARGET_POSTGRESQL_PASSWORD}" pg_restore \
   --verbose \
+  --clean \
+  --if-exists \
   --no-owner \
   --no-acl \
   --exit-on-error \
