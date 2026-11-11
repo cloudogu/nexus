@@ -47,10 +47,6 @@ nexus:
   persistence:
     size: 2Gi
     storageClassName: ""
-    # Use an existing PersistentVolumeClaim for the nexus data volume instead of
-    # letting the chart create one. When set, no PVC is created and its size/
-    # storageClassName above are ignored.
-    existingClaim: ""
 
   service:
     ports:
@@ -151,3 +147,11 @@ postgresql:
     memory: 256Mi
   resourceLimits:
     memory: 512Mi
+
+# Migration from dogu v2
+migrationJob:
+  enabled: false
+  image:
+    registry: docker.io
+    repository: library/busybox
+    tag: "1.38"

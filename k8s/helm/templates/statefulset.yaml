@@ -7,7 +7,7 @@ metadata:
     {{- include "nexus.backupLabels" . | nindent 4 }}
 spec:
   serviceName: {{ include "nexus.name" . }}
-  replicas: {{ .Values.nexus.replicas | default 1 }}
+  replicas: {{ if .Values.migrationJob.enabled }} 0 {{ else }} {{ .Values.nexus.replicas | default 1 }} {{ end }}
   selector:
     matchLabels:
       {{- include "nexus.selectorLabels" . | nindent 6 }}
@@ -219,12 +219,6 @@ spec:
             requests: {{- toYaml .Values.nexus.saManager.resourceRequests | nindent 14 }}
             limits: {{- toYaml .Values.nexus.saManager.resourceLimits | nindent 14 }}
       volumes:
-        {{- if .Values.nexus.persistence.existingClaim }}
-        # Bring-your-own PVC; when unset the volume is provided by volumeClaimTemplates below.
-        - name: nexus-data
-          persistentVolumeClaim:
-            claimName: {{ .Values.nexus.persistence.existingClaim }}
-        {{- end }}
         - name: ces-state
           emptyDir: {}
         - name: sa-manager-hooks
@@ -263,7 +257,6 @@ spec:
       {{- with .Values.nexus.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
       {{- end }}
-  {{- if not .Values.nexus.persistence.existingClaim }}
   volumeClaimTemplates:
     # Holds the Nexus work dir (/var/lib/nexus) and the writable doguctl local config (/var/ces/config).
     - metadata:
@@ -280,4 +273,3 @@ spec:
         resources:
           requests:
             storage: {{ .Values.nexus.persistence.size }}
-  {{- end }}

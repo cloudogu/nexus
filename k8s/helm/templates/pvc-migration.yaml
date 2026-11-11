@@ -1,0 +1,62 @@
+{{- if .Values.migrationJob.enabled }}
+
+{{/*The name of the PVC to be used as migration target, which must match the PVC that is used by the statefulset. */}}
+{{- $pvcName := printf "%s-%s-0" "nexus-data" (include "nexus.fullname" .) }}
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $pvcName }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    {{- include "nexus.labels" . | nindent 4 }}
+    {{- include "nexus.backupLabels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.nexus.persistence.size }}
+  volumeMode: Filesystem
+  {{- if .Values.nexus.persistence.storageClassName }}
+  storageClassName: {{ .Values.nexus.persistence.storageClassName | quote }}
+  {{- end }}
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "nexus.fullname" . }}-pvc-migration
+  labels:
+    k8s.cloudogu.com/migration-job: "true"
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        k8s.cloudogu.com/dogu.name: nexus
+    spec:
+      containers:
+        - name: pvc-migration
+          image: "{{ .Values.migrationJob.image.registry }}/{{ .Values.migrationJob.image.repository }}:{{ .Values.migrationJob.image.tag }}"
+          command: [ "sh", "-ec"]
+          args:
+            - |
+              cp -a /source/localConfig /target/
+              cp -a /source/data /target/
+          volumeMounts:
+            - mountPath: /source
+              name: source-data
+            - mountPath: /target
+              name: target-data
+
+      restartPolicy: Never
+      volumes:
+        - name: source-data
+          persistentVolumeClaim:
+            claimName: nexus-migration
+        - name: target-data
+          persistentVolumeClaim:
+            claimName: {{ $pvcName }}
+{{- end }}

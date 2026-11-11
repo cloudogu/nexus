@@ -4,6 +4,7 @@ values:
     nexus: registry.cloudogu.com/official/nexus:3.96.4-3
     nexusSaManager: registry.cloudogu.com/k8s/service-account-producer-sidecar:0.1.2
     postgresql: docker.io/library/postgres:14.18
+    busybox: docker.io/library/busybox:1.38
 patches:
   values.yaml:
     nexus:
@@ -21,3 +22,8 @@ patches:
         registry: "{{ registryFrom .images.postgresql }}"
         repository: "{{ repositoryFrom .images.postgresql }}"
         tag: "{{ tagFrom .images.postgresql }}"
+    migrationJob:
+      image:
+        registry: "{{ registryFrom .images.busybox }}"
+        repository: "{{ repositoryFrom .images.busybox }}"
+        tag: "{{ tagFrom .images.busybox }}"
