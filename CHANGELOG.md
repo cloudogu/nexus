@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - [#230] Add a migration job to copy the data from the migration PVC to the new PVC
-
+- [#229] Add a postgres migration job for the dogu v3 migration
 
 ## [v3.96.4-3] - 2026-10-21
 ### Added
