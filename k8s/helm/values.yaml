@@ -145,3 +145,11 @@ postgresql:
     memory: 256Mi
   resourceLimits:
     memory: 512Mi
+
+# Migration from dogu v2
+migrationJob:
+  enabled: false
+  image:
+    registry: docker.io
+    repository: library/busybox
+    tag: "1.38"
