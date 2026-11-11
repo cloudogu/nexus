@@ -70,6 +70,7 @@ spec:
     - metadata:
         name: postgresql-data
         labels:
+          {{- include "nexus.postgresqlSelectorLabels" . | nindent 10 }}
           {{- include "nexus.backupLabels" . | nindent 10 }}
       spec:
         accessModes: ["ReadWriteOnce"]
