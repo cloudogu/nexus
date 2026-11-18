@@ -16,6 +16,7 @@ def pipe = new com.cloudogu.sos.pipebuildlib.DoguPipe(this, [
                             resources/claim.sh
                             resources/create-sa.sh
                             resources/remove-sa.sh
+                            resources/rotate-sa.sh
                             resources/nexus_api.sh
                           '''],
     dependedDogus       : ['cas', 'usermgt', 'postgresql'],

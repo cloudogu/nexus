@@ -165,6 +165,32 @@ function deleteUserViaAPI() {
 }
 
 #######################################
+# This function changes the password of an existing user via an API call against the nexus.
+# It reports the HTTP status, so callers can tell whether the new password actually got set (and distinguish a missing user from other failures).
+# GLOBALS:
+#   NEXUS_V1_URL
+# ARGUMENTS:
+#   #1 - username for the request
+#   #2 - password for the request
+#   #3 - the ID of the user whose password should be changed
+#   #4 - the new password
+# OUTPUTS:
+#   The HTTP status code of the response (204 on success, 404 if the user does not exist)
+# RETURN:
+#   0 if the request could be sent, non-zero on connection errors
+#######################################
+function changeUserPasswordViaAPI() {
+  local user="$1" pass="$2" userID="$3" newPassword="$4"
+
+  curl --silent --show-error --request PUT \
+    --output /dev/null --write-out '%{http_code}' \
+    --user "${user}:${pass}" \
+    --header 'Content-Type: text/plain' \
+    --data-raw "${newPassword}" \
+    --url "${NEXUS_V1_URL}/security/users/${userID}/change-password"
+}
+
+#######################################
 # This function deletes an existing component by its id.
 # GLOBALS:
 #   NEXUS_V1_URL
