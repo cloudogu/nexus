@@ -12,7 +12,7 @@ readKnownParams "fullAccessRepository permissions" "$@"
 # Check if a password-rotation is needed
 #
 #   - no existing account                     -> create as usual
-#   - existing account, rotation requested    -> remove the old account, then create a new one
+#   - existing account, rotation requested    -> change the password of the existing account in place
 #   - existing account, no rotation requested -> no-op
 
 ROTATE="false"
@@ -30,9 +30,8 @@ if [[ "${EXISTING_USER_ID}" != "default" ]]; then
     exit 0
   fi
 
-  # Rotating: remove the old account first.
-  echo "rotating service account for ${CONSUMER} - removing existing account ${EXISTING_USER_ID} first" >&2
-  /hooks/remove-sa.sh "${CONSUMER}" >&2
+  echo "rotating password of service account ${EXISTING_USER_ID} for ${CONSUMER}" >&2
+  exec /hooks/rotate-sa.sh "${PLAIN_PARAMS[@]}" "${CONSUMER}"
 fi
 
 # call create-sa.sh
