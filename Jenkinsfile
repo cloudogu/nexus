@@ -33,7 +33,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
         choice(
           name: 'PipelineMode',
           description: 'Which CES variation to run tests in',
-          choices: ['Full', 'Classic', 'MultiNode'],
+          choices: ['Full', 'Classic', 'MultiNode', 'MultiNodeV3'],
         ),
         string(
           name: 'WorkerLabel',
@@ -286,8 +286,50 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       }
     }
 
-    // parallel() throws if either branch failed, so nothing below releases
-    // unless Classic and MultiNode both passed.
+    // v3 dogus (Helm chart, installed with cldk) are marked by a cldk.yaml, like in the makefiles' release scripts.
+    // Without it, e.g. on develop before the dogu_v3 branches are merged, this pipeline-branch is left out.
+    if (fileExists('cldk.yaml') && params.PipelineMode in ['Full', 'MultiNodeV3']) {
+      branches['MultiNode v3'] = {
+        ws("${env.WORKSPACE}@multinode-v3") {
+          checkout scm
+
+          stage('MultiNode v3: Infos') {
+            echo "This pipeline-branch will build and test the ${doguNameSpace}/${doguName} Dogu as v3 Dogu (Helm chart) on a MultiNode cluster."
+            echo "Libraries:\n${getLibInfos().join("\n")}"
+          }
+
+          // TODO: Skeleton, the stages below only mark where the v3 steps go.
+          try {
+            stage('MultiNode v3: Setup') {
+              echo "TODO: provision a cluster for v3 dogus"
+            }
+
+            stage('MultiNode v3: Build and Install Dogu') {
+              echo "TODO: make dogu-apply (cldk dogu dev-push, from the makefiles' dogu-v3.mk)"
+            }
+
+            stage('MultiNode v3: Wait for Dogu') {
+              echo "TODO: wait until the dogu is healthy"
+            }
+
+            stage('MultiNode v3: Verify') {
+              echo "TODO: run the goss checks"
+            }
+
+            stage('MultiNode v3: Integration Tests') {
+              echo "TODO: run the Cypress integration tests"
+            }
+          } finally {
+            stage('MultiNode v3: Clean') {
+              echo "TODO: delete the cluster"
+            }
+          }
+        }
+      }
+    }
+
+    // parallel() throws if any branch failed, so nothing below releases
+    // unless all of them passed.
     parallel(branches)
 
     // Scan and release the Dogu image exported from the Classic worker.
