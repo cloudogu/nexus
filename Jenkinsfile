@@ -107,6 +107,8 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
     params.keySet().sort().each { key -> echo "${key}: \"${params[key]}\"" }
     // A changed parameter default only applies from the next build on, and the field may be cleared
     String cypressImageVersion = params.CypressVersion ?: cypressVersion
+    // Jobs created by the old pipe-build-lib pipeline pass its default "FULL" in their first build after the switch
+    String pipelineMode = params.PipelineMode?.toLowerCase() == 'full' ? 'Full' : params.PipelineMode
 
     stage('Checkout') {
       checkout scm
@@ -155,7 +157,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
 
     def branches = [failFast: false]
 
-    if (params.PipelineMode in ['Full', 'Classic']) {
+    if (pipelineMode in ['Full', 'Classic']) {
 
       EcoSystem ecoSystem = new EcoSystem(this, "gcloud-ces-operations-internal-packer", "jenkins-gcloud-ces-operations-internal")
       branches['Classic'] = {
@@ -223,7 +225,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       }
     }
 
-    if (params.PipelineMode in ['Full', 'MultiNode']) {
+    if (pipelineMode in ['Full', 'MultiNode']) {
 
       // TODO: handle submodule checkout if any dogu ever adds submodules
       MultiNodeEcoSystem mn = new MultiNodeEcoSystem(this, 'jenkins_workspace_gcloud_key', 'automatic_migration_coder_token', doguName)
@@ -290,7 +292,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
 
     // v3 dogus (Helm chart, installed with cldk) are marked by a cldk.yaml, like in the makefiles' release scripts.
     // Without it, e.g. on develop before the dogu_v3 branches are merged, this pipeline-branch is left out.
-    if (fileExists('cldk.yaml') && params.PipelineMode in ['Full', 'MultiNodeV3']) {
+    if (fileExists('cldk.yaml') && pipelineMode in ['Full', 'MultiNodeV3']) {
       branches['MultiNode v3'] = {
         ws("${env.WORKSPACE}@multinode-v3") {
           checkout scm
@@ -335,7 +337,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
     parallel(branches)
 
     // Scan and release the Dogu image exported from the Classic worker.
-    boolean classicRan = params.PipelineMode in ['Full', 'Classic']
+    boolean classicRan = pipelineMode in ['Full', 'Classic']
     boolean releasing = classicRan && gitflow.isReleaseBranch()
     boolean prereleasing = classicRan && prereleaseBranch
     String releaseVersion = git.getSimpleBranchName()
