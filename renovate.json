@@ -20,7 +20,7 @@
         "/^Jenkinsfile$/"
       ],
       "matchStrings": [
-        "// renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n[^\\n]*?['@](?<currentValue>[^'@\\s]+)'"
+        "// renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n[^\\n]*?['@:](?<currentValue>[^'@:\\s]+)'"
       ]
     }
   ],

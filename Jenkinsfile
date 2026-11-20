@@ -13,6 +13,8 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 final String hadolintVersion = 'v2.15.1-debian'
 // renovate: datasource=docker depName=ghcr.io/tcort/markdown-link-check
 final String markdownLinkCheckVersion = '3.15.0'
+// renovate: datasource=docker depName=cypress/included
+final String cypressVersion = '13.14.2'
 
 node(params.WorkerLabel ?: 'cpu4mem8') {
   Git git = new Git(this, "cesmarvin")
@@ -60,8 +62,8 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
         ),
         string(
           name: 'CypressVersion',
-          description: 'Optional: version of the Cypress testing framework to run integration tests with. Defaults to the version in integrationTests/package.json.',
-          defaultValue: '',
+          description: 'Version of the Cypress testing framework (cypress/included image) to run integration tests with',
+          defaultValue: cypressVersion,
         ),
         choice(
           name: 'TrivySeverityLevels',
@@ -358,18 +360,12 @@ private void pushDogu(String credentialsId) {
 
 private Map cypressConfig(String artifactPathPrefix) {
   [
-    cypressImage        : "cypress/included:${cypressVersion()}",
+    cypressImage        : "cypress/included:${params.CypressVersion}",
     enableVideo         : params.EnableVideoRecording,
     enableScreenshots   : params.EnableScreenshotRecording,
     additionalCypressEnv: [TAGS: "not @ignore"],
     artifactPathPrefix  : artifactPathPrefix,
   ]
-}
-
-// The cypress/included image has to match the cypress package the tests install.
-private String cypressVersion() {
-  // Strips a range prefix like "^" or "~", which isn't a valid image tag
-  params.CypressVersion ?: (readJSON(file: 'integrationTests/package.json').dependencies.cypress as String).replaceFirst(/^[^0-9]+/, '')
 }
 
 // Always shows the stage; marks it skipped instead of running body when condition is false.
