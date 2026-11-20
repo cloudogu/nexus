@@ -24,14 +24,16 @@ const nexusRequestScriptingApi = (username, password, exitOnFail = false) => {
  * @param {boolean} exitOnFail - Determines whether the test should fail when the request did not succeed. Default: false
  */
 const deleteUserFromDoguViaAPI = (username, exitOnFail = false) => {
-    return cy.request({
-        method: "GET",
-        url: Cypress.config().baseUrl + `/nexus/service/rest/v1/users/${username}`,
-        auth: {
-            'user': env.GetAdminUsername(),
-            'pass': env.GetAdminPassword()
-        },
-        failOnStatusCode: exitOnFail
+    return env.GetAdminCredentials().then(({AdminUsername, AdminPassword}) => {
+        return cy.request({
+            method: "GET",
+            url: Cypress.config().baseUrl + `/nexus/service/rest/v1/users/${username}`,
+            auth: {
+                'user': AdminUsername,
+                'pass': AdminPassword
+            },
+            failOnStatusCode: exitOnFail
+        })
     })
 }
 
