@@ -1,38 +1,366 @@
 #!groovy
 @Library([
-  'pipe-build-lib',
-  'ces-build-lib',
-  'dogu-build-lib'
-]) _
-
-def pipe = new com.cloudogu.sos.pipebuildlib.DoguPipe(this, [
-    doguName           : 'nexus',
-    shellScripts       : ['''
-                            resources/pre-upgrade.sh
-                            resources/startup.sh
-                            resources/upgrade-notification.sh
-                            resources/util.sh
-                            resources/pre-startup.sh
-                            resources/claim.sh
-                            resources/create-sa.sh
-                            resources/remove-sa.sh
-                            resources/nexus_api.sh
-                          '''],
-    dependedDogus       : ['cas', 'usermgt', 'postgresql'],
-    additionalDogus     : ['official/postgresql'],
-    doBatsTests         : true,
-    checkMarkdown       : true,
-    runIntegrationTests : true,
-    cypressImage        : 'cypress/included:13.2.0',
-    defaultBranch       : 'master'
+  // renovate: datasource=github-tags depName=cloudogu/ces-build-lib
+  'github.com/cloudogu/ces-build-lib@6.1.1',
+  // renovate: datasource=github-tags depName=cloudogu/dogu-build-lib
+  'github.com/cloudogu/dogu-build-lib@v5.0.0',
 ])
-com.cloudogu.ces.dogubuildlib.EcoSystem ecoSystem = pipe.ecoSystem
+import com.cloudogu.ces.cesbuildlib.*
+import com.cloudogu.ces.dogubuildlib.*
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-pipe.setBuildProperties()
-pipe.addDefaultStages()
+node(params.WorkerLabel ?: 'cpu2mem4') {
+  Git git = new Git(this, "cesmarvin")
+  git.committerName = 'cesmarvin'
+  git.committerEmail = 'cesmarvin@cloudogu.com'
+  GitFlow gitflow = new GitFlow(this, git)
+  GitHub github = new GitHub(this, git)
+  Changelog changelog = new Changelog(this)
+  Trivy trivy = new Trivy(this)
+  Docker docker = new Docker(this)
+  String productionReleaseBranch = 'master'
+  timestamps {
+    //noinspection GroovyAssignabilityCheck
+    properties([
+      buildDiscarder(logRotator(numToKeepStr: '10')),
+      disableConcurrentBuilds(),
+      parameters([
+        choice(
+          name: 'PipelineMode',
+          description: 'Which CES variation to run tests in',
+          choices: ['Full', 'Classic', 'MultiNode'],
+        ),
+        string(
+          name: 'WorkerLabel',
+          description: 'Optional: node label expression to run on, overriding the default worker.',
+          defaultValue: '',
+        ),
+        booleanParam(
+          name: 'TestDoguUpgrade',
+          description: 'Test dogu upgrade from latest release or optionally from defined version below',
+          defaultValue: false,
+        ),
+        string(
+          name: 'OldDoguVersionForUpgradeTest',
+          description: 'Old Dogu version for the upgrade test (optional; e.g. 3.23.0-1)',
+          defaultValue: '',
+        ),
+        booleanParam(
+          name: 'EnableVideoRecording',
+          description: 'Enables cypress to record video of the integration tests.',
+          defaultValue: true,
+        ),
+        booleanParam(
+          name: 'EnableScreenshotRecording',
+          description: 'Enables cypress to take screenshots of failing integration tests.',
+          defaultValue: true,
+        ),
+        string(
+          name: 'CypressVersion',
+          description: 'Version of the Cypress testing framework to run integration tests with',
+          defaultValue: '13.2.0',
+        ),
+        choice(
+          name: 'TrivySeverityLevels',
+          description: 'The levels to scan with trivy',
+          choices: [
+            TrivySeverityLevel.HIGH_AND_ABOVE,
+            TrivySeverityLevel.CRITICAL,
+            TrivySeverityLevel.MEDIUM_AND_ABOVE,
+            TrivySeverityLevel.ALL
+          ],
+        ),
+        choice(
+          name: 'TrivyStrategy',
+          description: 'Define whether the build should be unstable, fail or whether the error should be ignored if any vulnerability was found.',
+          choices: [
+            TrivyScanStrategy.UNSTABLE,
+            TrivyScanStrategy.FAIL,
+            TrivyScanStrategy.IGNORE
+          ],
+        ),
+        choice(
+          name: 'MarkdownLinkStrategy',
+          description: 'Define whether the build should be unstable or fail if any unreachable link was found.',
+          choices: [
+            MarkdownCheckStrategy.UNSTABLE,
+            MarkdownCheckStrategy.FAIL,
+          ],
+        ),
+        string(
+          name: 'ClusterName',
+          description: 'Optional: Name of the multinode integration test cluster. A new instance gets created if this parameter is not supplied',
+          defaultValue: '',
+        ),
+        booleanParam(
+          name: 'KeepCluster',
+          description: 'Optional: If True, the cluster will not be deleted after the build execution',
+          defaultValue: false,
+        ),
+      ])
+    ])
+    params.keySet().sort().each { key -> echo "${key}: \"${params[key]}\"" }
 
-pipe.overrideStage('Setup') {
-    ecoSystem.loginBackend('cesmarvin-setup')
-    ecoSystem.setup([ additionalDependencies: [ 'official/postgresql' ] ])
+    stage('Checkout') {
+      checkout scm
+    }
+
+    def doguJson = readJSON file: 'dogu.json'
+    String doguNameSpace = doguJson.Name.split('/')[0]
+    String doguName = doguJson.Name.split('/')[1]
+
+    List<String> additionalDogus = [
+      'official/postgresql',
+    ]
+
+    stage('Lint') {
+      lintDockerfile()
+    }
+
+    stage('Check Markdown Links') {
+      Markdown markdown = new Markdown(this)
+      markdown.check(params.MarkdownLinkStrategy)
+    }
+
+    stage('Check Changelog') {
+      // This check will skip on non-pull-request.
+      checkChangelog()
+      checkReleaseNotes()
+    }
+
+    stage('Shellcheck') {
+      List<String> shellScripts = [
+        'resources/pre-upgrade.sh',
+        'resources/startup.sh',
+        'resources/upgrade-notification.sh',
+        'resources/util.sh',
+        'resources/pre-startup.sh',
+        'resources/claim.sh',
+        'resources/create-sa.sh',
+        'resources/remove-sa.sh',
+        'resources/nexus_api.sh',
+      ]
+      shellCheck(shellScripts.collect { "\"${it}\"" }.join(' '))
+    }
+
+    stage('Bats Tests') {
+      Bats bats = new Bats(this, docker)
+      bats.checkAndExecuteTests()
+    }
+
+    def branches = [failFast: false]
+
+    if (params.PipelineMode in ['Full', 'Classic']) {
+
+      EcoSystem ecoSystem = new EcoSystem(this, "gcloud-ces-operations-internal-packer", "jenkins-gcloud-ces-operations-internal")
+      branches['Classic'] = {
+        ws("${env.WORKSPACE}@classic") {
+          checkout scm
+
+          stage('Classic: Infos') {
+            echo "This pipeline-branch will build and test the ${doguNameSpace}/${doguName} Dogu on a Classic-CES Vagrant GCP machine."
+          }
+
+          try {
+            stage('Classic: Provision') {
+              if (gitflow.isPreReleaseBranch()) {
+                sh "make prerelease_namespace"
+              }
+              ecoSystem.provision("/dogu", "n2-highmem-4", 30)
+            }
+
+            stage('Classic: Setup') {
+              ecoSystem.loginBackend('cesmarvin-setup')
+              ecoSystem.setup([additionalDependencies: additionalDogus])
+            }
+
+            stage('Classic: Wait for dependencies') {
+              timeout(30) {
+                ecoSystem.waitForDogu("cas")
+                additionalDogus.each { dep -> ecoSystem.waitForDogu(dep.split('/')[1]) }
+              }
+            }
+
+            stage('Classic: Build Dogu Image') {
+              ecoSystem.build("/dogu")
+            }
+
+            // Trivy and the post-join release push both use this image and dogu.json.
+            stage('Classic: Export Image') {
+              ecoSystem.copyDoguImageToJenkinsWorker("/dogu")
+              stash name: 'dogu-json', includes: 'dogu.json'
+            }
+
+            stage('Classic: Verify') {
+              ecoSystem.verify("/dogu")
+            }
+
+            stage('Classic: Integration Tests') {
+              ecoSystem.runCypressIntegrationTests(cypressConfig('classic'))
+            }
+
+            conditionalStage('Classic: Upgrade dogu', params.TestDoguUpgrade) {
+              ecoSystem.upgradeFromPreviousRelease(params.OldDoguVersionForUpgradeTest, doguName, doguNameSpace)
+            }
+
+            conditionalStage('Classic: Integration Tests (Post-Upgrade)', params.TestDoguUpgrade) {
+              ecoSystem.runCypressIntegrationTests(cypressConfig('classic'))
+            }
+
+          } finally {
+            stage('Classic: Clean') {
+              ecoSystem.destroy()
+            }
+          }
+        }
+      }
+    }
+
+    if (params.PipelineMode in ['Full', 'MultiNode']) {
+
+      MultiNodeEcoSystem mn = new MultiNodeEcoSystem(this, 'jenkins_workspace_gcloud_key', 'automatic_migration_coder_token', doguName)
+      branches['MultiNode'] = {
+        ws("${env.WORKSPACE}@multinode") {
+          checkout scm
+
+          stage('MultiNode: Infos') {
+            echo "This pipeline-branch will build and test the ${doguNameSpace}/${doguName} Dogu on a MultiNode-LOP Coder cluster."
+          }
+
+          try {
+            stage('MultiNode: Setup') {
+              timeout(time: 70, unit: 'MINUTES') {
+                mn.setup([
+                  clustername    : params.ClusterName,
+                  additionalDogus: additionalDogus,
+                  machineType    : "n2-highmem-4",
+                  nodeCount      : 2
+                ])
+              }
+            }
+
+            stage('MultiNode: Wait for dependencies') {
+              timeout(30) {
+                mn.waitForDogu("cas")
+                additionalDogus.each { dogu -> mn.waitForDogu(dogu.split('/')[1]) }
+              }
+            }
+
+            stage('MultiNode: Build Dogu Image') {
+              mn.build(doguName)
+            }
+
+            stage('MultiNode: Wait for Dogu') {
+              mn.waitForDogu(doguName)
+            }
+
+            stage('MultiNode: Verify') {
+              mn.verify(doguName)
+            }
+
+            stage('MultiNode: Integration Tests') {
+              mn.runCypressIntegrationTests(cypressConfig('multinode'))
+            }
+
+            conditionalStage('MultiNode: Upgrade dogu', params.TestDoguUpgrade) {
+              mn.upgradeFromPreviousRelease(params.OldDoguVersionForUpgradeTest, doguName, doguNameSpace)
+            }
+
+            conditionalStage('MultiNode: Integration Tests (Post-Upgrade)', params.TestDoguUpgrade) {
+              mn.runCypressIntegrationTests(cypressConfig('multinode'))
+            }
+          } finally {
+            conditionalStage('MultiNode: Clean', !params.KeepCluster) {
+              mn.destroy()
+            }
+          }
+        }
+      }
+    }
+
+    // parallel() throws if either branch failed, so nothing below releases
+    // unless Classic and MultiNode both passed.
+    parallel(branches)
+
+    // Scan and release the Dogu image exported from the Classic worker.
+    boolean classicRan = params.PipelineMode in ['Full', 'Classic']
+    boolean releasing = classicRan && gitflow.isReleaseBranch()
+    boolean prereleasing = classicRan && gitflow.isPreReleaseBranch()
+    String releaseVersion = git.getSimpleBranchName()
+
+    conditionalStage('Trivy scan', classicRan) {
+      // Classic's dogu.json names the exported image - on prerelease branches it carries the prerelease namespace.
+      dir('classic-dogu-export') {
+        unstash 'dogu-json'
+      }
+      trivy.scanDogu('classic-dogu-export', params.TrivySeverityLevels, params.TrivyStrategy)
+      trivy.saveFormattedTrivyReport(TrivyScanFormat.TABLE)
+      trivy.saveFormattedTrivyReport(TrivyScanFormat.JSON)
+      trivy.saveFormattedTrivyReport(TrivyScanFormat.HTML)
+    }
+
+    // Before Finish Gitflow Release: archiveDoguReport() reads the commit from HEAD, which that stage moves.
+    conditionalStage('Archive Trivy', releasing) {
+      trivy.archiveDoguReport('classic-dogu-export')
+    }
+
+    conditionalStage('Finish Gitflow Release', releasing) {
+      gitflow.finishRelease(releaseVersion, productionReleaseBranch)
+    }
+
+    conditionalStage('Push Dogu to registry', releasing) {
+      pushDogu('cesmarvin-setup')
+    }
+
+    conditionalStage('Add Github Release', releasing) {
+      github.createReleaseWithChangelog(releaseVersion, changelog, productionReleaseBranch)
+    }
+
+    conditionalStage('Notify Webhook', releasing) {
+      new Webhook(this).notifyRelease()
+    }
+
+    conditionalStage('Push Prerelease Dogu to registry', prereleasing) {
+      pushDogu('harborrobotprerelease')
+    }
+  }
 }
-pipe.run()
+
+// TODO: move the helpers below into ces-build-lib / dogu-build-lib (as in cloudogu/cockpit, branch classic_pipeline)
+
+// Pushes the image and dogu.json exported from classic CES to the Jenkins worker.
+private void pushDogu(String credentialsId) {
+  // classic-dogu-export holds Classic's dogu.json, unstashed by the Trivy scan stage.
+  dir('classic-dogu-export') {
+    def dogu = readJSON file: 'dogu.json'
+    withCredentials([usernamePassword(credentialsId: credentialsId, usernameVariable: 'REGISTRY_USER', passwordVariable: 'REGISTRY_PASSWORD')]) {
+      // Own config dir, so the login doesn't touch the worker's baked registry auth.
+      withEnv(["DOCKER_CONFIG=${pwd(tmp: true)}/docker-push-config"]) {
+        sh 'echo "$REGISTRY_PASSWORD" | docker login registry.cloudogu.com -u "$REGISTRY_USER" --password-stdin'
+        sh "docker push ${dogu.Image}:${dogu.Version}"
+      }
+    }
+    new DoguRegistry(this, 'https://dogu.cloudogu.com', credentialsId).pushDogu()
+  }
+}
+
+private Map cypressConfig(String artifactPathPrefix) {
+  [
+    cypressImage        : "cypress/included:${params.CypressVersion}",
+    enableVideo         : params.EnableVideoRecording,
+    enableScreenshots   : params.EnableScreenshotRecording,
+    additionalCypressEnv: [TAGS: "not @ignore"],
+    artifactPathPrefix  : artifactPathPrefix,
+  ]
+}
+
+// Always shows the stage; marks it skipped instead of running body when condition is false.
+private void conditionalStage(String name, boolean condition, Closure body) {
+  stage(name) {
+    if (!condition) {
+      Utils.markStageSkippedForConditional(name)
+      return
+    }
+    body()
+  }
+}
