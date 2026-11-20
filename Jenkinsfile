@@ -1,7 +1,7 @@
 #!groovy
 @Library([
   // renovate: datasource=github-tags depName=cloudogu/ces-build-lib
-  'github.com/cloudogu/ces-build-lib@6.1.1',
+  'github.com/cloudogu/ces-build-lib@6.2.0',
   // renovate: datasource=github-tags depName=cloudogu/dogu-build-lib
   'github.com/cloudogu/dogu-build-lib@v5.0.0',
 ])
