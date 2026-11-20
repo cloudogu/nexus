@@ -68,35 +68,28 @@
 
 ## Entwicklung
 
-- Setup: `.env` aus `.env.template` befüllen.
+Entwicklung und Release laufen über `build/make/dogu-v3.mk` aus den makefiles, das [cldk](https://github.com/cloudogu/cldk) aufruft.
+Details zu Variablen und Ablauf stehen in `docs/operations/dogu-v3-de.md` im makefiles-Repo.
+
+- Setup: `.env` aus `.env.template` befüllen. `STAGE=development` ist nötig, sonst bricht `dogu-apply` ab.
+  Ziel-Cluster wie bei v2 über `RUNTIME_ENV`, `KUBE_CONTEXT_NAME` und `NAMESPACE`; `CLDK_DEV_*`-Variablen müssen nicht gesetzt werden, sie werden daraus abgeleitet.
 - Deployen/Aktualisieren:
   ```
-  make nexus-v3-install
+  make dogu-apply
   ```
-  Baut und pusht das Image in die Dev-Registry und macht `helm upgrade --install` mit
-  `--set-string nexus.image.*` + `imagePullPolicy=Always`.
+  Lädt cldk nach `.bin/cldk` (falls nötig), baut das Image, pusht Image und Chart unter einer neuen Dev-Version
+  (`<Chart-Version>-dev.<Zeitstempel>`) in die Dev-Registry und installiert bzw. aktualisiert das Dogu im Cluster.
 - Deinstallieren (PVCs bleiben erhalten):
   ```
-  make nexus-v3-uninstall
+  kubectl -n <namespace> delete dogu nexus
   ```
-- Image und Chart veröffentlichen (ohne Cluster-Installation):
-  ```
-  make nexus-v3-publish
-  ```
-  Baut und pusht das Image und packt/pusht das Helm-Chart in dieselbe Registry. Das Chart referenziert in
-  `values.yaml` und `mirror-patch-tpl.yaml` genau das gepushte Image. Voraussetzung: `docker login <registry>`.
-  Konfigurierbar per Make-Variablen (Defaults):
-  - `NEXUS_V3_PUBLISH_REGISTRY` (`staging-registry.cloudogu.com`)
-  - `NEXUS_V3_PUBLISH_IMAGE_REPOSITORY` (`testing/dogu/v3/images/nexus`)
-  - `NEXUS_V3_PUBLISH_CHART_NAMESPACE` (`testing/dogu/v3/charts`)
-  - `NEXUS_V3_PUBLISH_VERSION`: Image-Tag und Chart-Version (`$(VERSION)`, bei `STAGE=development` siehe unten)
 
-  Einzeln: `make nexus-v3-publish-image` bzw. `make nexus-v3-publish-chart`.
+## Release
 
-  Dev-Version (`$(VERSION)-dev.<unix-timestamp>` für Image-Tag und Chart-Version), gesteuert über das
-  bestehende `STAGE` (auch per `.env` setzbar):
-  ```
-  make nexus-v3-publish STAGE=development
-  ```
-  Der Timestamp wird einmal pro Make-Aufruf bestimmt. Werden Image und Chart in getrennten Aufrufen
-  veröffentlicht, in beiden dieselbe `NEXUS_V3_PUBLISH_VERSION=<version>` mitgeben.
+`make dogu-release` released Nexus wegen der `cldk.yaml` als v2- und v3-Dogu zugleich (Doppel-Release):
+
+- „Release the v2 dogu as well?“ mit `y` beantworten, dann die neue v2-Dogu-Version und die neue Chart-Version angeben.
+  Der Release setzt `version` und `appVersion` im `k8s/helm/Chart.yaml` und den Image-Tag in der `cldk.yaml`.
+- Mit `n` wird nur das Chart released (z. B. bei einer reinen Chart-Änderung), Branch `release/chart/v<Chart-Version>`.
+
+Image und Chart veröffentlicht anschließend die Jenkins-Pipeline.
