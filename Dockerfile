@@ -18,7 +18,8 @@ ENV NEXUS_VERSION=3.98.1-01 \
     SHA256_NEXUS_TAR="a8b204c50708729492380697c1d64f342281468ddfd96e1ab199de86a478e768" \
     SHA256_NEXUS_CLAIM="59664145d8ea0dc95bfcd9c3a74861a30ba4266361ac1dbb2eb2bb847ea87963" \
     SHA256_NEXUS_SCRIPTING="8dbe923534e14357b5adb0748d29f912109a57dbd983ea8c783a4037764cc955" \
-    SHA256_NEXUS_CARP="7045a5178a768ede8d4e5ba6fe6352c2b876d2278f32e533cc75272ed7e69a43"
+    SHA256_NEXUS_CARP="7045a5178a768ede8d4e5ba6fe6352c2b876d2278f32e533cc75272ed7e69a43" \
+    SHA256_SHIRO_HASHER="b70187fa4281ac446e7d868c8558e637586bb1da9e11f7899c634211dfe235d5"
 
 RUN set -o errexit \
   && set -o nounset \
@@ -54,7 +55,8 @@ RUN set -o errexit \
   && tar -xf nexus-carp.tar.gz -C ${BUILD_BIN_DIR} \
   && apk add maven \
   && mvn dependency:get -DgroupId=org.apache.shiro.tools -DartifactId=shiro-tools-hasher -Dclassifier=cli -Dversion=${SHIRO_VERSION} \
-  && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar
+  && cp /root/.m2/repository/org/apache/shiro/tools/shiro-tools-hasher/${SHIRO_VERSION}/shiro-tools-hasher-${SHIRO_VERSION}-cli.jar /build/shiro-tools-hasher.jar \
+  && echo "${SHA256_SHIRO_HASHER}  /build/shiro-tools-hasher.jar" | sha256sum -c -
 
 FROM registry.cloudogu.com/official/java:21.0.13-3
 
