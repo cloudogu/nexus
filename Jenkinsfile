@@ -136,6 +136,10 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
       }
     }
 
+    stage('Bats Tests') {
+      new Bats(this, docker).checkAndExecuteTests()
+    }
+
     def branches = [failFast: false]
 
     if (params.PipelineMode in ['Full', 'Classic']) {
