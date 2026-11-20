@@ -105,6 +105,8 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       ])
     ])
     params.keySet().sort().each { key -> echo "${key}: \"${params[key]}\"" }
+    // A changed parameter default only applies from the next build on, and the field may be cleared
+    String cypressImageVersion = params.CypressVersion ?: cypressVersion
 
     stage('Checkout') {
       checkout scm
@@ -201,7 +203,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
             }
 
             stage('Classic: Integration Tests') {
-              ecoSystem.runCypressIntegrationTests(cypressConfig('classic'))
+              ecoSystem.runCypressIntegrationTests(cypressConfig('classic', cypressImageVersion))
             }
 
             conditionalStage('Classic: Upgrade dogu', params.TestDoguUpgrade) {
@@ -209,7 +211,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
             }
 
             conditionalStage('Classic: Integration Tests (Post-Upgrade)', params.TestDoguUpgrade) {
-              ecoSystem.runCypressIntegrationTests(cypressConfig('classic'))
+              ecoSystem.runCypressIntegrationTests(cypressConfig('classic', cypressImageVersion))
             }
 
           } finally {
@@ -267,7 +269,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
             }
 
             stage('MultiNode: Integration Tests') {
-              mn.runCypressIntegrationTests(cypressConfig('multinode'))
+              mn.runCypressIntegrationTests(cypressConfig('multinode', cypressImageVersion))
             }
 
             conditionalStage('MultiNode: Upgrade dogu', params.TestDoguUpgrade) {
@@ -275,7 +277,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
             }
 
             conditionalStage('MultiNode: Integration Tests (Post-Upgrade)', params.TestDoguUpgrade) {
-              mn.runCypressIntegrationTests(cypressConfig('multinode'))
+              mn.runCypressIntegrationTests(cypressConfig('multinode', cypressImageVersion))
             }
           } finally {
             conditionalStage('MultiNode: Clean', !params.KeepCluster) {
@@ -400,9 +402,9 @@ private void pushDogu(String credentialsId) {
   }
 }
 
-private Map cypressConfig(String artifactPathPrefix) {
+private Map cypressConfig(String artifactPathPrefix, String cypressImageVersion) {
   [
-    cypressImage        : "cypress/included:${params.CypressVersion}",
+    cypressImage        : "cypress/included:${cypressImageVersion}",
     enableVideo         : params.EnableVideoRecording,
     enableScreenshots   : params.EnableScreenshotRecording,
     additionalCypressEnv: [TAGS: "not @ignore"],
