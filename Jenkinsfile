@@ -9,6 +9,11 @@ import com.cloudogu.ces.cesbuildlib.*
 import com.cloudogu.ces.dogubuildlib.*
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
+// renovate: datasource=docker depName=hadolint/hadolint
+final String hadolintVersion = 'v2.15.1-debian'
+// renovate: datasource=docker depName=ghcr.io/tcort/markdown-link-check
+final String markdownLinkCheckVersion = '3.15.0'
+
 node(params.WorkerLabel ?: 'cpu4mem8') {
   Git git = new Git(this, "cesmarvin")
   git.committerName = 'cesmarvin'
@@ -30,7 +35,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
         ),
         string(
           name: 'WorkerLabel',
-          description: 'Optional: node label expression to run on, overriding the default worker. Used by debian-jenkins-worker to target its disposable preflight template instead of the production worker.',
+          description: 'Optional: node label expression to run on, overriding the default worker.',
           defaultValue: '',
         ),
         booleanParam(
@@ -55,8 +60,8 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
         ),
         string(
           name: 'CypressVersion',
-          description: 'Version of the Cypress testing framework to run integration tests with',
-          defaultValue: '13.14.2',
+          description: 'Optional: version of the Cypress testing framework to run integration tests with. Defaults to the version in integrationTests/package.json.',
+          defaultValue: '',
         ),
         choice(
           name: 'TrivySeverityLevels',
@@ -116,11 +121,11 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
     ]
 
     stage('Lint') {
-      lintDockerfile()
+      new Dockerfile(this).lint('Dockerfile', hadolintVersion)
     }
 
     stage('Check Markdown Links') {
-      Markdown markdown = new Markdown(this)
+      Markdown markdown = new Markdown(this, markdownLinkCheckVersion)
       markdown.check(params.MarkdownLinkStrategy)
     }
 
@@ -353,12 +358,18 @@ private void pushDogu(String credentialsId) {
 
 private Map cypressConfig(String artifactPathPrefix) {
   [
-    cypressImage        : "cypress/included:${params.CypressVersion}",
+    cypressImage        : "cypress/included:${cypressVersion()}",
     enableVideo         : params.EnableVideoRecording,
     enableScreenshots   : params.EnableScreenshotRecording,
     additionalCypressEnv: [TAGS: "not @ignore"],
     artifactPathPrefix  : artifactPathPrefix,
   ]
+}
+
+// The cypress/included image has to match the cypress package the tests install.
+private String cypressVersion() {
+  // Strips a range prefix like "^" or "~", which isn't a valid image tag
+  params.CypressVersion ?: (readJSON(file: 'integrationTests/package.json').dependencies.cypress as String).replaceFirst(/^[^0-9]+/, '')
 }
 
 // Always shows the stage; marks it skipped instead of running body when condition is false.
