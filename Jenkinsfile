@@ -9,7 +9,7 @@ import com.cloudogu.ces.cesbuildlib.*
 import com.cloudogu.ces.dogubuildlib.*
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-node(params.WorkerLabel ?: 'cpu2mem4') {
+node(params.WorkerLabel ?: 'cpu4mem8') {
   Git git = new Git(this, "cesmarvin")
   git.committerName = 'cesmarvin'
   git.committerEmail = 'cesmarvin@cloudogu.com'
