@@ -15,7 +15,7 @@ set -o pipefail
 # DoguFileConfigurationContext.checkLocalConfigFile) — owned by root. The later non-root
 # nexus container would then fail with "permission denied" writing to that file.
 
-mkdir -p /var/lib/nexus ${LOCAL_CONFIG_DIR}
+mkdir -p /var/lib/nexus "${LOCAL_CONFIG_DIR}"
 
 # --- 1. dogu_json layout ------------------------------------------------------
 # doguctl resolves the descriptor from ${DOGU_REGISTRY_DIR}/${DOGU_NAME}/
@@ -65,6 +65,6 @@ echo "PostgreSQL is accepting connections"
 
 # --- 4. persistence ownership -------------------------------------------------
 # Must run last (see header comment): fixes up anything doguctl created as root above.
-chown -R 1000:1000 /var/lib/nexus ${LOCAL_CONFIG_DIR}
+chown -R 1000:1000 /var/lib/nexus "${LOCAL_CONFIG_DIR}"
 
 echo "set ownership for /var/lib/nexus and ${LOCAL_CONFIG_DIR}"

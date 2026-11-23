@@ -9,8 +9,10 @@ source /util.sh
 
 NEXUS_DATA_DIR=/var/lib/nexus
 MIGRATION_HELPER_JAR_NAME="nexus-db-migrator.jar"
+# shellcheck disable=SC2034 # same definition as in pre-upgrade.sh
 MIGRATION_HELPER_JAR="${NEXUS_DATA_DIR}/${MIGRATION_HELPER_JAR_NAME}"
 NEXUS_WORKDIR=/opt/sonatype/nexus
+# shellcheck disable=SC2034 # used by setNexusVmoptionsAndProperties from util.sh
 TRUSTSTORE="${NEXUS_DATA_DIR}/truststore.jks"
 DATABASE_USER=$(doguctl config -e sa-postgresql/username)
 DATABASE_PASSWORD=$(doguctl config -e sa-postgresql/password)
@@ -45,6 +47,7 @@ if [[ ($FROM_VERSION == 3.70.2* && $TO_VERSION == 3.82.0*) || ($FROM_VERSION == 
   setNexusVmoptionsAndProperties
   setNexusProperties
   # start with nexus user, otherwise nexus creates elasticsearch directories with root user, which crashes nexus in startup
+  # shellcheck disable=SC2016 # expands in the shell su starts, NEXUS_WORKDIR is set via ENV in the Dockerfile
   su nexus -c '"${NEXUS_WORKDIR}/bin/nexus" run' &
     NEXUS_PID=$!
 
