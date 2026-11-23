@@ -14,7 +14,7 @@ final String hadolintVersion = 'v2.15.1-debian'
 // renovate: datasource=docker depName=ghcr.io/tcort/markdown-link-check
 final String markdownLinkCheckVersion = '3.15.0'
 // renovate: datasource=docker depName=cypress/included
-final String cypressVersion = '13.14.2'
+final String cypressVersion = '16.2.0'
 
 node(params.WorkerLabel ?: 'cpu4mem8') {
   Git git = new Git(this, "cesmarvin")
