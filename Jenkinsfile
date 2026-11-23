@@ -1,7 +1,7 @@
 #!groovy
 @Library([
   // renovate: datasource=github-tags depName=cloudogu/ces-build-lib
-  'github.com/cloudogu/ces-build-lib@6.1.1',
+  'github.com/cloudogu/ces-build-lib@6.2.0',
   // renovate: datasource=github-tags depName=cloudogu/dogu-build-lib
   'github.com/cloudogu/dogu-build-lib@v5.0.0',
 ])
@@ -9,7 +9,14 @@ import com.cloudogu.ces.cesbuildlib.*
 import com.cloudogu.ces.dogubuildlib.*
 import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
 
-node(params.WorkerLabel ?: 'cpu2mem4') {
+// renovate: datasource=docker depName=hadolint/hadolint
+final String hadolintVersion = 'v2.15.1-debian'
+// renovate: datasource=docker depName=ghcr.io/tcort/markdown-link-check
+final String markdownLinkCheckVersion = '3.15.0'
+// renovate: datasource=docker depName=cypress/included
+final String cypressVersion = '13.14.2'
+
+node(params.WorkerLabel ?: 'cpu4mem8') {
   Git git = new Git(this, "cesmarvin")
   git.committerName = 'cesmarvin'
   git.committerEmail = 'cesmarvin@cloudogu.com'
@@ -17,8 +24,6 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
   GitHub github = new GitHub(this, git)
   Changelog changelog = new Changelog(this)
   Trivy trivy = new Trivy(this)
-  Docker docker = new Docker(this)
-  String productionReleaseBranch = 'master'
   timestamps {
     //noinspection GroovyAssignabilityCheck
     properties([
@@ -28,7 +33,7 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
         choice(
           name: 'PipelineMode',
           description: 'Which CES variation to run tests in',
-          choices: ['Full', 'Classic', 'MultiNode'],
+          choices: ['Full', 'Classic', 'MultiNode', 'MultiNodeV3'],
         ),
         string(
           name: 'WorkerLabel',
@@ -57,8 +62,8 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
         ),
         string(
           name: 'CypressVersion',
-          description: 'Version of the Cypress testing framework to run integration tests with',
-          defaultValue: '13.2.0',
+          description: 'Version of the Cypress testing framework (cypress/included image) to run integration tests with',
+          defaultValue: cypressVersion,
         ),
         choice(
           name: 'TrivySeverityLevels',
@@ -100,10 +105,18 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
       ])
     ])
     params.keySet().sort().each { key -> echo "${key}: \"${params[key]}\"" }
+    // A changed parameter default only applies from the next build on, and the field may be cleared
+    String cypressImageVersion = params.CypressVersion ?: cypressVersion
+    // Jobs created by the old pipe-build-lib pipeline pass its default "FULL" in their first build after the switch
+    String pipelineMode = params.PipelineMode?.toLowerCase() == 'full' ? 'Full' : params.PipelineMode
 
     stage('Checkout') {
       checkout scm
     }
+
+    // GitFlow.isPreReleaseBranch() compares the simple branch name (after the last "/") with "develop",
+    // so it's also true on dogu_v3/develop, which must not push the v3 POC as a prerelease.
+    boolean prereleaseBranch = gitflow.isPreReleaseBranch() && env.BRANCH_NAME != 'dogu_v3/develop'
 
     def doguJson = readJSON file: 'dogu.json'
     String doguNameSpace = doguJson.Name.split('/')[0]
@@ -114,11 +127,11 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
     ]
 
     stage('Lint') {
-      lintDockerfile()
+      new Dockerfile(this).lint('Dockerfile', hadolintVersion)
     }
 
     stage('Check Markdown Links') {
-      Markdown markdown = new Markdown(this)
+      Markdown markdown = new Markdown(this, markdownLinkCheckVersion)
       markdown.check(params.MarkdownLinkStrategy)
     }
 
@@ -129,28 +142,22 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
     }
 
     stage('Shellcheck') {
-      List<String> shellScripts = [
-        'resources/pre-upgrade.sh',
-        'resources/startup.sh',
-        'resources/upgrade-notification.sh',
-        'resources/util.sh',
-        'resources/pre-startup.sh',
-        'resources/claim.sh',
-        'resources/create-sa.sh',
-        'resources/remove-sa.sh',
-        'resources/nexus_api.sh',
-      ]
-      shellCheck(shellScripts.collect { "\"${it}\"" }.join(' '))
+      def fileList = sh(script: 'find ./resources/ -type f -regex .*\\.sh -print', returnStdout: true).trim()
+      if (fileList) {
+        fileList = '"' + fileList.trim().replaceAll('\n', '" "') + '"'
+        shellCheck(fileList)
+      } else {
+        unstable(message: "ShellCheck called but no scripts found!")
+      }
     }
 
     stage('Bats Tests') {
-      Bats bats = new Bats(this, docker)
-      bats.checkAndExecuteTests()
+      new Bats(this, docker).checkAndExecuteTests()
     }
 
     def branches = [failFast: false]
 
-    if (params.PipelineMode in ['Full', 'Classic']) {
+    if (pipelineMode in ['Full', 'Classic']) {
 
       EcoSystem ecoSystem = new EcoSystem(this, "gcloud-ces-operations-internal-packer", "jenkins-gcloud-ces-operations-internal")
       branches['Classic'] = {
@@ -159,11 +166,12 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
 
           stage('Classic: Infos') {
             echo "This pipeline-branch will build and test the ${doguNameSpace}/${doguName} Dogu on a Classic-CES Vagrant GCP machine."
+            echo "Libraries:\n${getLibInfos().join("\n")}"
           }
 
           try {
             stage('Classic: Provision') {
-              if (gitflow.isPreReleaseBranch()) {
+              if (prereleaseBranch) {
                 sh "make prerelease_namespace"
               }
               ecoSystem.provision("/dogu", "n2-highmem-4", 30)
@@ -177,6 +185,7 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
             stage('Classic: Wait for dependencies') {
               timeout(30) {
                 ecoSystem.waitForDogu("cas")
+                ecoSystem.waitForDogu("usermgt")
                 additionalDogus.each { dep -> ecoSystem.waitForDogu(dep.split('/')[1]) }
               }
             }
@@ -196,7 +205,7 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
             }
 
             stage('Classic: Integration Tests') {
-              ecoSystem.runCypressIntegrationTests(cypressConfig('classic'))
+              ecoSystem.runCypressIntegrationTests(cypressConfig('classic', cypressImageVersion))
             }
 
             conditionalStage('Classic: Upgrade dogu', params.TestDoguUpgrade) {
@@ -204,7 +213,7 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
             }
 
             conditionalStage('Classic: Integration Tests (Post-Upgrade)', params.TestDoguUpgrade) {
-              ecoSystem.runCypressIntegrationTests(cypressConfig('classic'))
+              ecoSystem.runCypressIntegrationTests(cypressConfig('classic', cypressImageVersion))
             }
 
           } finally {
@@ -216,8 +225,9 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
       }
     }
 
-    if (params.PipelineMode in ['Full', 'MultiNode']) {
+    if (pipelineMode in ['Full', 'MultiNode']) {
 
+      // TODO: handle submodule checkout if any dogu ever adds submodules
       MultiNodeEcoSystem mn = new MultiNodeEcoSystem(this, 'jenkins_workspace_gcloud_key', 'automatic_migration_coder_token', doguName)
       branches['MultiNode'] = {
         ws("${env.WORKSPACE}@multinode") {
@@ -225,6 +235,7 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
 
           stage('MultiNode: Infos') {
             echo "This pipeline-branch will build and test the ${doguNameSpace}/${doguName} Dogu on a MultiNode-LOP Coder cluster."
+            echo "Libraries:\n${getLibInfos().join("\n")}"
           }
 
           try {
@@ -242,6 +253,7 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
             stage('MultiNode: Wait for dependencies') {
               timeout(30) {
                 mn.waitForDogu("cas")
+                mn.waitForDogu("usermgt")
                 additionalDogus.each { dogu -> mn.waitForDogu(dogu.split('/')[1]) }
               }
             }
@@ -259,7 +271,7 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
             }
 
             stage('MultiNode: Integration Tests') {
-              mn.runCypressIntegrationTests(cypressConfig('multinode'))
+              mn.runCypressIntegrationTests(cypressConfig('multinode', cypressImageVersion))
             }
 
             conditionalStage('MultiNode: Upgrade dogu', params.TestDoguUpgrade) {
@@ -267,7 +279,7 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
             }
 
             conditionalStage('MultiNode: Integration Tests (Post-Upgrade)', params.TestDoguUpgrade) {
-              mn.runCypressIntegrationTests(cypressConfig('multinode'))
+              mn.runCypressIntegrationTests(cypressConfig('multinode', cypressImageVersion))
             }
           } finally {
             conditionalStage('MultiNode: Clean', !params.KeepCluster) {
@@ -278,14 +290,56 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
       }
     }
 
-    // parallel() throws if either branch failed, so nothing below releases
-    // unless Classic and MultiNode both passed.
+    // v3 dogus (Helm chart, installed with cldk) are marked by a cldk.yaml, like in the makefiles' release scripts.
+    // Without it, e.g. on develop before the dogu_v3 branches are merged, this pipeline-branch is left out.
+    if (fileExists('cldk.yaml') && pipelineMode in ['Full', 'MultiNodeV3']) {
+      branches['MultiNode v3'] = {
+        ws("${env.WORKSPACE}@multinode-v3") {
+          checkout scm
+
+          stage('MultiNode v3: Infos') {
+            echo "This pipeline-branch will build and test the ${doguNameSpace}/${doguName} Dogu as v3 Dogu (Helm chart) on a MultiNode cluster."
+            echo "Libraries:\n${getLibInfos().join("\n")}"
+          }
+
+          // TODO: Skeleton, the stages below only mark where the v3 steps go.
+          try {
+            stage('MultiNode v3: Setup') {
+              echo "TODO: provision a cluster for v3 dogus"
+            }
+
+            stage('MultiNode v3: Build and Install Dogu') {
+              echo "TODO: make dogu-apply (cldk dogu dev-push, from the makefiles' dogu-v3.mk)"
+            }
+
+            stage('MultiNode v3: Wait for Dogu') {
+              echo "TODO: wait until the dogu is healthy"
+            }
+
+            stage('MultiNode v3: Verify') {
+              echo "TODO: run the goss checks"
+            }
+
+            stage('MultiNode v3: Integration Tests') {
+              echo "TODO: run the Cypress integration tests"
+            }
+          } finally {
+            stage('MultiNode v3: Clean') {
+              echo "TODO: delete the cluster"
+            }
+          }
+        }
+      }
+    }
+
+    // parallel() throws if any branch failed, so nothing below releases
+    // unless all of them passed.
     parallel(branches)
 
     // Scan and release the Dogu image exported from the Classic worker.
-    boolean classicRan = params.PipelineMode in ['Full', 'Classic']
+    boolean classicRan = pipelineMode in ['Full', 'Classic']
     boolean releasing = classicRan && gitflow.isReleaseBranch()
-    boolean prereleasing = classicRan && gitflow.isPreReleaseBranch()
+    boolean prereleasing = classicRan && prereleaseBranch
     String releaseVersion = git.getSimpleBranchName()
 
     conditionalStage('Trivy scan', classicRan) {
@@ -305,7 +359,7 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
     }
 
     conditionalStage('Finish Gitflow Release', releasing) {
-      gitflow.finishRelease(releaseVersion, productionReleaseBranch)
+      gitflow.finishRelease(releaseVersion)
     }
 
     conditionalStage('Push Dogu to registry', releasing) {
@@ -313,12 +367,13 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
     }
 
     conditionalStage('Add Github Release', releasing) {
-      github.createReleaseWithChangelog(releaseVersion, changelog, productionReleaseBranch)
+      github.createReleaseWithChangelog(releaseVersion, changelog)
     }
 
     conditionalStage('Notify Webhook', releasing) {
       new Webhook(this).notifyRelease()
     }
+
 
     conditionalStage('Push Prerelease Dogu to registry', prereleasing) {
       pushDogu('harborrobotprerelease')
@@ -326,7 +381,12 @@ node(params.WorkerLabel ?: 'cpu2mem4') {
   }
 }
 
-// TODO: move the helpers below into ces-build-lib / dogu-build-lib (as in cloudogu/cockpit, branch classic_pipeline)
+private List<String> getLibInfos() {
+  (currentBuild.rawBuild
+    .getAction(org.jenkinsci.plugins.workflow.libs.LibrariesAction)
+    ?.libraries
+    ?.collect { "${it.name}@${it.version} trusted=${it.trusted}" } ?: []) as List<String>
+}
 
 // Pushes the image and dogu.json exported from classic CES to the Jenkins worker.
 private void pushDogu(String credentialsId) {
@@ -344,9 +404,9 @@ private void pushDogu(String credentialsId) {
   }
 }
 
-private Map cypressConfig(String artifactPathPrefix) {
+private Map cypressConfig(String artifactPathPrefix, String cypressImageVersion) {
   [
-    cypressImage        : "cypress/included:${params.CypressVersion}",
+    cypressImage        : "cypress/included:${cypressImageVersion}",
     enableVideo         : params.EnableVideoRecording,
     enableScreenshots   : params.EnableScreenshotRecording,
     additionalCypressEnv: [TAGS: "not @ignore"],
