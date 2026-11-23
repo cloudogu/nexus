@@ -401,13 +401,15 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       if (v3OnlyTag != "${v3TagPrefix}/v${chart.version}".toString()) {
         error("The release branch ${env.BRANCH_NAME} does not match the chart version ${chart.version} in the Chart.yaml.")
       }
-      gitflow.finishRelease(v3OnlyTag)
 
-      // Copies the already released v2 image.
+      // Copies the last released v2 image, which dogu.json names on a v3-only release branch.
       def dogu = readJSON file: 'dogu.json'
-      def cldk = readYaml file: 'cldk.yaml'
-      releaseV3Dogu(["${dogu.Image}:${cldk.images[chart.name].tag}"])
+      List<String> imageRefs = ["${dogu.Image}:${dogu.Version}"]
+      // Checks image and registry before finishRelease() pushes the tag.
+      releaseV3Dogu(imageRefs, true)
 
+      gitflow.finishRelease(v3OnlyTag)
+      releaseV3Dogu(imageRefs)
       github.createReleaseWithChangelog(v3OnlyTag, changelog)
     }
 
@@ -424,10 +426,10 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
 }
 
 // Releases the v3 dogu with cldk: pushes the images given as refs (copied, not built) and the chart rewritten to them.
-private void releaseV3Dogu(List<String> imageRefs) {
+private void releaseV3Dogu(List<String> imageRefs, boolean dryRun = false) {
   sh 'make install-cldk'
-  withCredentials([usernamePassword(credentialsId: 'harborhelmchartpush', usernameVariable: 'CLDK_USER', passwordVariable: 'CLDK_PASSWORD')]) {
-    sh ".bin/cldk dogu release ${imageRefs.collect { "-i ${it}" }.join(' ')}"
+  withCredentials([usernamePassword(credentialsId: 'cesmarvin-setup', usernameVariable: 'CLDK_USER', passwordVariable: 'CLDK_PASSWORD')]) {
+    sh ".bin/cldk dogu release ${dryRun ? '--dry-run ' : ''}${imageRefs.collect { "-i ${it}" }.join(' ')}"
   }
 }
 
