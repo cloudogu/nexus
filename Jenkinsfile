@@ -15,6 +15,8 @@ final String hadolintVersion = 'v2.15.1-debian'
 final String markdownLinkCheckVersion = '3.15.0'
 // renovate: datasource=docker depName=cypress/included
 final String cypressVersion = '13.14.2'
+// Prefix of the v3 tag chart/v<chart version>, like V3_TAG_PREFIX in the makefiles' release_v3_functions.sh.
+final String v3TagPrefix = 'chart'
 
 node(params.WorkerLabel ?: 'cpu4mem8') {
   Git git = new Git(this, "cesmarvin")
@@ -341,6 +343,13 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
     boolean releasing = classicRan && gitflow.isReleaseBranch()
     boolean prereleasing = classicRan && prereleaseBranch
     String releaseVersion = git.getSimpleBranchName()
+    // v3 dogus are marked by a cldk.yaml, like in the makefiles' release scripts.
+    boolean v3Dogu = fileExists('cldk.yaml')
+    // release/chart/v<chart version> releases only the chart of the v3 dogu
+    boolean v3OnlyReleasing = releasing && env.BRANCH_NAME.startsWith("release/${v3TagPrefix}/v")
+    boolean v2Releasing = releasing && !v3OnlyReleasing
+    // The v3 tag chart/v<chart version>: git.getSimpleBranchName() would only give the last segment v<chart version>.
+    String v3OnlyTag = env.BRANCH_NAME - 'release/'
 
     conditionalStage('Trivy scan', classicRan) {
       // Classic's dogu.json names the exported image - on prerelease branches it carries the prerelease namespace.
@@ -358,20 +367,58 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       trivy.archiveDoguReport('classic-dogu-export')
     }
 
-    conditionalStage('Finish Gitflow Release', releasing) {
+    conditionalStage('Finish Gitflow Release', v2Releasing) {
       gitflow.finishRelease(releaseVersion)
     }
 
-    conditionalStage('Push Dogu to registry', releasing) {
+    conditionalStage('Push Dogu to registry', v2Releasing) {
       pushDogu('cesmarvin-setup')
     }
 
-    conditionalStage('Add Github Release', releasing) {
+    // Double release: the chart of the v3 dogu references the v2 image pushed above, which cldk copies instead of building.
+    conditionalStage('Push v3 Dogu to registry', v2Releasing && v3Dogu) {
+      Map chart = readChart()
+      String v3Tag = "${v3TagPrefix}/v${chart.version}"
+      // Before anything is pushed, like finishRelease() for the v2 tag.
+      if (git.originTagExists(v3Tag)) {
+        error("You cannot release this chart version, because the tag ${v3Tag} already exists.")
+      }
+
+      // classic-dogu-export holds Classic's dogu.json of the pushed image, unstashed by the Trivy scan stage.
+      def dogu = readJSON file: 'classic-dogu-export/dogu.json'
+      releaseV3Dogu(["${dogu.Image}:${dogu.Version}"])
+      pushV3Tag(git, v3Tag, chart)
+      // Same text as the v2 release: the section of the v2 version also names the chart version.
+      github.createRelease(v3Tag, changelog.changesForVersion(releaseVersion))
+    }
+
+    conditionalStage('Add Github Release', v2Releasing) {
       github.createReleaseWithChangelog(releaseVersion, changelog)
     }
 
+    conditionalStage('Finish v3 Gitflow Release', v3OnlyReleasing) {
+      String chartVersion = readChart().version
+      if (v3OnlyTag != "${v3TagPrefix}/v${chartVersion}".toString()) {
+        error("The release branch ${env.BRANCH_NAME} does not match the chart version ${chartVersion} in the Chart.yaml.")
+      }
+      gitflow.finishRelease(v3OnlyTag)
+    }
+
+    // Copies the already released v2 image.
+    conditionalStage('Push v3-only Dogu to registry', v3OnlyReleasing) {
+      def dogu = readJSON file: 'dogu.json'
+      def cldk = readYaml file: 'cldk.yaml'
+      String imageTag = cldk.images[readChart().name].tag
+      releaseV3Dogu(["${dogu.Image}:${imageTag}"])
+    }
+
+    conditionalStage('Add v3 Github Release', v3OnlyReleasing) {
+      github.createReleaseWithChangelog(v3OnlyTag, changelog)
+    }
+
     conditionalStage('Notify Webhook', releasing) {
-      new Webhook(this).notifyRelease()
+      // Default would be v<chart version> from the branch name, but the v3 tag is chart/v<chart version>.
+      new Webhook(this).notifyRelease(v3OnlyReleasing ? [version: v3OnlyTag] : [:])
     }
 
 
@@ -379,6 +426,26 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       pushDogu('harborrobotprerelease')
     }
   }
+}
+
+// Releases the v3 dogu with cldk: pushes the images given as refs (copied, not built) and the chart rewritten to them.
+private void releaseV3Dogu(List<String> imageRefs) {
+  sh 'make install-cldk'
+  withCredentials([usernamePassword(credentialsId: 'harborhelmchartpush', usernameVariable: 'CLDK_USER', passwordVariable: 'CLDK_PASSWORD')]) {
+    sh ".bin/cldk dogu release ${imageRefs.collect { "-i ${it}" }.join(' ')}"
+  }
+}
+
+// Reads the Chart.yaml of the v3 dogu in the directory "chart" of the cldk.yaml (default k8s/helm), like the makefiles.
+private Map readChart() {
+  def cldk = readYaml file: 'cldk.yaml'
+  return readYaml(file: "${cldk.chart ?: 'k8s/helm'}/Chart.yaml")
+}
+
+// Sets the annotated v3 tag on HEAD, the release commit after Finish Gitflow Release, and pushes it.
+private void pushV3Tag(Git git, String tag, Map chart) {
+  git.setTag(tag, "release chart version ${chart.version}\n\nchart-version: ${chart.version}\napp-version: ${chart.appVersion}")
+  git.push("origin ${tag}")
 }
 
 private List<String> getLibInfos() {
