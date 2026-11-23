@@ -12,6 +12,18 @@
   "extends": [
     "customManagers:makefileVersions"
   ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Library and image pins in the Jenkinsfile",
+      "managerFilePatterns": [
+        "/^Jenkinsfile$/"
+      ],
+      "matchStrings": [
+        "// renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n[^\\n]*?['@:](?<currentValue>[^'@:\\s]+)'"
+      ]
+    }
+  ],
   "packageRules": [
     {
       "description": "Keep build/ in sync",

@@ -6,6 +6,10 @@ Technische Details zu einem Release finden Sie im zugehörigen [Changelog](https
 
 ## [Unreleased]
 
+## [v3.96.4-4] - 2026-11-23
+### Security
+- Sicherheitslücke [CVE-2026-114938](https://nvd.nist.gov/vuln/detail/CVE-2026-114938) (Java4Shell) geschlossen
+
 ## [v3.96.4-3] - 2026-10-21
 ### Added
 - Die Unterstützung für Persönliche Zugriffsschlüssel (PATs) wurde aktiviert.
