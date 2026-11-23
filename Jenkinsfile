@@ -396,23 +396,18 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       github.createReleaseWithChangelog(releaseVersion, changelog)
     }
 
-    conditionalStage('Finish v3 Gitflow Release', v3OnlyReleasing) {
-      String chartVersion = readChart().version
-      if (v3OnlyTag != "${v3TagPrefix}/v${chartVersion}".toString()) {
-        error("The release branch ${env.BRANCH_NAME} does not match the chart version ${chartVersion} in the Chart.yaml.")
+    conditionalStage('Release v3-only Dogu', v3OnlyReleasing) {
+      Map chart = readChart()
+      if (v3OnlyTag != "${v3TagPrefix}/v${chart.version}".toString()) {
+        error("The release branch ${env.BRANCH_NAME} does not match the chart version ${chart.version} in the Chart.yaml.")
       }
       gitflow.finishRelease(v3OnlyTag)
-    }
 
-    // Copies the already released v2 image.
-    conditionalStage('Push v3-only Dogu to registry', v3OnlyReleasing) {
+      // Copies the already released v2 image.
       def dogu = readJSON file: 'dogu.json'
       def cldk = readYaml file: 'cldk.yaml'
-      String imageTag = cldk.images[readChart().name].tag
-      releaseV3Dogu(["${dogu.Image}:${imageTag}"])
-    }
+      releaseV3Dogu(["${dogu.Image}:${cldk.images[chart.name].tag}"])
 
-    conditionalStage('Add v3 Github Release', v3OnlyReleasing) {
       github.createReleaseWithChangelog(v3OnlyTag, changelog)
     }
 
