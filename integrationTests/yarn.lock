@@ -77,9 +77,7 @@
     uuid "^8.3.2"
 
 "@bahmutov/cy-api@^2.2.4":
-  version "2.2.5"
-  resolved "https://registry.yarnpkg.com/@bahmutov/cy-api/-/cy-api-2.2.5.tgz#3b2146107cc171abce5c40417fee815e8f181d7d"
-  integrity sha512-zJyew+O6gLD93N9vLsn83hQGLWVpD7a7Med6B5ubkbXC9SiMnpLe1vIm+moN4/PT7IJFNlbI58mkoXCb2jm+9g==
+  version "2.3.0"
   dependencies:
     "@types/common-tags" "1.8.1"
     common-tags "1.8.2"
