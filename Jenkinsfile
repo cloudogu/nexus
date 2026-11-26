@@ -332,51 +332,58 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       }
     }
 
-    // parallel() throws if any branch failed, so nothing below releases
-    // unless all of them passed.
-    parallel(branches)
+    try {
+      // parallel() throws if any branch failed, so nothing below releases
+      // unless all of them passed.
+      parallel(branches)
 
-    // Scan and release the Dogu image exported from the Classic worker.
-    boolean classicRan = pipelineMode in ['Full', 'Classic']
-    boolean releasing = classicRan && gitflow.isReleaseBranch()
-    boolean prereleasing = classicRan && prereleaseBranch
-    String releaseVersion = git.getSimpleBranchName()
+      // Scan and release the Dogu image exported from the Classic worker.
+      boolean classicRan = pipelineMode in ['Full', 'Classic']
+      boolean releasing = classicRan && gitflow.isReleaseBranch()
+      boolean prereleasing = classicRan && prereleaseBranch
+      String releaseVersion = git.getSimpleBranchName()
 
-    conditionalStage('Trivy scan', classicRan) {
-      // Classic's dogu.json names the exported image - on prerelease branches it carries the prerelease namespace.
-      dir('classic-dogu-export') {
-        unstash 'dogu-json'
+      conditionalStage('Trivy scan', classicRan) {
+        // Classic's dogu.json names the exported image - on prerelease branches it carries the prerelease namespace.
+        dir('classic-dogu-export') {
+          unstash 'dogu-json'
+        }
+        trivy.scanDogu('classic-dogu-export', params.TrivySeverityLevels, params.TrivyStrategy)
+        trivy.saveFormattedTrivyReport(TrivyScanFormat.TABLE)
+        trivy.saveFormattedTrivyReport(TrivyScanFormat.JSON)
+        trivy.saveFormattedTrivyReport(TrivyScanFormat.HTML)
       }
-      trivy.scanDogu('classic-dogu-export', params.TrivySeverityLevels, params.TrivyStrategy)
-      trivy.saveFormattedTrivyReport(TrivyScanFormat.TABLE)
-      trivy.saveFormattedTrivyReport(TrivyScanFormat.JSON)
-      trivy.saveFormattedTrivyReport(TrivyScanFormat.HTML)
-    }
 
-    // Before Finish Gitflow Release: archiveDoguReport() reads the commit from HEAD, which that stage moves.
-    conditionalStage('Archive Trivy', releasing) {
-      trivy.archiveDoguReport('classic-dogu-export')
-    }
+      // Before Finish Gitflow Release: archiveDoguReport() reads the commit from HEAD, which that stage moves.
+      conditionalStage('Archive Trivy', releasing) {
+        trivy.archiveDoguReport('classic-dogu-export')
+      }
 
-    conditionalStage('Finish Gitflow Release', releasing) {
-      gitflow.finishRelease(releaseVersion)
-    }
+      conditionalStage('Finish Gitflow Release', releasing) {
+        gitflow.finishRelease(releaseVersion)
+      }
 
-    conditionalStage('Push Dogu to registry', releasing) {
-      pushDogu('cesmarvin-setup')
-    }
+      conditionalStage('Push Dogu to registry', releasing) {
+        pushDogu('cesmarvin-setup')
+      }
 
-    conditionalStage('Add Github Release', releasing) {
-      github.createReleaseWithChangelog(releaseVersion, changelog)
-    }
+      conditionalStage('Add Github Release', releasing) {
+        github.createReleaseWithChangelog(releaseVersion, changelog)
+      }
 
-    conditionalStage('Notify Webhook', releasing) {
-      new Webhook(this).notifyRelease()
-    }
+      conditionalStage('Notify Webhook', releasing) {
+        new Webhook(this).notifyRelease()
+      }
 
-
-    conditionalStage('Push Prerelease Dogu to registry', prereleasing) {
-      pushDogu('harborrobotprerelease')
+      conditionalStage('Push Prerelease Dogu to registry', prereleasing) {
+        pushDogu('harborrobotprerelease')
+      }
+    } finally {
+      // The worker renders these every minute.
+      stage('Archive Resource Usage') {
+        sh 'mkdir -p resource-usage && cp /var/lib/worker-report/* resource-usage/ 2>/dev/null || true'
+        archiveArtifacts artifacts: 'resource-usage/*', allowEmptyArchive: true
+      }
     }
   }
 }
