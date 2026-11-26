@@ -111,7 +111,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
     String pipelineMode = params.PipelineMode?.toLowerCase() == 'full' ? 'Full' : params.PipelineMode
 
     stage('Checkout') {
-      checkoutWithSubmodules()
+      git.checkoutWithSubmodules()
     }
 
     // GitFlow.isPreReleaseBranch() compares the simple branch name (after the last "/") with "develop",
@@ -162,7 +162,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       EcoSystem ecoSystem = new EcoSystem(this, "gcloud-ces-operations-internal-packer", "jenkins-gcloud-ces-operations-internal")
       branches['Classic'] = {
         ws("${env.WORKSPACE}@classic") {
-          checkoutWithSubmodules()
+          git.checkoutWithSubmodules()
 
           stage('Classic: Infos') {
             echo "This pipeline-branch will build and test the ${doguNameSpace}/${doguName} Dogu on a Classic-CES Vagrant GCP machine."
@@ -230,7 +230,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
       MultiNodeEcoSystem mn = new MultiNodeEcoSystem(this, 'jenkins_workspace_gcloud_key', 'automatic_migration_coder_token', doguName)
       branches['MultiNode'] = {
         ws("${env.WORKSPACE}@multinode") {
-          checkoutWithSubmodules()
+          git.checkoutWithSubmodules()
 
           stage('MultiNode: Infos') {
             echo "This pipeline-branch will build and test the ${doguNameSpace}/${doguName} Dogu on a MultiNode-LOP Coder cluster."
@@ -294,7 +294,7 @@ node(params.WorkerLabel ?: 'cpu4mem8') {
     if (fileExists('cldk.yaml') && pipelineMode in ['Full', 'MultiNodeV3']) {
       branches['MultiNode v3'] = {
         ws("${env.WORKSPACE}@multinode-v3") {
-          checkoutWithSubmodules()
+          git.checkoutWithSubmodules()
 
           stage('MultiNode v3: Infos') {
             echo "This pipeline-branch will build and test the ${doguNameSpace}/${doguName} Dogu as v3 Dogu (Helm chart) on a MultiNode cluster."
@@ -385,21 +385,6 @@ private List<String> getLibInfos() {
     .getAction(org.jenkinsci.plugins.workflow.libs.LibrariesAction)
     ?.libraries
     ?.collect { "${it.name}@${it.version} trusted=${it.trusted}" } ?: []) as List<String>
-}
-
-// checkout scm skips git submodules, which some dogus need (ldap-mapper builds its app/ submodule).
-private void checkoutWithSubmodules() {
-  checkout scm
-  if (!fileExists('.gitmodules')) {
-    return
-  }
-  withCredentials([usernamePassword(credentialsId: 'cesmarvin', usernameVariable: 'GIT_AUTH_USR', passwordVariable: 'GIT_AUTH_PSW')]) {
-    // Submodule URLs use SSH, the worker only has these HTTPS credentials. Passed with -c, so they apply to
-    // this call and the submodule clones it starts, not to the shared worker's git config.
-    sh '''git -c url.https://github.com/.insteadOf=git@github.com: \
-  -c credential.helper='!f() { echo username="$GIT_AUTH_USR"; echo password="$GIT_AUTH_PSW"; }; f' \
-  submodule update --init --recursive'''
-  }
 }
 
 // Pushes the image and dogu.json exported from classic CES to the Jenkins worker.
